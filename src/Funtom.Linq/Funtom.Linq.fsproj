@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+		<LangVersion>6.0</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>0.0.1</Version>
+		<Authors>midoliy</Authors>
+		<Company>midoliy</Company>
+		<Copyright>© 2021 Tatsuya Midorikawa. All rights rserved</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>midoliy,Linq,fsharp,Funtom</PackageTags>
+		<PackageProjectUrl>https://github.com/tatsuya-midorikawa/Funtom.Linq</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/tatsuya-midorikawa/Funtom.Linq</RepositoryUrl>
+		<Description>.NET wrapper library for F#</Description>
+		<PackageIcon>phantom.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Linq.fs" />
+    <Compile Include="LinqExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\phantom.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
