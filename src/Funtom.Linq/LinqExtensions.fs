@@ -130,7 +130,7 @@ type LinqExtensions =
   [<Extension>]
   static member inline first(src: seq<'source>) = Linq.first src
   [<Extension>]
-  static member inline first(src: seq<'source>, [<InlineIfLambda>]predicate: 'source -> bool) = Linq.firstfx predicate src
+  static member inline first(src: seq<'source>, [<InlineIfLambda>]predicate: 'source -> bool) = Linq.first' predicate src
 
   [<Extension>]
   static member inline firstOrDefault(src: seq<'source>) = src.FirstOrDefault()
