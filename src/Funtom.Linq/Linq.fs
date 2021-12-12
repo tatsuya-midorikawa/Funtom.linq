@@ -22,7 +22,7 @@ module Linq =
   let inline toList<'T> (src: seq<'T>) = src.ToList()
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0
-  let inline aggregate<'TSource, 'TAccumulate, 'TResult> ([<InlineIfLambda>]fx: 'TAccumulate -> 'TSource -> 'TAccumulate) ([<InlineIfLambda>]selector: 'TAccumulate -> 'TResult) (seed: 'TAccumulate) (src: seq<'TSource>) =
+  let inline aggregate<'source, 'accumulate, 'result> ([<InlineIfLambda>]fx: 'accumulate -> 'source -> 'accumulate) ([<InlineIfLambda>]selector: 'accumulate -> 'result) (seed: 'accumulate) (src: seq<'source>) =
     src.Aggregate(seed, fx, selector)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.all?view=net-6.0
@@ -59,7 +59,6 @@ module Linq =
     | :? ICollection<'T> as xs -> xs.Count
     | :? IReadOnlyCollection<'T> as xs -> xs.Count
     | _ -> src.Count()
-
   let inline count'<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) = Enumerable.Count (src, predicate)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.defaultifempty?view=net-6.0
@@ -105,7 +104,7 @@ module Linq =
     | :? IList<'T> as xs -> xs[0]
     | :? IReadOnlyList<'T> as xs -> xs[0]
     | _ -> src.First()
-  let inline firstfx<'T> (predicate: 'T -> bool) (src: seq<'T>) = src.First predicate
+  let inline first'<'T> (predicate: 'T -> bool) (src: seq<'T>) = src.First predicate
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.firstordefault?view=net-6.0
   let inline firstOrDefault<'T> (src: seq<'T>) = src.FirstOrDefault()

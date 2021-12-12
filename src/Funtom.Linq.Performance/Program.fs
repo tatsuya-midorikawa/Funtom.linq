@@ -2,9 +2,31 @@
 open BenchmarkDotNet.Running
 open Funtom.Linq
 open System.Linq
+open Funtom.Linq.Csharp
 
 type Benchmark () =
-  let xs = [| 0.0 .. 1000.0 |]
+  let xs = [ 0 .. 1000 ]
+
+  //[<Benchmark>]
+  //member __.Fsharp_A() =
+  //  xs.FsWhereA(fun x -> x % 2 = 0).ToArray()
+
+  //[<Benchmark>]
+  //member __.Fsharp_B() =
+  //  xs.FsWhereB(fun x -> x % 2 = 0).ToArray()
+
+  //[<Benchmark>]
+  //member __.Csharp_A() =
+  //  xs.WhereA(fun x -> x % 2 = 0).ToArray()
+
+  //[<Benchmark>]
+  //member __.Csharp_B() =
+  //  xs.WhereB(fun x -> x % 2 = 0).ToArray()
+
+  //[<Benchmark>]
+  //member __.Linq() =
+  //  xs.Where(fun x -> x % 2 = 0).ToArray()
+
 
   //[<Benchmark>]
   //member __.Funtom_first() =

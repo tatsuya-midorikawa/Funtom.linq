@@ -5,7 +5,7 @@
 		<LangVersion>6.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.0.1</Version>
+		<Version>0.0.2</Version>
 		<Authors>midoliy</Authors>
 		<Company>midoliy</Company>
 		<Copyright>© 2021 Tatsuya Midorikawa. All rights rserved</Copyright>
