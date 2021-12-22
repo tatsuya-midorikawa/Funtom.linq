@@ -268,5 +268,5 @@ module Linq =
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.zip?view=net-6.0
   let inline zip (snd: seq<'fst>) (fst: seq<'snd>) = fst.Zip(snd)
-  let inline zip' ([<InlineIfLambda>]selector: 'fst -> 'snd -> 'result) (snd: seq<'snd>) (fst: seq<'fst>) = fst.Zip(snd, selector)
-  let inline zip3 (thd: seq<'thd>) (snd: seq<'snd>) (fst: seq<'fst>) = fst.Zip(snd, thd)
+  let inline zip' (snd: seq<'snd>) ([<InlineIfLambda>]selector: 'fst -> 'snd -> 'result) (fst: seq<'fst>) = fst.Zip(snd, selector)
+  let inline zip3 (snd: seq<'snd>) (thd: seq<'thd>) (fst: seq<'fst>) = fst.Zip(snd, thd)
