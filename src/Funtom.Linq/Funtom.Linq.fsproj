@@ -27,6 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Core.fs" />
     <Compile Include="Linq.fs" />
     <Compile Include="LinqExtensions.fs" />
   </ItemGroup>
