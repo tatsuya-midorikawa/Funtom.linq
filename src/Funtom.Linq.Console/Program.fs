@@ -21,8 +21,17 @@ let is_even v = v % 2 = 0
 //  [| 0..10 |] |> Core.where is_even |> Linq.toArray
 
 let xs =
-  [ 0..10 ] |> Core.where is_even |> Linq.toArray
+  [ 0..10 ] 
+  |> Core.wherei (fun v i -> 
+    printfn $"%d{i}: %d{v}"
+    v % 2 = 0)
+  |> Linq.toArray
 
+printfn "----------"
+let ys =
+  [ 0..10 ].Where(fun v i -> 
+    printfn $"%d{i}: %d{v}"
+    v % 2 = 0).ToArray()
 
 printfn "%A" xs
 

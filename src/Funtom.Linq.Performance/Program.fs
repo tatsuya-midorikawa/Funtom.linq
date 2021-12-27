@@ -138,32 +138,40 @@ type Benchmark () =
   
   //let xs = [ 0 .. 10000 ]
   
-  //let xs = ResizeArray([| 0 .. 10000 |]) 
+  let xs = ResizeArray([| 0 .. 10000 |]) 
 
-  let xs = [| 0 .. 10000 |]
+  //let xs = [| 0 .. 10000 |]
   
-  [<Benchmark>]
-  member __.Fsharp_filter() =
-    xs
-    |> Seq.filter (fun x -> x % 2 = 0)
-    |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Fsharp_filter() =
+  //  xs
+  //  |> Seq.filter (fun x -> x % 2 = 0)
+  //  |> Seq.filter (fun x -> x % 3 = 0)
+  //  |> Seq.filter (fun x -> x % 5 = 0)
+  //  |> Linq.toArray
 
   [<Benchmark>]
   member __.Funtom_where() =
     xs
-    |> Linq.where (fun x -> x % 2 = 0)
+    |> Linq.where' (fun x i -> x % 2 = 0)
+    //|> Linq.where' (fun x i -> x % 3 = 0)
+    //|> Linq.where' (fun x i -> x % 5 = 0)
     |> Linq.toArray
 
   [<Benchmark>]
   member __.Funtom_Core_where() =
     xs
-    |> Core.where (fun x -> x % 2 = 0)
+    |> Core.wherei (fun x i -> x % 2 = 0)
+    //|> Core.wherei (fun x i -> x % 3 = 0)
+    //|> Core.wherei (fun x i -> x % 5 = 0)
     |> Linq.toArray
 
   [<Benchmark>]
   member __.Linq_Where() =
     xs
-      .Where(fun x -> x % 2 = 0)
+      .Where(fun x i -> x % 2 = 0)
+      //.Where(fun x i -> x % 3 = 0)
+      //.Where(fun x i -> x % 5 = 0)
       .ToArray()
 
   //[<Benchmark>]

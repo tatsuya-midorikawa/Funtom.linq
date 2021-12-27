@@ -261,18 +261,3 @@ module Core =
       new WhereFsListIterator<'source>(source, p)
   
     member private __.State with get() = state and set v = state <- v
-
-  /// <summary>
-  /// 
-  /// </summary>
-  let inline where ([<InlineIfLambda>] predicate: ^source -> bool) (source: seq< ^source>) : IEnumerable< ^source> =
-    match source with
-    | :? WhereEnumerableIterator< ^source> as iterator -> iterator.where predicate
-    | :? WhereArrayIterator< ^source> as iterator -> iterator.where predicate
-    | :? array< ^source> as ary -> 
-      if ary.Length = 0 then Array.Empty< ^source>() 
-      else new WhereArrayIterator< ^source>(ary, predicate)
-    | :? ResizeArray< ^source> as ls -> new WhereListIterator< ^source>(ls, predicate)
-    | :? list< ^source> as ls -> new WhereFsListIterator< ^source>(ls, predicate)
-    | _ -> new WhereEnumerableIterator< ^source> (source, predicate)
-
