@@ -264,7 +264,7 @@ module Linq =
   let inline unionBy' (comparer: IEqualityComparer<'key>) ([<InlineIfLambda>]selector: 'source -> 'key) (snd: seq<'source>) (fst: seq<'source>) = fst.UnionBy (snd, selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.where?view=net-6.0
-  let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : IEnumerable< ^T> =
+  let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : seq< ^T> =
     match source with
     | :? WhereEnumerableIterator< ^T> as iterator -> iterator.where predicate
     | :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate

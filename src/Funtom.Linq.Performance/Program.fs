@@ -138,9 +138,9 @@ type Benchmark () =
   
   //let xs = [ 0 .. 10000 ]
   
-  let xs = ResizeArray([| 0 .. 10000 |]) 
+  //let xs = ResizeArray([| 0 .. 10000 |]) 
 
-  //let xs = [| 0 .. 10000 |]
+  let xs = [| 0 .. 10000 |]
   
   //[<Benchmark>]
   //member __.Fsharp_filter() =
@@ -150,29 +150,49 @@ type Benchmark () =
   //  |> Seq.filter (fun x -> x % 5 = 0)
   //  |> Linq.toArray
 
+  //[<Benchmark>]
+  //member __.Funtom_where() =
+  //  xs
+  //  |> Linq.where' (fun x i -> x % 2 = 0)
+  //  //|> Linq.where' (fun x i -> x % 3 = 0)
+  //  //|> Linq.where' (fun x i -> x % 5 = 0)
+  //  |> Linq.toArray
+
+  ////[<Benchmark>]
+  ////member __.Funtom_Core_where() =
+  ////  xs
+  ////  |> Core.wherei (fun x i -> x % 2 = 0)
+  ////  //|> Core.wherei (fun x i -> x % 3 = 0)
+  ////  //|> Core.wherei (fun x i -> x % 5 = 0)
+  ////  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Where() =
+  //  xs
+  //    .Where(fun x i -> x % 2 = 0)
+  //    //.Where(fun x i -> x % 3 = 0)
+  //    //.Where(fun x i -> x % 5 = 0)
+  //    .ToArray()
+  
+
   [<Benchmark>]
-  member __.Funtom_where() =
+  member __.Fsharp_map() =
     xs
-    |> Linq.where' (fun x i -> x % 2 = 0)
-    //|> Linq.where' (fun x i -> x % 3 = 0)
-    //|> Linq.where' (fun x i -> x % 5 = 0)
+    |> Seq.map ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]
-  member __.Funtom_Core_where() =
+  member __.Funtom_Core_select() =
     xs
-    |> Core.wherei (fun x i -> x % 2 = 0)
-    //|> Core.wherei (fun x i -> x % 3 = 0)
-    //|> Core.wherei (fun x i -> x % 5 = 0)
+    |> Core.select ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]
-  member __.Linq_Where() =
+  member __.Linq_Select() =
     xs
-      .Where(fun x i -> x % 2 = 0)
-      //.Where(fun x i -> x % 3 = 0)
-      //.Where(fun x i -> x % 5 = 0)
+      .Select((*) 2)
       .ToArray()
+
 
   //[<Benchmark>]
   //member __.Funtom_wherei() =

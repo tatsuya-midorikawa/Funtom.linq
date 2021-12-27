@@ -332,3 +332,63 @@ module rec Core =
 
     member private __.State with get() = state and set v = state <- v
   
+  /// <summary>
+  /// 
+  /// </summary>
+  type SelectArrayIterator<'source, 'result> (source: array<'source>, [<InlineIfLambda>] selector: 'source -> 'result) as self =
+    let mutable state : int = 0
+    let mutable current : 'result = Unchecked.defaultof<'result>
+    let thread_id : int = Environment.CurrentManagedThreadId
+    
+    let clone () = 
+      new SelectArrayIterator<'source, 'result>(source, selector)
+
+    let dispose () = 
+      current <- Unchecked.defaultof<'result>
+      state <- -1
+
+    let get_enumerator () =
+      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
+        state <- 1
+        self
+      else
+        let enumerator = clone()
+        enumerator.State <- 1
+        enumerator
+      
+    interface IDisposable with
+      member __.Dispose () = dispose ()
+
+    interface IEnumerator with
+      member __.MoveNext () : bool = 
+        if state < 1 || state = source.Length + 1 then
+          dispose()
+          false
+        else
+          let index = state - 1
+          state <- state + 1
+          current <- selector source[index]
+          true
+
+      member __.Current with get() = current
+      member __.Reset () = raise(NotSupportedException "not supported")
+
+    interface IEnumerator<'result> with
+      member __.Current with get() = current
+
+    interface IEnumerable with
+      member __.GetEnumerator () = get_enumerator ()
+
+    interface IEnumerable<'result> with
+      member __.GetEnumerator () = get_enumerator ()
+
+    member __.select<'result2> (selector2: 'result -> 'result2) =
+      new SelectArrayIterator<'source, 'result2>(source, combine_selectors selector selector2)
+
+    member private __.State with get() = state and set v = state <- v
+  
+
+  let inline select ([<InlineIfLambda>] selector: ^source -> ^result) (source: seq< ^source>) : seq< ^result> =
+    match source with
+    | :? array< ^source> as ary -> new SelectArrayIterator< ^source, ^result>(ary, selector)
+    | _ -> new SelectEnumerableIterator< ^source, ^result> (source, selector)
