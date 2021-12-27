@@ -3,6 +3,7 @@
 open System.Linq
 open System.Collections
 open System.Collections.Generic
+open Funtom.Linq.Core
 
 module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
@@ -263,10 +264,26 @@ module Linq =
   let inline unionBy' (comparer: IEqualityComparer<'key>) ([<InlineIfLambda>]selector: 'source -> 'key) (snd: seq<'source>) (fst: seq<'source>) = fst.UnionBy (snd, selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.where?view=net-6.0
-  let inline where<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) = src.Where predicate
-  let inline where'<'T> ([<InlineIfLambda>]predicate: 'T -> int -> bool) (src: seq<'T>) = src.Where predicate
+  let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : IEnumerable< ^T> =
+    match source with
+    | :? WhereEnumerableIterator< ^T> as iterator -> iterator.where predicate
+    | :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate
+    | :? array< ^T> as ary -> 
+      if ary.Length = 0 then System.Array.Empty< ^T>() 
+      else new WhereArrayIterator< ^T>(ary, predicate)
+    | :? ResizeArray< ^T> as ls -> new WhereListIterator< ^T>(ls, predicate)
+    | :? list< ^T> as ls -> new WhereFsListIterator< ^T>(ls, predicate)
+    | _ -> new WhereEnumerableIterator< ^T> (source, predicate)
+  let inline where'< ^T> ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) =
+    let mutable i = -1
+    seq {
+      for v in src do
+        i <- i + 1
+        if predicate v i then
+          yield v
+    }
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.zip?view=net-6.0
   let inline zip (snd: seq<'fst>) (fst: seq<'snd>) = fst.Zip(snd)
-  let inline zip' ([<InlineIfLambda>]selector: 'fst -> 'snd -> 'result) (snd: seq<'snd>) (fst: seq<'fst>) = fst.Zip(snd, selector)
-  let inline zip3 (thd: seq<'thd>) (snd: seq<'snd>) (fst: seq<'fst>) = fst.Zip(snd, thd)
+  let inline zip' (snd: seq<'snd>) ([<InlineIfLambda>]selector: 'fst -> 'snd -> 'result) (fst: seq<'fst>) = fst.Zip(snd, selector)
+  let inline zip3 (snd: seq<'snd>) (thd: seq<'thd>) (fst: seq<'fst>) = fst.Zip(snd, thd)

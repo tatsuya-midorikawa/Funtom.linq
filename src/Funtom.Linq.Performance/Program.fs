@@ -2,10 +2,10 @@
 open BenchmarkDotNet.Running
 open Funtom.Linq
 open System.Linq
-open Funtom.Linq.Csharp
+
 
 type Benchmark () =
-  let xs = [ 0 .. 1000 ]
+  //let xs = [ 0 .. 10000 ]
 
   //[<Benchmark>]
   //member __.Fsharp_A() =
@@ -103,17 +103,76 @@ type Benchmark () =
   //member __.System_ary_findall() =
   //  System.Array.FindAll(xs, fun x -> x % 2 = 0)
 
+  //let xs = [ 0 .. 10000 ]
+
   //[<Benchmark>]
-  //member __.Funtom_where() =
+  //member __.Fsharp_List_filter() =
   //  xs
-  //  |> Linq.where (fun x -> x % 2 = 0)
-  //  |> Linq.toArray
+  //  |> List.filter (fun x -> x % 2 = 0)
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_filter() =
+  //  xs
+  //  |> Seq.filter (fun x -> x % 2 = 0)
+  //  |> Linq.toList
 
   //[<Benchmark>]
   //member __.Linq_Where() =
   //  xs
   //    .Where(fun x -> x % 2 = 0)
-  //    .ToArray()
+  //    .ToList()
+
+  //let xs = [| 0 .. 10000 |]
+
+  //[<Benchmark>]
+  //member __.Fsharp_filter() =
+  //  xs
+  //  |> Seq.filter (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Fsharp_where() =
+  //  xs
+  //  |> Seq.where (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+  
+  //let xs = [ 0 .. 10000 ]
+  
+  let xs = ResizeArray([| 0 .. 10000 |]) 
+
+  //let xs = [| 0 .. 10000 |]
+  
+  //[<Benchmark>]
+  //member __.Fsharp_filter() =
+  //  xs
+  //  |> Seq.filter (fun x -> x % 2 = 0)
+  //  |> Seq.filter (fun x -> x % 3 = 0)
+  //  |> Seq.filter (fun x -> x % 5 = 0)
+  //  |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Funtom_where() =
+    xs
+    |> Linq.where' (fun x i -> x % 2 = 0)
+    //|> Linq.where' (fun x i -> x % 3 = 0)
+    //|> Linq.where' (fun x i -> x % 5 = 0)
+    |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Funtom_Core_where() =
+    xs
+    |> Core.wherei (fun x i -> x % 2 = 0)
+    //|> Core.wherei (fun x i -> x % 3 = 0)
+    //|> Core.wherei (fun x i -> x % 5 = 0)
+    |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Linq_Where() =
+    xs
+      .Where(fun x i -> x % 2 = 0)
+      //.Where(fun x i -> x % 3 = 0)
+      //.Where(fun x i -> x % 5 = 0)
+      .ToArray()
 
   //[<Benchmark>]
   //member __.Funtom_wherei() =
