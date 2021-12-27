@@ -5,8 +5,9 @@ open System.Collections.Generic
 open System
 open System.Diagnostics
 
-module Core =
+module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
+  let inline combine_selectors ([<InlineIfLambda>] selector1: 'source -> 'middle) ([<InlineIfLambda>] selector2: 'middle -> 'result) (x: 'source) = x |> (selector1 >> selector2)
 
   /// <summary>
   /// 
@@ -261,3 +262,73 @@ module Core =
       new WhereFsListIterator<'source>(source, p)
   
     member private __.State with get() = state and set v = state <- v
+
+  /// <summary>
+  /// 
+  /// </summary>
+  type SelectEnumerableIterator<'source, 'result> (source: seq<'source>, [<InlineIfLambda>] selector: 'source -> 'result) as self =
+    let mutable state : int = 0
+    let mutable enumerator : IEnumerator<'source> = Unchecked.defaultof<IEnumerator<'source>>
+    let mutable current : 'result = Unchecked.defaultof<'result>
+    let thread_id : int = Environment.CurrentManagedThreadId
+    
+    let clone () = 
+      new SelectEnumerableIterator<'source, 'result>(source, selector)
+
+    let dispose () = 
+      if enumerator <> Unchecked.defaultof<IEnumerator<'source>> then
+        enumerator.Dispose()
+        enumerator <- Unchecked.defaultof<IEnumerator<'source>>
+        current <- Unchecked.defaultof<'result>
+        state <- -1
+
+    let get_enumerator () =
+      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
+        state <- 1
+        self
+      else
+        let enumerator = clone()
+        enumerator.State <- 1
+        enumerator
+      
+    let rec move_next () =
+      if enumerator.MoveNext() then
+        current <- selector enumerator.Current
+        true
+      else
+        dispose()
+        false
+
+    interface IDisposable with
+      member __.Dispose () = dispose ()
+
+    interface IEnumerator with
+      member __.MoveNext () : bool = 
+
+        match state with
+        | 1 -> 
+          enumerator <- source.GetEnumerator()
+          state <- 2
+          move_next ()
+        | 2 ->
+          move_next ()
+        | _ -> 
+          false
+
+      member __.Current with get() = current
+      member __.Reset () = raise(NotSupportedException "not supported")
+
+    interface IEnumerator<'result> with
+      member __.Current with get() = current
+
+    interface IEnumerable with
+      member __.GetEnumerator () = get_enumerator ()
+
+    interface IEnumerable<'result> with
+      member __.GetEnumerator () = get_enumerator ()
+
+    member __.select<'result2> (selector2: 'result -> 'result2) =
+      new SelectEnumerableIterator<'source, 'result2>(source, combine_selectors selector selector2)
+
+    member private __.State with get() = state and set v = state <- v
+  
