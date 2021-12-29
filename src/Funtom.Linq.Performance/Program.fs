@@ -2,7 +2,7 @@
 open BenchmarkDotNet.Running
 open Funtom.Linq
 open System.Linq
-
+open System
 
 type Benchmark () =
   //let xs = [ 0 .. 10000 ]

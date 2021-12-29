@@ -4,10 +4,12 @@ open System.Collections
 open System.Collections.Generic
 open System
 open System.Diagnostics
+open System.Runtime.CompilerServices
+open System.Runtime.InteropServices
+
 
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
-  let inline combine_selectors ([<InlineIfLambda>] selector1: 'source -> 'middle) ([<InlineIfLambda>] selector2: 'middle -> 'result) (x: 'source) = x |> (selector1 >> selector2)
 
   /// <summary>
   /// 
@@ -119,26 +121,20 @@ module rec Core =
         dispose()
         false
   
-    interface IDisposable with
-      member __.Dispose () = dispose ()
+    interface IDisposable with member __.Dispose () = dispose ()
   
     interface IEnumerator with
       member __.MoveNext () : bool = move_next (source, state - 1)
       member __.Current with get() = current
       member __.Reset () = raise(NotSupportedException "not supported")
   
-    interface IEnumerator<'source> with
-      member __.Current with get() = current
+    interface IEnumerator<'source> with member __.Current with get() = current
   
-    interface IEnumerable with
-      member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
   
-    interface IEnumerable<'source> with
-      member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'source> with member __.GetEnumerator () = get_enumerator ()
   
-    member __.where (predicate': 'source -> bool) =
-      let p = combine_predicates predicate predicate'
-      new WhereArrayIterator<'source>(source, p)
+    member __.where (predicate': 'source -> bool) = new WhereArrayIterator<'source>(source, combine_predicates predicate predicate')
   
     member private __.State with get() = state and set v = state <- v
 
@@ -327,68 +323,49 @@ module rec Core =
     interface IEnumerable<'result> with
       member __.GetEnumerator () = get_enumerator ()
 
-    member __.select<'result2> (selector2: 'result -> 'result2) =
-      new SelectEnumerableIterator<'source, 'result2>(source, combine_selectors selector selector2)
-
     member private __.State with get() = state and set v = state <- v
   
   /// <summary>
   /// 
   /// </summary>
-  type SelectArrayIterator<'source, 'result> (source: array<'source>, [<InlineIfLambda>] selector: 'source -> 'result) as self =
-    let mutable state : int = 0
-    let mutable current : 'result = Unchecked.defaultof<'result>
-    let thread_id : int = Environment.CurrentManagedThreadId
-    
-    let clone () = 
-      new SelectArrayIterator<'source, 'result>(source, selector)
-
-    let dispose () = 
-      current <- Unchecked.defaultof<'result>
-      state <- -1
-
-    let get_enumerator () =
-      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
-        state <- 1
-        self
+  module SelectArrayIterator =
+    let inline dispose (iter: SelectArrayIterator<'source, 'result>) = iter.state <- -2
+    let inline get_enumerator (iter: SelectArrayIterator<'source, 'result>) = 
+      if iter.state = -2 && iter.thread_id = Environment.CurrentManagedThreadId then
+        iter.state <- -1
+        iter
       else
-        let enumerator = clone()
-        enumerator.State <- 1
-        enumerator
-      
-    interface IDisposable with
-      member __.Dispose () = dispose ()
-
+        { iter with state = -1; thread_id = Environment.CurrentManagedThreadId }
+    let inline move_next (iter: SelectArrayIterator<'source, 'result>) =
+      if iter.state < -1 || iter.state = iter.source.Length - 1 then
+        dispose iter
+        false
+      else
+        iter.state <- iter.state + 1
+        true
+        
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality>]
+  type SelectArrayIterator<'source, 'result> =
+    {
+      source: array<'source>
+      selector: 'source -> 'result
+      thread_id : int
+      mutable state : int
+    }
+    interface IDisposable with member __.Dispose () = SelectArrayIterator.dispose __
     interface IEnumerator with
-      member __.MoveNext () : bool = 
-        if state < 1 || state = source.Length + 1 then
-          dispose()
-          false
-        else
-          let index = state - 1
-          state <- state + 1
-          current <- selector source[index]
-          true
-
-      member __.Current with get() = current
+      member __.MoveNext () : bool = SelectArrayIterator.move_next __
+      member __.Current with get() = (__.selector __.source[__.state]) :> obj
       member __.Reset () = raise(NotSupportedException "not supported")
+    interface IEnumerator<'result> with member __.Current with get() = __.selector __.source[__.state]
+    interface IEnumerable with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
+    interface IEnumerable<'result> with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
 
-    interface IEnumerator<'result> with
-      member __.Current with get() = current
-
-    interface IEnumerable with
-      member __.GetEnumerator () = get_enumerator ()
-
-    interface IEnumerable<'result> with
-      member __.GetEnumerator () = get_enumerator ()
-
-    member __.select<'result2> (selector2: 'result -> 'result2) =
-      new SelectArrayIterator<'source, 'result2>(source, combine_selectors selector selector2)
-
-    member private __.State with get() = state and set v = state <- v
-  
-
-  let inline select ([<InlineIfLambda>] selector: ^source -> ^result) (source: seq< ^source>) : seq< ^result> =
+  let inline select<'source, 'middle, 'result> ([<InlineIfLambda>] selector: 'source -> 'result) (source: seq< 'source>) : seq< 'result> =
     match source with
-    | :? array< ^source> as ary -> new SelectArrayIterator< ^source, ^result>(ary, selector)
+    | :? array< ^source> as ary -> { SelectArrayIterator.source = ary; selector = selector; thread_id = Environment.CurrentManagedThreadId; state = -1 }
     | _ -> new SelectEnumerableIterator< ^source, ^result> (source, selector)
+

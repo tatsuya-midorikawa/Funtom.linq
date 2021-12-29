@@ -1,6 +1,10 @@
 ﻿open Funtom.Linq
 open System.Linq
 open System.Collections.Generic
+open Funtom.Linq.Core
+open System.Runtime.CompilerServices
+open System
+open System.Runtime.InteropServices
 
 //seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
 //printfn ""
@@ -39,6 +43,30 @@ let is_even v = v % 2 = 0
 //let tmp = 0
 
 //[| 0..10 |]
-ResizeArray([| 0 .. 10 |]) 
-|> Core.select (fun v -> v * 2)
-|> Seq.iter (printfn "%d")
+////ResizeArray([| 0 .. 10 |]) 
+//|> Core.select ((*) 2)
+//|> Seq.iter (printfn "%d")
+
+
+type R () =
+  member __.MoveNext() = true
+
+type T () =
+  member __.GetEnumerator() = R()
+
+type R' () =
+  member __.MoveNext() = true
+
+type T' () =
+  member __.GetEnumerator() = R()
+  
+type T'' () =
+  member __.GetEnumerator() = R'()
+
+let inline fx< ^T, ^R when ^T : (member GetEnumerator: unit -> ^R) and ^R : (member MoveNext: unit -> bool)> (v: ^T) : ^R =
+  (^T: (member GetEnumerator: unit -> ^R) v)
+
+
+let a = fx (T())
+let b = fx (T'())
+let c = fx (T''())
