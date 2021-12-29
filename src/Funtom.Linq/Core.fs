@@ -450,3 +450,41 @@ module rec Core =
     interface IEnumerator<'R> with member __.Current with get() = __.current 
     interface IEnumerable with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
     interface IEnumerable<'R> with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
+
+    
+  ////let inline get_enumerator'< ^T, ^R, ^V 
+  ////  when ^T : (member GetEnumerator: unit -> ^R)
+  ////  and ^R :  (member MoveNext: unit -> bool)
+  ////  and ^R :  (member get_Current: unit -> ^V)> (iter: ^T) = 
+  ////  ()
+
+  //let inline get_enumerator< ^T, ^R, ^V
+  //  when ^T : (member GetEnumerator: unit -> ^R)
+  //  and ^R : (member MoveNext: unit -> bool)
+  //  and ^R : (member get_Current: unit -> ^V)> (iter: ^T) = 
+  //  (^T: (member GetEnumerator: unit -> ^R) iter)
+
+  //let inline select< ^T, ^R, ^V, ^V2
+  //  when ^T : (member GetEnumerator: unit -> ^R)
+  //  and ^R : (member MoveNext: unit -> bool)
+  //  and ^R : (member get_Current: unit -> ^V)> (selector: ^V -> ^V2) (source: ^T) =
+  //  (get_enumerator source)
+    
+  
+  //[<NoComparison;NoEquality>]
+  //type E< ^T, ^R, ^V, ^V2
+  //  when ^T : (member GetEnumerator: unit -> ^R)
+  //  and ^R : (member MoveNext: unit -> bool)
+  //  and ^R : (member get_Current: unit -> ^V)> =
+  //  {
+  //    src: ^T
+  //    selector: ^V -> ^V2
+  //  }
+  
+  //let inline eval (e: E< ^T, ^R, ^V, ^V2>) =
+  //  for v in e.src do
+  //    let a = e.selector v
+  //    ()
+
+  let select' a b c =
+    fun x -> a (b c)

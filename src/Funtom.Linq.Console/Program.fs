@@ -5,6 +5,10 @@ open Funtom.Linq.Core
 open System.Runtime.CompilerServices
 open System
 open System.Runtime.InteropServices
+open FSharp.Linq.RuntimeHelpers
+
+
+let inline eval q = LeafExpressionConverter.EvaluateQuotation q
 
 //seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
 //printfn ""
