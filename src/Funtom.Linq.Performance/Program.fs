@@ -136,11 +136,10 @@ type Benchmark () =
   //  |> Seq.where (fun x -> x % 2 = 0)
   //  |> Linq.toArray
   
-  //let xs = [ 0 .. 10000 ]
   
   //let xs = ResizeArray([| 0 .. 10000 |]) 
 
-  let xs = [| 0 .. 10000 |]
+  //let xs = [| 0 .. 10000 |]
   
   //[<Benchmark>]
   //member __.Fsharp_filter() =
@@ -174,22 +173,62 @@ type Benchmark () =
   //    //.Where(fun x i -> x % 5 = 0)
   //    .ToArray()
   
+  
+  let xs = [ 0 .. 10000 ]
+  let ys = [| 0 .. 10000 |]
+  let zs = ResizeArray([| 0 .. 10000 |])
 
   [<Benchmark>]
-  member __.Fsharp_map() =
+  member __.Fsharp_Seq_map_fslist() =
     xs
     |> Seq.map ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]
-  member __.Funtom_Core_select() =
+  member __.Funtom_Core_select_fslist() =
     xs
     |> Core.select ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]
-  member __.Linq_Select() =
+  member __.Linq_Select_fslist() =
     xs
+      .Select((*) 2)
+      .ToArray()
+  
+  [<Benchmark>]
+  member __.Fsharp_Seq_map_array() =
+    ys
+    |> Seq.map ((*) 2)
+    |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Funtom_Core_select_array() =
+    ys
+    |> Core.select ((*) 2)
+    |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Linq_Select_array() =
+    ys
+      .Select((*) 2)
+      .ToArray()
+  
+  [<Benchmark>]
+  member __.Fsharp_Seq_map_resizearry() =
+    zs
+    |> Seq.map ((*) 2)
+    |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Funtom_Core_select_resizearry() =
+    zs
+    |> Core.select ((*) 2)
+    |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Linq_Select_resizearry() =
+    zs
       .Select((*) 2)
       .ToArray()
 
