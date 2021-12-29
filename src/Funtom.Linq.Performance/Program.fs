@@ -187,7 +187,7 @@ type Benchmark () =
   [<Benchmark>]
   member __.Funtom_Core_select_fslist() =
     xs
-    |> Core.select ((*) 2)
+    |> Linq.select ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]
@@ -205,7 +205,7 @@ type Benchmark () =
   [<Benchmark>]
   member __.Funtom_Core_select_array() =
     ys
-    |> Core.select ((*) 2)
+    |> Linq.select ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]
@@ -223,7 +223,7 @@ type Benchmark () =
   [<Benchmark>]
   member __.Funtom_Core_select_resizearry() =
     zs
-    |> Core.select ((*) 2)
+    |> Linq.select ((*) 2)
     |> Linq.toArray
 
   [<Benchmark>]

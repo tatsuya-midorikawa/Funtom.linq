@@ -3,6 +3,7 @@
 open System.Collections
 open System.Collections.Generic
 open System
+open System.Linq
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
@@ -449,19 +450,3 @@ module rec Core =
     interface IEnumerator<'R> with member __.Current with get() = __.current 
     interface IEnumerable with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
     interface IEnumerable<'R> with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
-    
-  //[<NoComparison;NoEquality>]
-  //type Iterator< ^C, ^T, ^R when ^C : (member GetEnumerator: unit -> IEnumerator< ^T>)> =
-  //  {
-  //    source: ^C
-  //    selector: ^T -> ^R
-  //  }
-  //  member __.GetEnumerator () = (^C: (member GetEnumerator: unit -> IEnumerator< ^T>) __.source)
-
-
-  let inline select< ^source, ^middle, ^result> ([<InlineIfLambda>] selector: ^source -> ^result) (source: seq< ^source>) : seq< ^result> =
-    match source with
-    | :? array< ^source> as ary -> SelectArrayIterator.create selector ary
-    | :? ResizeArray< ^source> as ls -> SelectListIterator.create selector ls
-    | :? list< ^source> as ls -> SelectFsListIterator.create selector ls
-    | _ -> SelectEnumerableIterator.create selector source

@@ -189,7 +189,14 @@ module Linq =
   let inline reverse(src: seq<'source>) = src.Reverse()
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.select?view=net-6.0
-  let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
+  let inline select< ^source, ^result> ([<InlineIfLambda>] selector: ^source -> ^result) (source: seq< ^source>) : seq< ^result> =
+    match source with
+    | :? array< ^source> as ary -> ary.Select selector //SelectArrayIterator.create selector ary
+    | :? ResizeArray< ^source> as ls -> ls.Select selector // SelectListIterator.create selector ls
+    | :? list< ^source> as ls -> SelectFsListIterator.create selector ls
+    | _ -> source.Select selector //SelectEnumerableIterator.create selector source
+
+  //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
   let inline select'<'T, 'U> ([<InlineIfLambda>]selector: 'T -> int -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.selectmany?view=net-6.0

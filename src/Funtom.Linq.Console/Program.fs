@@ -45,8 +45,8 @@ let is_even v = v % 2 = 0
 //[| 0..10 |]
 //ResizeArray([| 0 .. 10 |]) 
 [ 0..10 ]
-|> Core.select ((*) 2)
-|> Core.select ((*) 2)
+|> Linq.select ((*) 2)
+|> Linq.select ((*) 2)
 |> Seq.iter (printfn "%d")
 
 
