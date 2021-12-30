@@ -46,10 +46,15 @@ let is_even v = v % 2 = 0
 
 //let tmp = 0
 
-//[| 0..10 |]
-//ResizeArray([| 0 .. 10 |]) 
-[ 0..10 ]
-|> Linq.select ((*) 2)
-|> Linq.select ((*) 2)
-|> Seq.iter (printfn "%d")
+////[| 0..10 |]
+////ResizeArray([| 0 .. 10 |]) 
+//[ 0..10 ]
+//|> Linq.select ((*) 2)
+//|> Linq.select ((*) 2)
+//|> Seq.iter (printfn "%d")
 
+Linq.sum [0..10]
+|> printfn "%d"
+
+Linq.sum [0.0..0.2..1.0]
+|> printfn "%f"

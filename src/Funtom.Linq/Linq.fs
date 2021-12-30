@@ -229,10 +229,16 @@ module Linq =
   let inline skipWhile ([<InlineIfLambda>]predicate: 'source -> bool) (src: seq<'source>) = src.SkipWhile(predicate)
   let inline skipWhile' ([<InlineIfLambda>]predicate: 'source -> int -> bool) (src: seq<'source>) = src.SkipWhile(predicate)
 
-
-  // (TODO) Sum
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sum?view=net-6.0
-
+  let inline sum< ^T when ^T: (static member (+): ^T * ^T -> ^T)> (src: seq< ^T>) =
+    let iter = src.GetEnumerator()
+    if iter.MoveNext() then
+      let mutable acc = iter.Current
+      while iter.MoveNext() do
+        acc <- acc + iter.Current
+      acc
+    else
+      Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.take?view=net-6.0
   let inline take (count: int) (src: seq<'source>) = src.Take(count)

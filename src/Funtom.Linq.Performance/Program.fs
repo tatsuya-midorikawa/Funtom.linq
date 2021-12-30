@@ -179,58 +179,94 @@ type Benchmark () =
   let zs = ResizeArray([| 0 .. 10000 |])
 
   [<Benchmark>]
-  member __.Fsharp_Seq_map_fslist() =
-    xs
-    |> Seq.map ((*) 2)
-    |> Linq.toArray
+  member __.Fsharp_Seq_sum_fslist() =
+    xs |> Seq.sum
 
   [<Benchmark>]
   member __.Funtom_Core_select_fslist() =
-    xs
-    |> Linq.select ((*) 2)
-    |> Linq.toArray
+    xs |> Linq.sum
 
   [<Benchmark>]
   member __.Linq_Select_fslist() =
-    xs
-      .Select((*) 2)
-      .ToArray()
-  
+    xs.Sum()
+
   [<Benchmark>]
-  member __.Fsharp_Seq_map_array() =
-    ys
-    |> Seq.map ((*) 2)
-    |> Linq.toArray
+  member __.Fsharp_Seq_sum_array() =
+    ys |> Seq.sum
 
   [<Benchmark>]
   member __.Funtom_Core_select_array() =
-    ys
-    |> Linq.select ((*) 2)
-    |> Linq.toArray
+    ys |> Linq.sum
 
   [<Benchmark>]
   member __.Linq_Select_array() =
-    ys
-      .Select((*) 2)
-      .ToArray()
-  
+    ys.Sum()
+
   [<Benchmark>]
-  member __.Fsharp_Seq_map_resizearry() =
-    zs
-    |> Seq.map ((*) 2)
-    |> Linq.toArray
+  member __.Fsharp_Seq_sum_resizearry() =
+    zs |> Seq.sum
 
   [<Benchmark>]
   member __.Funtom_Core_select_resizearry() =
-    zs
-    |> Linq.select ((*) 2)
-    |> Linq.toArray
+    zs |> Linq.sum
 
   [<Benchmark>]
   member __.Linq_Select_resizearry() =
-    zs
-      .Select((*) 2)
-      .ToArray()
+    zs.Sum()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_fslist() =
+  //  xs
+  //  |> Seq.map ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_Core_select_fslist() =
+  //  xs
+  //  |> Linq.select ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_fslist() =
+  //  xs
+  //    .Select((*) 2)
+  //    .ToArray()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_array() =
+  //  ys
+  //  |> Seq.map ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_Core_select_array() =
+  //  ys
+  //  |> Linq.select ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_array() =
+  //  ys
+  //    .Select((*) 2)
+  //    .ToArray()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_resizearry() =
+  //  zs
+  //  |> Seq.map ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_Core_select_resizearry() =
+  //  zs
+  //  |> Linq.select ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_resizearry() =
+  //  zs
+  //    .Select((*) 2)
+  //    .ToArray()
 
 
   //[<Benchmark>]
