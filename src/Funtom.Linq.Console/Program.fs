@@ -73,9 +73,19 @@ ys |> Seq.max |> printfn "%d"
 zs |> Seq.max |> printfn "%d"
 ss |> Seq.max |> printfn "%d"
 
-let inline fn< ^T, ^U> f (xs: ^T) =
-  fun f' -> 
+let inline fn< ^T, ^U, ^V
+  when ^T: (member GetEnumerator: unit -> ^U)
+  and ^U: (member MoveNext: unit -> bool)
+  and ^U: (member get_Current: unit -> ^V)> (f: ^V -> ^V2) (xs: ^T) =
+  let rec fn' v f' = 
     let iter = (^T: (member GetEnumerator: unit -> ^U) xs)
     while (^U: (member MoveNext: unit -> bool) iter) do
       let v = (^U: (member get_Current: unit -> ^V) iter)
-      f' (f v)
+      fn' (f v) f'
+  fn'
+
+let main () =
+  let y =
+    ys
+    |> fn (fun x -> x)
+  ()
