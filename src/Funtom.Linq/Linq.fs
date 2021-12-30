@@ -154,9 +154,45 @@ module Linq =
   let inline longCount'<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) = src.LongCount predicate
 
   
-  // (TODO) Max
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.max?view=net-6.0
-
+  let inline max (src: seq< ^T>) =
+    match src with
+    | :? list< ^T> as ls ->
+      let rec max' (ls: list< ^T>, v: ^T) =
+        match ls with
+        | h::tail -> max' (tail, if h < v then v else h)
+        | _ -> v
+      match ls with
+      | h::tail -> max' (tail, h)
+      | _ -> Unchecked.defaultof< ^T>
+    | :? array< ^T> as ary -> 
+      if 0 < ary.Length then
+        let mutable v = ary[0]
+        for i = 1 to ary.Length - 1 do
+          let current = ary[i]
+          if v < current then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | :? ResizeArray< ^T> as ls -> 
+      if 0 < ls.Count then
+        let mutable v = ls[0]
+        for i = 1 to ls.Count - 1 do
+          let current = ls[i]
+          if v < current then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | _ ->
+      let iter = src.GetEnumerator()
+      if iter.MoveNext() then
+        let mutable v = iter.Current
+        while iter.MoveNext() do
+          let c = iter.Current
+          if v < c then v <- c
+        v
+      else
+        Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.maxby?view=net-6.0
   let inline maxBy ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.MaxBy(selector)

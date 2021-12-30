@@ -177,42 +177,91 @@ type Benchmark () =
   let xs = [ 0 .. 10000 ]
   let ys = [| 0 .. 10000 |]
   let zs = ResizeArray([| 0 .. 10000 |])
+  let ss = seq { 0 .. 10000 }
 
   [<Benchmark>]
-  member __.Fsharp_Seq_sum_fslist() =
-    xs |> Seq.sum
+  member __.Fsharp_Seq_max_fslist() =
+    xs |> Seq.max
 
   [<Benchmark>]
-  member __.Funtom_Linq_sum_fslist() =
-    xs |> Linq.sum
+  member __.Funtom_Linq_max_fslist() =
+    xs |> Linq.max
 
   [<Benchmark>]
-  member __.Linq_Sum_fslist() =
-    xs.Sum()
+  member __.Linq_Max_fslist() =
+    xs.Max()
 
   [<Benchmark>]
-  member __.Fsharp_Seq_sum_array() =
-    ys |> Seq.sum
+  member __.Fsharp_Seq_max_array() =
+    ys |> Seq.max
 
   [<Benchmark>]
-  member __.Funtom_Linq_sum_array() =
-    ys |> Linq.sum
+  member __.Funtom_Linq_max_array() =
+    ys |> Linq.max
 
   [<Benchmark>]
-  member __.Linq_Sum_array() =
-    ys.Sum()
+  member __.Linq_Max_array() =
+    ys.Max()
 
   [<Benchmark>]
-  member __.Fsharp_Seq_sum_resizearry() =
-    zs |> Seq.sum
+  member __.Fsharp_Seq_max_resizearry() =
+    zs |> Seq.max
 
   [<Benchmark>]
-  member __.Funtom_Linq_sum_resizearry() =
-    zs |> Linq.sum
+  member __.Funtom_Linq_max_resizearry() =
+    zs |> Linq.max
 
   [<Benchmark>]
-  member __.Linq_Sum_resizearry() =
-    zs.Sum()
+  member __.Linq_Max_resizearry() =
+    zs.Max()
+
+  [<Benchmark>]
+  member __.Fsharp_Seq_max_seq() =
+    ss |> Seq.max
+
+  [<Benchmark>]
+  member __.Funtom_Linq_max_seq() =
+    ss |> Linq.max
+
+  [<Benchmark>]
+  member __.Linq_Max_seq() =
+    ss.Max()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_fslist() =
+  //  xs |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_sum_fslist() =
+  //  xs |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_fslist() =
+  //  xs.Sum()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_array() =
+  //  ys |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_sum_array() =
+  //  ys |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_array() =
+  //  ys.Sum()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_resizearry() =
+  //  zs |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_sum_resizearry() =
+  //  zs |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_resizearry() =
+  //  zs.Sum()
   
   //[<Benchmark>]
   //member __.Fsharp_Seq_map_fslist() =

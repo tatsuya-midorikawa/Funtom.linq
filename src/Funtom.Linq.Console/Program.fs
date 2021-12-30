@@ -53,8 +53,22 @@ let is_even v = v % 2 = 0
 //|> Linq.select ((*) 2)
 //|> Seq.iter (printfn "%d")
 
-Linq.sum [0..10]
-|> printfn "%d"
+//Linq.sum [0..10]
+//|> printfn "%d"
 
-Linq.sum [0.0..0.2..1.0]
-|> printfn "%f"
+//Linq.sum [0.0..0.2..1.0]
+//|> printfn "%f"
+
+//let xs : int[] = [||] 
+//xs.Sum() |> printfn "%d"
+
+
+let xs = [ 0 .. 10000 ]
+let ys = [| 0 .. 10000 |]
+let zs = ResizeArray([| 0 .. 10000 |])
+let ss = seq { 0 .. 10000 }
+
+xs |> Seq.max |> printfn "%d"
+ys |> Seq.max |> printfn "%d"
+zs |> Seq.max |> printfn "%d"
+ss |> Seq.max |> printfn "%d"
