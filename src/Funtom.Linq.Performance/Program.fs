@@ -183,11 +183,11 @@ type Benchmark () =
     xs |> Seq.sum
 
   [<Benchmark>]
-  member __.Funtom_Core_select_fslist() =
+  member __.Funtom_Linq_sum_fslist() =
     xs |> Linq.sum
 
   [<Benchmark>]
-  member __.Linq_Select_fslist() =
+  member __.Linq_Sum_fslist() =
     xs.Sum()
 
   [<Benchmark>]
@@ -195,11 +195,11 @@ type Benchmark () =
     ys |> Seq.sum
 
   [<Benchmark>]
-  member __.Funtom_Core_select_array() =
+  member __.Funtom_Linq_sum_array() =
     ys |> Linq.sum
 
   [<Benchmark>]
-  member __.Linq_Select_array() =
+  member __.Linq_Sum_array() =
     ys.Sum()
 
   [<Benchmark>]
@@ -207,11 +207,11 @@ type Benchmark () =
     zs |> Seq.sum
 
   [<Benchmark>]
-  member __.Funtom_Core_select_resizearry() =
+  member __.Funtom_Linq_sum_resizearry() =
     zs |> Linq.sum
 
   [<Benchmark>]
-  member __.Linq_Select_resizearry() =
+  member __.Linq_Sum_resizearry() =
     zs.Sum()
   
   //[<Benchmark>]

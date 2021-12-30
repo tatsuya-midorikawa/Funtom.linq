@@ -230,7 +230,7 @@ module Linq =
   let inline skipWhile' ([<InlineIfLambda>]predicate: 'source -> int -> bool) (src: seq<'source>) = src.SkipWhile(predicate)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sum?view=net-6.0
-  let inline sum< ^T when ^T: (static member (+): ^T * ^T -> ^T)> (src: seq< ^T>) =
+  let inline sum (src: seq< ^T>) =
     let iter = src.GetEnumerator()
     if iter.MoveNext() then
       let mutable acc = iter.Current

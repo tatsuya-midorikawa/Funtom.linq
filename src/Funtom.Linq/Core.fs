@@ -450,15 +450,3 @@ module rec Core =
     interface IEnumerator<'R> with member __.Current with get() = __.current 
     interface IEnumerable with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
     interface IEnumerable<'R> with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
-
-
-  //let inline sum< ^T when ^T: struct and ^T: (static member (+): ^T -> ^T -> ^T)> (src: seq< ^T>) =
-  //  let mutable acc: ^T = Unchecked.defaultof< ^T>
-  //  let iter = src.GetEnumerator()
-  //  if iter.MoveNext() then
-  //    acc <- iter.Current
-  //  while iter.MoveNext() do
-  //    acc <- acc + iter.Current
-  //  acc
-
-  
