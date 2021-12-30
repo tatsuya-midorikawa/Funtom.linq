@@ -53,29 +53,3 @@ let is_even v = v % 2 = 0
 |> Linq.select ((*) 2)
 |> Seq.iter (printfn "%d")
 
-ResizeArray([| 0 .. 10 |]) 
-|> Core.select (fun x -> x)
-|> printfn "%A"
-
-//type R () =
-//  member __.MoveNext() = true
-
-//type T () =
-//  member __.GetEnumerator() = R()
-
-//type R' () =
-//  member __.MoveNext() = true
-
-//type T' () =
-//  member __.GetEnumerator() = R()
-  
-//type T'' () =
-//  member __.GetEnumerator() = R'()
-
-//let inline fx< ^T, ^R when ^T : (member GetEnumerator: unit -> ^R) and ^R : (member MoveNext: unit -> bool)> (v: ^T) : ^R =
-//  (^T: (member GetEnumerator: unit -> ^R) v)
-
-
-//let a = fx (T())
-//let b = fx (T'())
-//let c = fx (T''())
