@@ -53,6 +53,9 @@ let is_even v = v % 2 = 0
 |> Linq.select ((*) 2)
 |> Seq.iter (printfn "%d")
 
+ResizeArray([| 0 .. 10 |]) 
+|> Core.select (fun x -> x)
+|> printfn "%A"
 
 //type R () =
 //  member __.MoveNext() = true

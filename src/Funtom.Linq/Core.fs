@@ -488,3 +488,30 @@ module rec Core =
 
   let select' a b c =
     fun x -> a (b c)
+
+     
+  //type C< ^T, ^U
+  //  when ^T: (member get_Current: unit -> ^U)
+  //  and ^T: (member MoveNext: unit -> bool)> = 
+  //  { src: ^T }
+
+  //[<NoComparison;NoEquality>]
+  //type EnumerableContainer<'T> =
+  //  { src: seq<'T> }
+    
+
+  let inline select< ^T1, ^T2, ^U, ^V, ^R
+    when ^T1: (member GetEnumerator: unit -> ^U)
+    and ^U: (member get_Current: unit -> ^V)
+    and ^U: (member MoveNext: unit -> bool)
+    and ^T2: (member GetEnumerator: unit -> ^R)> ([<InlineIfLambda>] selector: ^V -> ^R) (src: ^T1) =
+      let iter = (^T1: (member GetEnumerator: unit -> ^U) src)
+      seq {
+        while (^U: (member MoveNext: unit -> bool) iter) do
+          yield (selector (^U: (member get_Current: unit -> ^V) iter))
+      }
+        
+      //{ src = iter }
+
+      //let iter = (^T1: (member GetEnumerator: unit -> ^U) src)
+      //iter
