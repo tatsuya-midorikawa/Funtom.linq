@@ -73,16 +73,17 @@ ys |> Seq.max |> printfn "%d"
 zs |> Seq.max |> printfn "%d"
 ss |> Seq.max |> printfn "%d"
 
-let inline fn< ^T, ^U, ^V
+let inline fn< ^T, ^U, ^V, ^V2, ^V3
   when ^T: (member GetEnumerator: unit -> ^U)
   and ^U: (member MoveNext: unit -> bool)
   and ^U: (member get_Current: unit -> ^V)> (f: ^V -> ^V2) (xs: ^T) =
-  let rec fn' v f' = 
+  fun (f': ^V2 -> ^V3) ->
     let iter = (^T: (member GetEnumerator: unit -> ^U) xs)
+    let acc = ResizeArray< ^V3> []
     while (^U: (member MoveNext: unit -> bool) iter) do
       let v = (^U: (member get_Current: unit -> ^V) iter)
-      fn' (f v) f'
-  fn'
+      acc.Add(f' (f v))
+    acc
 
 let main () =
   let y =
