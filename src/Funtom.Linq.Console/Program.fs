@@ -6,6 +6,7 @@ open System.Runtime.CompilerServices
 open System
 open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
+open System.Diagnostics
 
 
 let inline eval q = LeafExpressionConverter.EvaluateQuotation q
@@ -63,30 +64,38 @@ let is_even v = v % 2 = 0
 //xs.Sum() |> printfn "%d"
 
 
-let xs = [ 0 .. 10000 ]
-let ys = [| 0 .. 10000 |]
-let zs = ResizeArray([| 0 .. 10000 |])
-let ss = seq { 0 .. 10000 }
+//let xs = [ 0 .. 10000 ]
+//let ys = [| 0 .. 10000 |]
+//let zs = ResizeArray([| 0 .. 10000 |])
+//let ss = seq { 0 .. 10000 }
 
-xs |> Seq.max |> printfn "%d"
-ys |> Seq.max |> printfn "%d"
-zs |> Seq.max |> printfn "%d"
-ss |> Seq.max |> printfn "%d"
+//xs |> Seq.max |> printfn "%d"
+//ys |> Seq.max |> printfn "%d"
+//zs |> Seq.max |> printfn "%d"
+//ss |> Seq.max |> printfn "%d"
 
-let inline fn< ^T, ^U, ^V, ^V2, ^V3
-  when ^T: (member GetEnumerator: unit -> ^U)
-  and ^U: (member MoveNext: unit -> bool)
-  and ^U: (member get_Current: unit -> ^V)> (f: ^V -> ^V2) (xs: ^T) =
-  fun (f': ^V2 -> ^V3) ->
-    let iter = (^T: (member GetEnumerator: unit -> ^U) xs)
-    let acc = ResizeArray< ^V3> []
-    while (^U: (member MoveNext: unit -> bool) iter) do
-      let v = (^U: (member get_Current: unit -> ^V) iter)
-      acc.Add(f' (f v))
-    acc
 
-let main () =
-  let y =
-    ys
-    |> fn (fun x -> x)
-  ()
+//let inline S f g x = (f x) (g x)
+//let inline K x y = x
+//let inline I x = x
+//let rec Y f = 
+//  printfn $"%d{StackTrace().FrameCount}"
+//  f (fun x -> Y f x)
+
+//let fib40 =
+//  Y (fun fib f1 f2 n -> if n = 0 then f1 else fib f2 (f1 + f2) (n - 1)) 0 1 40
+  
+//let inline fn< ^T, ^U, ^V, ^V2, ^V3
+//  when ^T: (member GetEnumerator: unit -> ^U)
+//  and ^U: (member MoveNext: unit -> bool)
+//  and ^U: (member get_Current: unit -> ^V)> (f: ^V -> ^V2) (xs: ^T) =
+//  Y (fun g x -> if (^U: (member MoveNext: unit -> bool) x) then true else false ) xs
+
+//  //fun (f': ^V2 -> ^V3) ->
+//  //  let iter = (^T: (member GetEnumerator: unit -> ^U) xs)
+//  //  let acc = ResizeArray< ^V3> []
+//  //  while (^U: (member MoveNext: unit -> bool) iter) do
+//  //    let v = (^U: (member get_Current: unit -> ^V) iter)
+//  //    acc.Add(f' (f v))
+//  //  acc :> seq< ^V3>
+
