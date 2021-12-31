@@ -97,12 +97,12 @@ xs
   //.Select((*) 2)
 |> printfn "%A"
 
-xs
-//|> Linq.where ((<) 5)
-|> Linq.select0 ((*) 2)
-|> Linq.select0 ((*) 2)
-|> Linq.toArray
-|> printfn "%A"
+//xs
+////|> Linq.where ((<) 5)
+//|> Linq.select0 ((*) 2)
+//|> Linq.select0 ((*) 2)
+//|> Linq.toArray
+//|> printfn "%A"
 
 //let inline S f g x = (f x) (g x)
 //let inline K x y = x
