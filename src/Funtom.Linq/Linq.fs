@@ -349,15 +349,17 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.where?view=net-6.0
   let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : seq< ^T> =
     match source with
-    //| :? WhereEnumerableIterator< ^T> as iterator -> iterator.where predicate
-    //| :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate
-    //| :? array< ^T> as ary -> ary.Where(predicate)
-      //if ary.Length = 0 then System.Array.Empty< ^T>() 
-      //else new WhereArrayIterator< ^T>(ary, predicate)
-    //| :? ResizeArray< ^T> as ls -> ls.Where predicate //new WhereListIterator< ^T>(ls, predicate)
-    //| :? list< ^T> as ls -> new WhereFsListIterator< ^T>(ls, predicate)
+    | :? WhereIterator< ^T> as iterator -> iterator.where predicate
+    | :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate
+    | :? WhereResizeArrayIterator< ^T> as iterator -> iterator.where predicate
+    | :? WhereListIterator< ^T> as iterator -> iterator.where predicate
+    | :? array< ^T> as ary -> //ary.Where(predicate)
+      if ary.Length = 0 then System.Array.Empty< ^T>() 
+      else new WhereArrayIterator< ^T>(ary, predicate)
+    | :? ResizeArray< ^T> as ls -> new WhereResizeArrayIterator<'T> (ls, predicate)
+    | :? list< ^T> as ls -> new WhereListIterator< ^T>(ls, predicate)
     | _ -> new WhereIterator< ^T> (source, predicate)
-    //| _ -> new WhereEnumerableIterator< ^T> (source, predicate)
+
   let inline where'< ^T> ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) =
     let mutable i = -1
     seq {
