@@ -201,7 +201,44 @@ module Linq =
   
   // (TODO) Min
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.min?view=net-6.0
-
+  let inline min (src: seq< ^T>) =
+    match src with
+    | :? list< ^T> as ls ->
+      let rec min' (ls: list< ^T>, v: ^T) =
+        match ls with
+        | h::tail -> min' (tail, if h < v then h else v)
+        | _ -> v
+      match ls with
+      | h::tail -> min' (tail, h)
+      | _ -> Unchecked.defaultof< ^T>
+    | :? array< ^T> as ary -> 
+      if 0 < ary.Length then
+        let mutable v = ary[0]
+        for i = 1 to ary.Length - 1 do
+          let current = ary[i]
+          if current < v then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | :? ResizeArray< ^T> as ls -> 
+      if 0 < ls.Count then
+        let mutable v = ls[0]
+        for i = 1 to ls.Count - 1 do
+          let current = ls[i]
+          if current < v then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | _ ->
+      let iter = src.GetEnumerator()
+      if iter.MoveNext() then
+        let mutable v = iter.Current
+        while iter.MoveNext() do
+          let c = iter.Current
+          if c < v then v <- c
+        v
+      else
+        Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.minby?view=net-6.0
   let inline minBy ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.MinBy(selector)
