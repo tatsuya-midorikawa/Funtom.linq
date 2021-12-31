@@ -317,25 +317,47 @@ type Benchmark () =
   let ss = seq { 0 .. 10000 }
 
   [<Benchmark>]
-  member __.Fsharp_Seq_filter() =
-    xs 
-    |> Seq.filter (fun x -> x % 2 = 0)
-    |> Seq.filter (fun x -> x % 5 = 0)
+  member __.Fsharp_Seq_map() =
+    ys 
+    |> Seq.map (fun x -> x % 2 = 0)
     |> Linq.toArray
 
   [<Benchmark>]
-  member __.Funtom_where() =
-    xs 
-    |> Linq.where (fun x -> x % 2 = 0)
-    |> Linq.where (fun x -> x % 5 = 0)
+  member __.Funtom_select0() =
+    ys 
+    |> Linq.select0 (fun x -> x % 2 = 0)
     |> Linq.toArray
 
+  //[<Benchmark>]
+  //member __.Funtom_select1() =
+  //  ys 
+  //  |> Linq.select1 (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+
   [<Benchmark>]
-  member __.Linq_Where() =
-    xs
-      .Where(fun x -> x % 2 = 0)
-      .Where(fun x -> x % 5 = 0)
+  member __.Linq_Select() =
+    ys
+      .Select(fun x -> x % 2 = 0)
       .ToArray()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_filter() =
+  //  ys 
+  //  |> Seq.filter (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_where() =
+  //  ys 
+  //  |> Linq.where (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Where() =
+  //  ys
+  //    .Where(fun x -> x % 2 = 0)
+  //    .ToArray()
+
 
   //[<Benchmark>]
   //member __.Fsharp_Seq_map_fslist() =

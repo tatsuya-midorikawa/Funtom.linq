@@ -11,6 +11,7 @@ open System.Runtime.InteropServices
 
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
+  let inline combine_selectors ([<InlineIfLambda>] lhs: 'T -> 'U) ([<InlineIfLambda>] rhs: 'U -> 'V) = lhs >> rhs
   
   /// <summary>
   /// 
@@ -187,106 +188,128 @@ module rec Core =
   /// <summary>
   /// 
   /// </summary>
-  module SelectEnumerableIterator =
-    let inline create ([<InlineIfLambda>]selector: 'T -> 'R) (source: seq<'T>) = 
-      { 
-        SelectEnumerableIterator.source = source
-        selector = selector
-        thread_id = Environment.CurrentManagedThreadId
-        enumerator = Unchecked.defaultof<IEnumerator<'T>>
-        current = Unchecked.defaultof<'R>
-        state = -1
-      }
-    let inline dispose (iter: SelectEnumerableIterator<'T, 'R>) = 
-      if iter.enumerator <> Unchecked.defaultof<IEnumerator<'T>> then
-        iter.enumerator.Dispose()
-        iter.enumerator <- Unchecked.defaultof<IEnumerator<'T>>
-        iter.current <- Unchecked.defaultof<'R>
-        iter.state <- -1
-
-    let inline get_enumerator (iter: SelectEnumerableIterator<'T, 'R>) =
-      if iter.state = -1 && iter.thread_id = Environment.CurrentManagedThreadId then
-        iter.enumerator <- iter.source.GetEnumerator()
-        iter.state <- 0
-        iter
-      else
-        { iter with thread_id = Environment.CurrentManagedThreadId; state = -1; current = Unchecked.defaultof<'R> }
-
-    let inline move_next (iter: SelectEnumerableIterator<'T, 'R>) =
-      if iter.enumerator.MoveNext() then
-        iter.current <- iter.selector iter.enumerator.Current
+  [<NoComparison;NoEquality;>]
+  type SelectEnumerator<'T, 'U> (iterator: IEnumerator<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let mutable current : 'U = Unchecked.defaultof<'U>
+    let dispose () = ()
+    let rec move_next () =
+      if iterator.MoveNext() then
+        current <- selector iterator.Current
         true
       else
-        dispose iter
         false
-  
-  /// <summary>
-  /// 
-  /// </summary>
-  [<NoComparison;NoEquality>]
-  type SelectEnumerableIterator<'T, 'R> =
-    {
-      source: seq<'T>
-      selector: 'T -> 'R
-      thread_id : int 
-      mutable enumerator : IEnumerator<'T>
-      mutable current : 'R
-      mutable state : int
-    }
-    interface IDisposable with member __.Dispose () = SelectEnumerableIterator.dispose __
-    interface IEnumerator with 
-      member __.MoveNext () : bool = SelectEnumerableIterator.move_next __
-      member __.Current with get() = __.current :> obj
-      member __.Reset () = raise(NotSupportedException "not supported")
-    interface IEnumerator<'R> with member __.Current with get() = __.current
-    interface IEnumerable with member __.GetEnumerator () = SelectEnumerableIterator.get_enumerator __
-    interface IEnumerable<'R> with member __.GetEnumerator () = SelectEnumerableIterator.get_enumerator __
+    let current (): 'U = current
+    let reset () = ()
 
-  /// <summary>
-  /// 
-  /// </summary>
-  module SelectArrayIterator =
-    let inline create ([<InlineIfLambda>]selector: 'T -> 'R) (source: array<'T>) = 
-      { 
-        SelectArrayIterator.source = source
-        selector = selector
-        thread_id = Environment.CurrentManagedThreadId
-        state = -1
-      }
-    let inline dispose (iter: SelectArrayIterator<'source, 'result>) = iter.state <- -2
-    let inline get_enumerator (iter: SelectArrayIterator<'source, 'result>) = 
-      if iter.state = -2 && iter.thread_id = Environment.CurrentManagedThreadId then
-        iter.state <- -1
-        iter
-      else
-        { iter with state = -1; thread_id = Environment.CurrentManagedThreadId }
-    let inline move_next (iter: SelectArrayIterator<'source, 'result>) =
-      if iter.state < -1 || iter.state = iter.source.Length - 1 then
-        dispose iter
-        false
-      else
-        iter.state <- iter.state + 1
-        true
-        
-  /// <summary>
-  /// 
-  /// </summary>
-  [<NoComparison;NoEquality>]
-  type SelectArrayIterator<'source, 'result> =
-    {
-      source: array<'source>
-      selector: 'source -> 'result
-      thread_id : int
-      mutable state : int
-    }
-    interface IDisposable with member __.Dispose () = SelectArrayIterator.dispose __
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get(): 'U = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
     interface IEnumerator with
-      member __.MoveNext () : bool = SelectArrayIterator.move_next __
-      member __.Current with get() = (__.selector __.source[__.state]) :> obj
-      member __.Reset () = raise(NotSupportedException "not supported")
-    interface IEnumerator<'result> with member __.Current with get() = __.selector __.source[__.state]
-    interface IEnumerable with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
-    interface IEnumerable<'result> with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
+      member __.MoveNext () = move_next ()
+      member __.Current with get() = current ()
+      member __.Reset () = reset ()
+    interface IEnumerator<'U> with member __.Current with get() = current ()
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type SelectIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let get_enumerator () = new SelectEnumerator<'T, 'U> (source.GetEnumerator(), selector)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'U> with member __.GetEnumerator () = get_enumerator ()
+    member __.select<'V> (selector': 'U -> 'V) = SelectIterator<'T, 'V>(source, (combine_selectors selector selector'))
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type SelectArrayEnumerator<'T, 'U> (source: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let mutable current : 'U = Unchecked.defaultof<'U>
+    let mutable index : int = 0
+    let dispose () = ()
+    let move_next () =
+      if index < source.Length then
+        current <- selector source[index]
+        index <- index + 1
+        true
+      else
+        dispose ()
+        false
+    let current (): 'U = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'U = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
+    interface IEnumerator with
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'U> with member __.Current with get() = current ()
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type SelectArrayIterator<'T, 'U> (source: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let get_enumerator () = new SelectArrayEnumerator<'T, 'U> (source, selector)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'U> with member __.GetEnumerator () = get_enumerator ()
+    member __.select<'V> (selector': 'U -> 'V) = SelectArrayIterator<'T, 'V>(source, (combine_selectors selector selector'))
+
+
+  ///// <summary>
+  ///// 
+  ///// </summary>
+  //module SelectArrayIterator =
+  //  let inline create ([<InlineIfLambda>]selector: 'T -> 'R) (source: array<'T>) = 
+  //    { 
+  //      SelectArrayIterator.source = source
+  //      selector = selector
+  //      thread_id = Environment.CurrentManagedThreadId
+  //      state = -1
+  //    }
+  //  let inline dispose (iter: SelectArrayIterator<'source, 'result>) = iter.state <- -2
+  //  let inline get_enumerator (iter: SelectArrayIterator<'source, 'result>) = 
+  //    if iter.state = -2 && iter.thread_id = Environment.CurrentManagedThreadId then
+  //      iter.state <- -1
+  //      iter
+  //    else
+  //      { iter with state = -1; thread_id = Environment.CurrentManagedThreadId }
+  //  let inline move_next (iter: SelectArrayIterator<'source, 'result>) =
+  //    if iter.state < -1 || iter.state = iter.source.Length - 1 then
+  //      dispose iter
+  //      false
+  //    else
+  //      iter.state <- iter.state + 1
+  //      true
+        
+  ///// <summary>
+  ///// 
+  ///// </summary>
+  //[<NoComparison;NoEquality>]
+  //type SelectArrayIterator<'source, 'result> =
+  //  {
+  //    source: array<'source>
+  //    selector: 'source -> 'result
+  //    thread_id : int
+  //    mutable state : int
+  //  }
+  //  interface IDisposable with member __.Dispose () = SelectArrayIterator.dispose __
+  //  interface IEnumerator with
+  //    member __.MoveNext () : bool = SelectArrayIterator.move_next __
+  //    member __.Current with get() = (__.selector __.source[__.state]) :> obj
+  //    member __.Reset () = raise(NotSupportedException "not supported")
+  //  interface IEnumerator<'result> with member __.Current with get() = __.selector __.source[__.state]
+  //  interface IEnumerable with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
+  //  interface IEnumerable<'result> with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
   
   /// <summary>
   /// 

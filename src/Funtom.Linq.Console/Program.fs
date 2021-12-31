@@ -89,7 +89,8 @@ let is_even v = v % 2 = 0
 //zs |> Seq.min |> printfn "%d"
 //ss |> Seq.min |> printfn "%d"
 
-let xs = ResizeArray([| 0 .. 10 |]) 
+//let xs = ResizeArray([| 0 .. 10 |]) 
+let xs = [| 0 .. 10 |]
 
 xs
   .Where((<) 5)
@@ -97,8 +98,10 @@ xs
 |> printfn "%A"
 
 xs
-|> Linq.where ((<) 5)
-//|> Linq.select ((*) 2)
+//|> Linq.where ((<) 5)
+|> Linq.select0 ((*) 2)
+|> Linq.select0 ((*) 2)
+|> Linq.toArray
 |> printfn "%A"
 
 //let inline S f g x = (f x) (g x)

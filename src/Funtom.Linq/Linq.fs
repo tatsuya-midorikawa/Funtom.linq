@@ -4,6 +4,7 @@ open System.Linq
 open System.Collections
 open System.Collections.Generic
 open Funtom.Linq.Core
+open System.Runtime.CompilerServices
 
 module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
@@ -266,6 +267,16 @@ module Linq =
     | :? list< ^source> as ls -> SelectFsListIterator.create selector ls
     | _ -> source.Select selector //SelectEnumerableIterator.create selector source
 
+  let inline select0< ^T, ^R> ([<InlineIfLambda>] selector: ^T -> ^R) (source: seq< ^T>) : seq< ^R> =
+    let mutable source = source
+    match source with
+    | :? array< ^T> -> 
+      let ary = Unsafe.As<seq< ^T>, array< ^T>>(&source)
+      SelectArrayIterator (ary, selector)
+    //| :? ResizeArray< ^source> as ls -> ls.Select selector // SelectListIterator.create selector ls
+    //| :? list< ^source> as ls -> SelectFsListIterator.create selector ls
+    | _ -> SelectIterator (source, selector)
+
   //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
   let inline select'<'T, 'U> ([<InlineIfLambda>]selector: 'T -> int -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
 
@@ -353,7 +364,7 @@ module Linq =
     | :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate
     | :? WhereResizeArrayIterator< ^T> as iterator -> iterator.where predicate
     | :? WhereListIterator< ^T> as iterator -> iterator.where predicate
-    | :? array< ^T> as ary -> //ary.Where(predicate)
+    | :? array< ^T> as ary ->
       if ary.Length = 0 then System.Array.Empty< ^T>() 
       else new WhereArrayIterator< ^T>(ary, predicate)
     | :? ResizeArray< ^T> as ls -> new WhereResizeArrayIterator<'T> (ls, predicate)
