@@ -64,6 +64,7 @@ let is_even v = v % 2 = 0
 //xs.Sum() |> printfn "%d"
 
 
+<<<<<<< HEAD
 let xs = [ 0 .. 10000 ]
 let ys = [| 0 .. 10000 |]
 let zs = ResizeArray([| 0 .. 10000 |])
@@ -79,6 +80,29 @@ ys |> Linq.max |> printfn "%d"
 zs |> Linq.max |> printfn "%d"
 ss |> Linq.max |> printfn "%d"
 
+=======
+//let xs = [ 0 .. 10000 ]
+//let ys = [| 0 .. 10000 |]
+//let zs = ResizeArray([| 0 .. 10000 |])
+//let ss = seq { 0 .. 10000 }
+
+//xs |> Seq.min |> printfn "%d"
+//ys |> Seq.min |> printfn "%d"
+//zs |> Seq.min |> printfn "%d"
+//ss |> Seq.min |> printfn "%d"
+
+let xs = [ 0..10 ]
+
+xs
+  .Where((>) 5)
+  .Select((*) 2)
+|> printfn "%A"
+
+xs
+|> Linq.where ((>) 5)
+|> Linq.select ((*) 2)
+|> printfn "%A"
+>>>>>>> main
 
 //let inline S f g x = (f x) (g x)
 //let inline K x y = x
