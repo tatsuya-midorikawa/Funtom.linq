@@ -2,7 +2,7 @@
 open BenchmarkDotNet.Running
 open Funtom.Linq
 open System.Linq
-
+open System
 
 type Benchmark () =
   //let xs = [ 0 .. 10000 ]
@@ -136,9 +136,8 @@ type Benchmark () =
   //  |> Seq.where (fun x -> x % 2 = 0)
   //  |> Linq.toArray
   
-  //let xs = [ 0 .. 10000 ]
   
-  let xs = ResizeArray([| 0 .. 10000 |]) 
+  //let xs = ResizeArray([| 0 .. 10000 |]) 
 
   //let xs = [| 0 .. 10000 |]
   
@@ -150,29 +149,222 @@ type Benchmark () =
   //  |> Seq.filter (fun x -> x % 5 = 0)
   //  |> Linq.toArray
 
-  [<Benchmark>]
-  member __.Funtom_where() =
-    xs
-    |> Linq.where' (fun x i -> x % 2 = 0)
-    //|> Linq.where' (fun x i -> x % 3 = 0)
-    //|> Linq.where' (fun x i -> x % 5 = 0)
-    |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_where() =
+  //  xs
+  //  |> Linq.where' (fun x i -> x % 2 = 0)
+  //  //|> Linq.where' (fun x i -> x % 3 = 0)
+  //  //|> Linq.where' (fun x i -> x % 5 = 0)
+  //  |> Linq.toArray
+
+  ////[<Benchmark>]
+  ////member __.Funtom_Core_where() =
+  ////  xs
+  ////  |> Core.wherei (fun x i -> x % 2 = 0)
+  ////  //|> Core.wherei (fun x i -> x % 3 = 0)
+  ////  //|> Core.wherei (fun x i -> x % 5 = 0)
+  ////  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Where() =
+  //  xs
+  //    .Where(fun x i -> x % 2 = 0)
+  //    //.Where(fun x i -> x % 3 = 0)
+  //    //.Where(fun x i -> x % 5 = 0)
+  //    .ToArray()
+  
+  
+  let xs = [ 0 .. 10000 ]
+  let ys = [| 0 .. 10000 |]
+  let zs = ResizeArray([| 0 .. 10000 |])
+  let ss = seq { 0 .. 10000 }
 
   [<Benchmark>]
-  member __.Funtom_Core_where() =
-    xs
-    |> Core.wherei (fun x i -> x % 2 = 0)
-    //|> Core.wherei (fun x i -> x % 3 = 0)
-    //|> Core.wherei (fun x i -> x % 5 = 0)
-    |> Linq.toArray
+  member __.Fsharp_Seq_min_fslist() =
+    xs |> Seq.min
 
   [<Benchmark>]
-  member __.Linq_Where() =
-    xs
-      .Where(fun x i -> x % 2 = 0)
-      //.Where(fun x i -> x % 3 = 0)
-      //.Where(fun x i -> x % 5 = 0)
-      .ToArray()
+  member __.Funtom_Linq_min_fslist() =
+    xs |> Linq.min
+
+  [<Benchmark>]
+  member __.Linq_Min_fslist() =
+    xs.Min()
+
+  [<Benchmark>]
+  member __.Fsharp_Seq_min_array() =
+    ys |> Seq.min
+
+  [<Benchmark>]
+  member __.Funtom_Linq_min_array() =
+    ys |> Linq.min
+
+  [<Benchmark>]
+  member __.Linq_Min_array() =
+    ys.Min()
+
+  [<Benchmark>]
+  member __.Fsharp_Seq_min_resizearry() =
+    zs |> Seq.min
+
+  [<Benchmark>]
+  member __.Funtom_Linq_min_resizearry() =
+    zs |> Linq.min
+
+  [<Benchmark>]
+  member __.Linq_Min_resizearry() =
+    zs.Min()
+
+  [<Benchmark>]
+  member __.Fsharp_Seq_min_seq() =
+    ss |> Seq.min
+
+  [<Benchmark>]
+  member __.Funtom_Linq_min_seq() =
+    ss |> Linq.min
+
+  [<Benchmark>]
+  member __.Linq_Min_seq() =
+    ss.Min()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_max_fslist() =
+  //  xs |> Seq.max
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_max_fslist() =
+  //  xs |> Linq.max
+
+  //[<Benchmark>]
+  //member __.Linq_Max_fslist() =
+  //  xs.Max()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_max_array() =
+  //  ys |> Seq.max
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_max_array() =
+  //  ys |> Linq.max
+
+  //[<Benchmark>]
+  //member __.Linq_Max_array() =
+  //  ys.Max()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_max_resizearry() =
+  //  zs |> Seq.max
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_max_resizearry() =
+  //  zs |> Linq.max
+
+  //[<Benchmark>]
+  //member __.Linq_Max_resizearry() =
+  //  zs.Max()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_max_seq() =
+  //  ss |> Seq.max
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_max_seq() =
+  //  ss |> Linq.max
+
+  //[<Benchmark>]
+  //member __.Linq_Max_seq() =
+  //  ss.Max()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_fslist() =
+  //  xs |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_sum_fslist() =
+  //  xs |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_fslist() =
+  //  xs.Sum()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_array() =
+  //  ys |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_sum_array() =
+  //  ys |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_array() =
+  //  ys.Sum()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_resizearry() =
+  //  zs |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_sum_resizearry() =
+  //  zs |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_resizearry() =
+  //  zs.Sum()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_fslist() =
+  //  xs
+  //  |> Seq.map ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_Core_select_fslist() =
+  //  xs
+  //  |> Linq.select ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_fslist() =
+  //  xs
+  //    .Select((*) 2)
+  //    .ToArray()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_array() =
+  //  ys
+  //  |> Seq.map ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_Core_select_array() =
+  //  ys
+  //  |> Linq.select ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_array() =
+  //  ys
+  //    .Select((*) 2)
+  //    .ToArray()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_resizearry() =
+  //  zs
+  //  |> Seq.map ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_Core_select_resizearry() =
+  //  zs
+  //  |> Linq.select ((*) 2)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_resizearry() =
+  //  zs
+  //    .Select((*) 2)
+  //    .ToArray()
+
 
   //[<Benchmark>]
   //member __.Funtom_wherei() =

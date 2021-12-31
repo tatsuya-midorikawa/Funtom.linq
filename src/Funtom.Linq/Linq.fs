@@ -152,20 +152,90 @@ module Linq =
     | :? IReadOnlyCollection<'T> as xs -> xs.Count
     | _ -> src.LongCount()
   let inline longCount'<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) = src.LongCount predicate
-
   
-  // (TODO) Max
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.max?view=net-6.0
-
+  let inline max (src: seq< ^T>) =
+    match src with
+    | :? list< ^T> as ls ->
+      let rec max' (ls: list< ^T>, v: ^T) =
+        match ls with
+        | h::tail -> max' (tail, if h < v then v else h)
+        | _ -> v
+      match ls with
+      | h::tail -> max' (tail, h)
+      | _ -> Unchecked.defaultof< ^T>
+    | :? array< ^T> as ary -> 
+      if 0 < ary.Length then
+        let mutable v = ary[0]
+        for i = 1 to ary.Length - 1 do
+          let current = ary[i]
+          if v < current then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | :? ResizeArray< ^T> as ls -> 
+      if 0 < ls.Count then
+        let mutable v = ls[0]
+        for i = 1 to ls.Count - 1 do
+          let current = ls[i]
+          if v < current then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | _ ->
+      let iter = src.GetEnumerator()
+      if iter.MoveNext() then
+        let mutable v = iter.Current
+        while iter.MoveNext() do
+          let c = iter.Current
+          if v < c then v <- c
+        v
+      else
+        Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.maxby?view=net-6.0
   let inline maxBy ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.MaxBy(selector)
   let inline maxBy' ([<InlineIfLambda>]selector: 'source -> 'key) (comparer: IComparer<'key>) (src: seq<'source>) = src.MaxBy(selector, comparer)
   
-  
-  // (TODO) Min
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.min?view=net-6.0
-
+  let inline min (src: seq< ^T>) =
+    match src with
+    | :? list< ^T> as ls ->
+      let rec min' (ls: list< ^T>, v: ^T) =
+        match ls with
+        | h::tail -> min' (tail, if h < v then h else v)
+        | _ -> v
+      match ls with
+      | h::tail -> min' (tail, h)
+      | _ -> Unchecked.defaultof< ^T>
+    | :? array< ^T> as ary -> 
+      if 0 < ary.Length then
+        let mutable v = ary[0]
+        for i = 1 to ary.Length - 1 do
+          let current = ary[i]
+          if current < v then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | :? ResizeArray< ^T> as ls -> 
+      if 0 < ls.Count then
+        let mutable v = ls[0]
+        for i = 1 to ls.Count - 1 do
+          let current = ls[i]
+          if current < v then v <- current
+        v
+      else
+        Unchecked.defaultof< ^T>
+    | _ ->
+      let iter = src.GetEnumerator()
+      if iter.MoveNext() then
+        let mutable v = iter.Current
+        while iter.MoveNext() do
+          let c = iter.Current
+          if c < v then v <- c
+        v
+      else
+        Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.minby?view=net-6.0
   let inline minBy ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.MinBy(selector)
@@ -189,7 +259,14 @@ module Linq =
   let inline reverse(src: seq<'source>) = src.Reverse()
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.select?view=net-6.0
-  let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
+  let inline select< ^source, ^result> ([<InlineIfLambda>] selector: ^source -> ^result) (source: seq< ^source>) : seq< ^result> =
+    match source with
+    | :? array< ^source> as ary -> ary.Select selector //SelectArrayIterator.create selector ary
+    | :? ResizeArray< ^source> as ls -> ls.Select selector // SelectListIterator.create selector ls
+    | :? list< ^source> as ls -> SelectFsListIterator.create selector ls
+    | _ -> source.Select selector //SelectEnumerableIterator.create selector source
+
+  //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
   let inline select'<'T, 'U> ([<InlineIfLambda>]selector: 'T -> int -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.selectmany?view=net-6.0
@@ -222,10 +299,16 @@ module Linq =
   let inline skipWhile ([<InlineIfLambda>]predicate: 'source -> bool) (src: seq<'source>) = src.SkipWhile(predicate)
   let inline skipWhile' ([<InlineIfLambda>]predicate: 'source -> int -> bool) (src: seq<'source>) = src.SkipWhile(predicate)
 
-
-  // (TODO) Sum
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sum?view=net-6.0
-
+  let inline sum (src: seq< ^T>) =
+    let iter = src.GetEnumerator()
+    if iter.MoveNext() then
+      let mutable acc = iter.Current
+      while iter.MoveNext() do
+        acc <- acc + iter.Current
+      acc
+    else
+      Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.take?view=net-6.0
   let inline take (count: int) (src: seq<'source>) = src.Take(count)
@@ -264,7 +347,7 @@ module Linq =
   let inline unionBy' (comparer: IEqualityComparer<'key>) ([<InlineIfLambda>]selector: 'source -> 'key) (snd: seq<'source>) (fst: seq<'source>) = fst.UnionBy (snd, selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.where?view=net-6.0
-  let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : IEnumerable< ^T> =
+  let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : seq< ^T> =
     match source with
     | :? WhereEnumerableIterator< ^T> as iterator -> iterator.where predicate
     | :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate

@@ -1,5 +1,15 @@
 ﻿open Funtom.Linq
 open System.Linq
+open System.Collections.Generic
+open Funtom.Linq.Core
+open System.Runtime.CompilerServices
+open System
+open System.Runtime.InteropServices
+open FSharp.Linq.RuntimeHelpers
+open System.Diagnostics
+
+
+let inline eval q = LeafExpressionConverter.EvaluateQuotation q
 
 //seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
 //printfn ""
@@ -20,19 +30,72 @@ let is_even v = v % 2 = 0
 //let xs =
 //  [| 0..10 |] |> Core.where is_even |> Linq.toArray
 
-let xs =
-  [ 0..10 ] 
-  |> Core.wherei (fun v i -> 
-    printfn $"%d{i}: %d{v}"
-    v % 2 = 0)
-  |> Linq.toArray
+//let xs =
+//  [ 0..10 ] 
+//  |> Linq.where' (fun v i -> 
+//    printfn $"%d{i}: %d{v}"
+//    v % 2 = 0)
+//  |> Linq.toArray
 
-printfn "----------"
-let ys =
-  [ 0..10 ].Where(fun v i -> 
-    printfn $"%d{i}: %d{v}"
-    v % 2 = 0).ToArray()
+//printfn "----------"
+//let ys =
+//  [ 0..10 ].Where(fun v i -> 
+//    printfn $"%d{i}: %d{v}"
+//    v % 2 = 0).ToArray()
 
-printfn "%A" xs
+//printfn "%A" xs
 
-let tmp = 0
+//let tmp = 0
+
+////[| 0..10 |]
+////ResizeArray([| 0 .. 10 |]) 
+//[ 0..10 ]
+//|> Linq.select ((*) 2)
+//|> Linq.select ((*) 2)
+//|> Seq.iter (printfn "%d")
+
+//Linq.sum [0..10]
+//|> printfn "%d"
+
+//Linq.sum [0.0..0.2..1.0]
+//|> printfn "%f"
+
+//let xs : int[] = [||] 
+//xs.Sum() |> printfn "%d"
+
+
+let xs = [ 0 .. 10000 ]
+let ys = [| 0 .. 10000 |]
+let zs = ResizeArray([| 0 .. 10000 |])
+let ss = seq { 0 .. 10000 }
+
+xs |> Seq.min |> printfn "%d"
+ys |> Seq.min |> printfn "%d"
+zs |> Seq.min |> printfn "%d"
+ss |> Seq.min |> printfn "%d"
+
+
+//let inline S f g x = (f x) (g x)
+//let inline K x y = x
+//let inline I x = x
+//let rec Y f = 
+//  printfn $"%d{StackTrace().FrameCount}"
+//  f (fun x -> Y f x)
+
+//let fib40 =
+//  Y (fun fib f1 f2 n -> if n = 0 then f1 else fib f2 (f1 + f2) (n - 1)) 0 1 40
+  
+//let inline fn< ^T, ^U, ^V, ^V2, ^V3
+//  when ^T: (member GetEnumerator: unit -> ^U)
+//  and ^U: (member MoveNext: unit -> bool)
+//  and ^U: (member get_Current: unit -> ^V)> (f: ^V -> ^V2) (xs: ^T) =
+//  Y (fun g x -> if (^U: (member MoveNext: unit -> bool) x) then true else false ) xs
+
+//  //fun (f': ^V2 -> ^V3) ->
+//  //  let iter = (^T: (member GetEnumerator: unit -> ^U) xs)
+//  //  let acc = ResizeArray< ^V3> []
+//  //  while (^U: (member MoveNext: unit -> bool) iter) do
+//  //    let v = (^U: (member get_Current: unit -> ^V) iter)
+//  //    acc.Add(f' (f v))
+//  //  acc :> seq< ^V3>
+
