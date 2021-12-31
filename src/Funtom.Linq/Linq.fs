@@ -152,7 +152,6 @@ module Linq =
     | :? IReadOnlyCollection<'T> as xs -> xs.Count
     | _ -> src.LongCount()
   let inline longCount'<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) = src.LongCount predicate
-
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.max?view=net-6.0
   let inline max (src: seq< ^T>) =
@@ -198,8 +197,6 @@ module Linq =
   let inline maxBy ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.MaxBy(selector)
   let inline maxBy' ([<InlineIfLambda>]selector: 'source -> 'key) (comparer: IComparer<'key>) (src: seq<'source>) = src.MaxBy(selector, comparer)
   
-  
-  // (TODO) Min
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.min?view=net-6.0
   let inline min (src: seq< ^T>) =
     match src with
