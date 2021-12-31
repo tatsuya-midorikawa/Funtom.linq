@@ -351,12 +351,13 @@ module Linq =
     match source with
     //| :? WhereEnumerableIterator< ^T> as iterator -> iterator.where predicate
     //| :? WhereArrayIterator< ^T> as iterator -> iterator.where predicate
-    | :? array< ^T> as ary -> ary.Where(predicate)
+    //| :? array< ^T> as ary -> ary.Where(predicate)
       //if ary.Length = 0 then System.Array.Empty< ^T>() 
       //else new WhereArrayIterator< ^T>(ary, predicate)
-    | :? ResizeArray< ^T> as ls -> ls.Where predicate //new WhereListIterator< ^T>(ls, predicate)
-    | :? list< ^T> as ls -> new WhereFsListIterator< ^T>(ls, predicate)
-    | _ -> new WhereEnumerableIterator< ^T> (source, predicate)
+    //| :? ResizeArray< ^T> as ls -> ls.Where predicate //new WhereListIterator< ^T>(ls, predicate)
+    //| :? list< ^T> as ls -> new WhereFsListIterator< ^T>(ls, predicate)
+    | _ -> new WhereIterator< ^T> (source, predicate)
+    //| _ -> new WhereEnumerableIterator< ^T> (source, predicate)
   let inline where'< ^T> ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) =
     let mutable i = -1
     seq {

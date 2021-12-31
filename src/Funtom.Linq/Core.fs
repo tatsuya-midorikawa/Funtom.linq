@@ -12,6 +12,41 @@ open System.Runtime.InteropServices
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
 
+  type WhereEnumerator<'T>(enumerator: IEnumerator<'T>, [<InlineIfLambda>] predicate: 'T -> bool)=
+    let mutable current : 'T = Unchecked.defaultof<'T>
+    let dispose () = enumerator.Dispose()
+    let rec move_next () = 
+      if enumerator.MoveNext() then
+        let item = enumerator.Current
+        if predicate item then
+          current <- item
+          true
+        else
+          move_next ()
+      else
+        dispose ()
+        false
+    let current (): 'T = current
+    let reset () = enumerator.Reset()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
+    interface IEnumerator with
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
+
+  type WhereIterator<'T> (source: seq<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let get_enumerator () = new WhereEnumerator<'T> (source.GetEnumerator(), predicate)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
+    member __.where (predicate': 'T -> bool) = WhereIterator<'T>(source, (combine_predicates predicate predicate'))
+
   /// <summary>
   /// 
   /// </summary>
