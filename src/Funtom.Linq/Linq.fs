@@ -312,14 +312,38 @@ module Linq =
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sum?view=net-6.0
   let inline sum (src: seq< ^T>) =
-    let iter = src.GetEnumerator()
-    if iter.MoveNext() then
-      let mutable acc = iter.Current
-      while iter.MoveNext() do
-        acc <- acc + iter.Current
-      acc
-    else
-      Unchecked.defaultof< ^T>
+    match src with
+    | :? array< ^T> as ary ->
+      if 0 < ary.Length then
+        let mutable acc = ary[0]
+        for i = 1 to ary.Length - 1 do
+          acc <- acc + ary[i]
+        acc
+      else Unchecked.defaultof< ^T>
+    | :? ResizeArray< ^T> as ary ->
+      if 0 < ary.Count then
+        let mutable acc = ary[0]
+        for i = 1 to ary.Count - 1 do
+          acc <- acc + ary[i]
+        acc
+      else Unchecked.defaultof< ^T>
+    | :? list< ^T> as ls ->
+      let rec f xs acc =
+        match xs with
+        | h::tail -> f tail (acc + h)
+        | _ -> acc
+      match ls with
+      | h::tail -> f tail h
+      | _ -> Unchecked.defaultof< ^T>
+    | _ ->
+      let iter = src.GetEnumerator()
+      if iter.MoveNext() then
+        let mutable acc = iter.Current
+        while iter.MoveNext() do
+          acc <- acc + iter.Current
+        acc
+      else
+        Unchecked.defaultof< ^T>
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.take?view=net-6.0
   let inline take (count: int) (src: seq<'source>) = src.Take(count)
