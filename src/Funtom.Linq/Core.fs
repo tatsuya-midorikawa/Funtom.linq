@@ -264,53 +264,6 @@ module rec Core =
     interface IEnumerable<'U> with member __.GetEnumerator () = get_enumerator ()
     member __.select<'V> (selector': 'U -> 'V) = SelectArrayIterator<'T, 'V>(source, (combine_selectors selector selector'))
 
-
-  ///// <summary>
-  ///// 
-  ///// </summary>
-  //module SelectArrayIterator =
-  //  let inline create ([<InlineIfLambda>]selector: 'T -> 'R) (source: array<'T>) = 
-  //    { 
-  //      SelectArrayIterator.source = source
-  //      selector = selector
-  //      thread_id = Environment.CurrentManagedThreadId
-  //      state = -1
-  //    }
-  //  let inline dispose (iter: SelectArrayIterator<'source, 'result>) = iter.state <- -2
-  //  let inline get_enumerator (iter: SelectArrayIterator<'source, 'result>) = 
-  //    if iter.state = -2 && iter.thread_id = Environment.CurrentManagedThreadId then
-  //      iter.state <- -1
-  //      iter
-  //    else
-  //      { iter with state = -1; thread_id = Environment.CurrentManagedThreadId }
-  //  let inline move_next (iter: SelectArrayIterator<'source, 'result>) =
-  //    if iter.state < -1 || iter.state = iter.source.Length - 1 then
-  //      dispose iter
-  //      false
-  //    else
-  //      iter.state <- iter.state + 1
-  //      true
-        
-  ///// <summary>
-  ///// 
-  ///// </summary>
-  //[<NoComparison;NoEquality>]
-  //type SelectArrayIterator<'source, 'result> =
-  //  {
-  //    source: array<'source>
-  //    selector: 'source -> 'result
-  //    thread_id : int
-  //    mutable state : int
-  //  }
-  //  interface IDisposable with member __.Dispose () = SelectArrayIterator.dispose __
-  //  interface IEnumerator with
-  //    member __.MoveNext () : bool = SelectArrayIterator.move_next __
-  //    member __.Current with get() = (__.selector __.source[__.state]) :> obj
-  //    member __.Reset () = raise(NotSupportedException "not supported")
-  //  interface IEnumerator<'result> with member __.Current with get() = __.selector __.source[__.state]
-  //  interface IEnumerable with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
-  //  interface IEnumerable<'result> with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
-  
   /// <summary>
   /// 
   /// </summary>
