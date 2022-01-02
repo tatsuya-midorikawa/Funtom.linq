@@ -114,9 +114,19 @@ module Linq =
   let inline firstOrDefaultWith<'T> (defaultValue: 'T) (src: seq<'T>) = src.FirstOrDefault(defaultValue)
   let inline firstOrDefaultWith'<'T> (defaultValue: 'T) (predicate: 'T -> bool) (src: seq<'T>) = src.FirstOrDefault(predicate, defaultValue)
 
-
-  // (TODO) GroupBy
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupby?view=net-6.0
+  let inline groubBy< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
+    source.GroupBy(keySelector, resultSelector)
+  let inline groubBy'< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (resultSelector: ^Key -> seq< ^Source> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+    source.GroupBy(keySelector, resultSelector, comparer)
+  let inline groubByElement< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (elementSelector: ^Source -> ^Element) (source: seq< ^Source>) =
+    source.GroupBy(keySelector, elementSelector)
+  let inline groubByElement'< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (elementSelector: ^Source -> ^Element) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+    source.GroupBy(keySelector, elementSelector, comparer)
+  let inline groubBy2< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (elementSelector: ^Source -> ^Element) (resultSelector: ^Key -> seq< ^Element> -> ^Result) (source: seq< ^Source>) =
+    source.GroupBy(keySelector, elementSelector, resultSelector)
+  let inline groubBy2'< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (elementSelector: ^Source -> ^Element) (resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+    source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
 
   // (TODO) GroupJoin
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
