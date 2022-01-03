@@ -10,34 +10,36 @@ open System.Diagnostics
 
 module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
-  let inline toArray<'T> (src: seq<'T>) = src.ToArray()
+  let inline toArray (src: seq<'T>) = src.ToArray()
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.todictionary?view=net-6.0
-  let inline toDictionary< ^T, ^Key> ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(selector)
-  let inline toDictionary'< ^T, ^Key> (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(selector, comparer)
-  let inline toDictionary2< ^T, ^Element, ^Key> ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(keySelector, elementSelector)
-  let inline toDictionary2'< ^T, ^Element, ^Key> (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(keySelector, elementSelector, comparer)
+  let inline toDictionary ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(selector)
+  let inline toDictionary' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(selector, comparer)
+  let inline toDictionary2 ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(keySelector, elementSelector)
+  let inline toDictionary2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(keySelector, elementSelector, comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tohashset?view=net-6.0
-  let inline toHashSet< ^T> (src: seq< ^T>) = src.ToHashSet()
-  let inline toHashSet'< ^T> (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.ToHashSet(comparer)
+  let inline toHashSet (src: seq< ^T>) = src.ToHashSet()
+  let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.ToHashSet(comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolist?view=net-6.0
-  let inline toList< ^T> (src: seq< ^T>) = src.ToList()
+  let inline toList (src: seq< ^T>) = src.ToList()
 
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0
+  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__2_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__
   let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
     use iter = src.GetEnumerator()
     let rec fn (seed': ^Accumulate) =
       if iter.MoveNext() then fn (fx seed' iter.Current)
       else seed'
     fn seed
+  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__3_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__System_Func___1___2__
   let inline aggregate' (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) ([<InlineIfLambda>]resultSelector: ^Accumulate -> ^Result) (src: seq< ^T>) =
     use iter = src.GetEnumerator()
     let rec fn (seed': ^Accumulate) =
       if iter.MoveNext() then fn (fx seed' iter.Current)
       else seed'
     fn seed |> resultSelector
+  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__1_System_Collections_Generic_IEnumerable___0__System_Func___0___0___0__
   let inline aggregate'' ([<InlineIfLambda>]fx: ^T -> ^T -> ^T) (src: seq< ^T>) =
     use iter = src.GetEnumerator()
     if iter.MoveNext() then
@@ -49,37 +51,37 @@ module Linq =
       raise (invalidOp "Sequence contains no elements.")
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.all?view=net-6.0
-  let inline all< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.All predicate
+  let inline all ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.All predicate
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
-  let inline any< ^T> (src: seq< ^T>) = src.Any()
+  let inline any (src: seq< ^T>) = src.Any()
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Boolean__
-  let inline any'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Any predicate
+  let inline any' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Any predicate
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.append?view=net-6.0
-  let inline append< ^T> (element: ^T) (src: seq< ^T>) = src.Append element
+  let inline append (element: ^T) (src: seq< ^T>) = src.Append element
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.asenumerable?view=net-6.0
-  let inline asEnumerable< ^T> (src: seq< ^T>) = src.AsEnumerable()
+  let inline asEnumerable (src: seq< ^T>) = src.AsEnumerable()
     
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.cast?view=net-6.0
-  let inline cast< ^T> (source: IEnumerable) : IEnumerable< ^T> = 
+  let inline cast (source: IEnumerable) : IEnumerable< ^T> = 
     match source with
     | :? IEnumerable< ^T> as src -> src
     | _ -> CastIterator< ^T> source
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.chunk?view=net-6.0
-  let inline chunk< ^T> (size: int) (src: seq< ^T>) = src.Chunk size
+  let inline chunk (size: int) (src: seq< ^T>) = src.Chunk size
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.concat?view=net-6.0
-  let inline concat< ^T> (fst: seq< ^T>) (snd: seq< ^T>) = fst.Concat snd
+  let inline concat (fst: seq< ^T>) (snd: seq< ^T>) = fst.Concat snd
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.contains?view=net-6.0
-  let inline contains< ^T> (target: ^T) (src: seq< ^T>) = src.Contains target
+  let inline contains (target: ^T) (src: seq< ^T>) = src.Contains target
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.count?view=net-6.0
-  let inline count< ^T> (src: seq< ^T>) =
+  let inline count (src: seq< ^T>) =
     match src with
     | :? ICollection as xs -> xs.Count
     | :? ICollection< ^T> as xs -> xs.Count
@@ -88,44 +90,44 @@ module Linq =
   let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.Count (src, predicate)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.defaultifempty?view=net-6.0
-  let inline defaultIfEmpty< ^T> (src: seq< ^T>) = src.DefaultIfEmpty()
-  let inline defaultIfEmpty'< ^T> (defaultValue: ^T) (src: seq< ^T>) = src.DefaultIfEmpty defaultValue
+  let inline defaultIfEmpty (src: seq< ^T>) = src.DefaultIfEmpty()
+  let inline defaultIfEmpty' (defaultValue: ^T) (src: seq< ^T>) = src.DefaultIfEmpty defaultValue
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinct?view=net-6.0
-  let inline distinct< ^T> (src: seq< ^T>) = src.Distinct()
-  let inline distinct'< ^T> (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.Distinct comparer
+  let inline distinct (src: seq< ^T>) = src.Distinct()
+  let inline distinct' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.Distinct comparer
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinctby?view=net-6.0
-  let inline distinctBy< ^T, ^U> ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src.DistinctBy selector
-  let inline distinctBy'< ^T, ^U> ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>) (src: seq< ^T>) = src.DistinctBy(selector, comparer)
+  let inline distinctBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src.DistinctBy selector
+  let inline distinctBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>) (src: seq< ^T>) = src.DistinctBy(selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.elementat?view=net-6.0
-  let inline elementAt< ^T> (index: int) (src: seq< ^T>) =
+  let inline elementAt (index: int) (src: seq< ^T>) =
     match src with
     | :? IList< ^T> as xs -> xs[index]
     | :? IReadOnlyList< ^T> as xs -> xs[index]
     | _ -> src.ElementAt index
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.elementatordefault?view=net-6.0
-  let inline elementAtOrDefault< ^T> (index: int) (src: seq< ^T>) =
+  let inline elementAtOrDefault (index: int) (src: seq< ^T>) =
     match src with
     | :? IList< ^T> as xs -> if index < 0 || xs.Count <= index then Unchecked.defaultof< ^T> else xs[index]
     | :? IReadOnlyList< ^T> as xs -> if index < 0 || xs.Count <= index then Unchecked.defaultof< ^T> else xs[index]
     | _ -> src.ElementAtOrDefault index
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.empty?view=net-6.0
-  let inline empty< ^T> () = Enumerable.Empty< ^T>()
+  let inline empty () = Enumerable.Empty< ^T>()
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
-  let inline except< ^T> (fst: seq< ^T>) (snd: seq< ^T>) = fst.Except snd
-  let inline except'< ^T> (comparer: IEqualityComparer< ^T>) (fst: seq< ^T>) (snd: seq< ^T>) = fst.Except (snd, comparer)
+  let inline except (fst: seq< ^T>) (snd: seq< ^T>) = fst.Except snd
+  let inline except' (comparer: IEqualityComparer< ^T>) (fst: seq< ^T>) (snd: seq< ^T>) = fst.Except (snd, comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
-  let inline exceptBy< ^T, ^U> ([<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector)
-  let inline exceptBy'< ^T, ^U> ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>)  (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector, comparer)
+  let inline exceptBy ([<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector)
+  let inline exceptBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>)  (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.first?view=net-6.0
-  let inline first< ^T> (src: seq< ^T>) =
+  let inline first (src: seq< ^T>) =
     match src with
     | :? IList< ^T> as xs -> xs[0]
     | :? IReadOnlyList< ^T> as xs -> xs[0]
@@ -133,59 +135,59 @@ module Linq =
   let inline first'< ^T> (predicate: ^T -> bool) (src: seq< ^T>) = src.First predicate
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.firstordefault?view=net-6.0
-  let inline firstOrDefault< ^T> (src: seq< ^T>) = src.FirstOrDefault()
-  let inline firstOrDefault'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.FirstOrDefault predicate
-  let inline firstOrDefaultWith< ^T> (defaultValue: ^T) (src: seq< ^T>) = src.FirstOrDefault(defaultValue)
-  let inline firstOrDefaultWith'< ^T> (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.FirstOrDefault(predicate, defaultValue)
+  let inline firstOrDefault (src: seq< ^T>) = src.FirstOrDefault()
+  let inline firstOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.FirstOrDefault predicate
+  let inline firstOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.FirstOrDefault(defaultValue)
+  let inline firstOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.FirstOrDefault(predicate, defaultValue)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupby?view=net-6.0
-  let inline groubBy< ^Source, ^Key, ^Element, ^Result> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
+  let inline groubBy ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
     source.GroupBy(keySelector, resultSelector)
-  let inline groubBy'< ^Source, ^Key, ^Element, ^Result> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+  let inline groubBy' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
     source.GroupBy(keySelector, resultSelector, comparer)
-  let inline groubByElement< ^Source, ^Key, ^Element, ^Result> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (source: seq< ^Source>) =
+  let inline groubByElement ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (source: seq< ^Source>) =
     source.GroupBy(keySelector, elementSelector)
-  let inline groubByElement'< ^Source, ^Key, ^Element, ^Result> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+  let inline groubByElement' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
     source.GroupBy(keySelector, elementSelector, comparer)
-  let inline groubBy2< ^Source, ^Key, ^Element, ^Result> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (source: seq< ^Source>) =
+  let inline groubBy2 ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (source: seq< ^Source>) =
     source.GroupBy(keySelector, elementSelector, resultSelector)
-  let inline groubBy2'< ^Source, ^Key, ^Element, ^Result> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+  let inline groubBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
     source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
-  let inline groupJoin< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>) =
+  let inline groupJoin (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline groupJoin'< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
+  let inline groupJoin' (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
-  let inline groupJoin2< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+  let inline groupJoin2 ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline groupJoin2'< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+  let inline groupJoin2' ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersect?view=net-6.0
-  let inline intersect< ^Source> (second: seq< ^Source>) (first: seq< ^Source>)  = first.Intersect second
-  let inline intersect'< ^Source> (second: seq< ^Source>) (first: seq< ^Source>) (comparer: IEqualityComparer< ^Source>) = first.Intersect (second, comparer)
-  let inline intersect2< ^Source> (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect second
-  let inline intersect2'< ^Source> (comparer: IEqualityComparer< ^Source>) (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect (second, comparer)
+  let inline intersect (second: seq< ^Source>) (first: seq< ^Source>)  = first.Intersect second
+  let inline intersect' (second: seq< ^Source>) (first: seq< ^Source>) (comparer: IEqualityComparer< ^Source>) = first.Intersect (second, comparer)
+  let inline intersect2 (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect second
+  let inline intersect2' (comparer: IEqualityComparer< ^Source>) (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect (second, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersectby?view=net-6.0
-  let inline intersectBy< ^Source, ^Key> (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>)  = first.IntersectBy (second, keySelector)
-  let inline intersectBy'< ^Source, ^Key> (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>) = first.IntersectBy (second, keySelector, comparer)
-  let inline intersectBy2< ^Source, ^Key> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>, second: seq< ^Key>)  = first.IntersectBy (second, keySelector)
-  let inline intersectBy2'< ^Source, ^Key> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>, second: seq< ^Key>) = first.IntersectBy (second, keySelector, comparer)
+  let inline intersectBy (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>)  = first.IntersectBy (second, keySelector)
+  let inline intersectBy' (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>) = first.IntersectBy (second, keySelector, comparer)
+  let inline intersectBy2 ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>, second: seq< ^Key>)  = first.IntersectBy (second, keySelector)
+  let inline intersectBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>, second: seq< ^Key>) = first.IntersectBy (second, keySelector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.join?view=net-6.0
-  let inline join< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>) =
+  let inline join (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline join'< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
+  let inline join' (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
-  let inline join2< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+  let inline join2 ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline join2'< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+  let inline join2' ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.last?view=net-6.0
-  let inline last< ^T> (src: seq< ^T>) =
+  let inline last (src: seq< ^T>) =
     match src with
     | :? IList< ^T> as xs -> xs[xs.Count - 1]
     | :? IReadOnlyList< ^T> as xs -> xs[xs.Count - 1]
@@ -193,19 +195,19 @@ module Linq =
   let inline last'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Last predicate
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.lastordefault?view=net-6.0
-  let inline lastOrDefault< ^T> (src: seq< ^T>) = src.LastOrDefault()
-  let inline lastOrDefault'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault predicate
-  let inline lastOrDefaultWith< ^T> (defaultValue: ^T) (src: seq< ^T>) = src.LastOrDefault(defaultValue)
-  let inline lastOrDefaultWith'< ^T> (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault(predicate, defaultValue)
+  let inline lastOrDefault (src: seq< ^T>) = src.LastOrDefault()
+  let inline lastOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault predicate
+  let inline lastOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.LastOrDefault(defaultValue)
+  let inline lastOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault(predicate, defaultValue)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.longcount?view=net-6.0
-  let inline longCount< ^T> (src: seq< ^T>) : int64 =
+  let inline longCount (src: seq< ^T>) : int64 =
     match src with
     | :? ICollection as xs -> xs.Count
     | :? ICollection< ^T> as xs -> xs.Count
     | :? IReadOnlyCollection< ^T> as xs -> xs.Count
     | _ -> src.LongCount()
-  let inline longCount'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LongCount predicate
+  let inline longCount' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LongCount predicate
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.max?view=net-6.0
   let inline max (src: seq< ^T>) =
