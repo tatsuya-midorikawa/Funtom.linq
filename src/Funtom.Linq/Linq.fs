@@ -51,6 +51,7 @@ module Linq =
       raise (invalidOp "Sequence contains no elements.")
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.all?view=net-6.0
+  // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs
   let inline all ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) =
     use iter = src.GetEnumerator()
     let rec fn () =
@@ -62,9 +63,11 @@ module Linq =
     fn ()
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
+  // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs
   let inline any (src: seq< ^T>) = src.Any()
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Boolean__
+  // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs
   let inline any' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Any predicate
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.append?view=net-6.0
