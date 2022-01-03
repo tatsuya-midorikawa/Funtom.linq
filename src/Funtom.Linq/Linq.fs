@@ -297,21 +297,21 @@ module Linq =
     | _ -> source.Select selector //SelectEnumerableIterator.create selector source
 
   //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
-  let inline select'<'T, 'U> ([<InlineIfLambda>]selector: 'T -> int -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
+  let inline select'< ^T, ^U> ([<InlineIfLambda>]selector: ^T -> int -> ^U) (src: seq< ^T>): seq< ^U> = src.Select selector
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.selectmany?view=net-6.0
-  let inline selectMany ([<InlineIfLambda>]selector: 'source -> seq<'result>) (src: seq<'source>) = src.SelectMany(selector)
-  let inline selectMany' ([<InlineIfLambda>]selector: 'source -> int -> seq<'result>) (src: seq<'source>) = src.SelectMany(selector)
+  let inline selectMany< ^T, ^R> ([<InlineIfLambda>]selector: ^T -> seq< ^R>) (src: seq< ^T>) = src.SelectMany(selector)
+  let inline selectMany'< ^T, ^R> ([<InlineIfLambda>]selector: ^T -> int -> seq< ^R>) (src: seq< ^T>) = src.SelectMany(selector)
   let inline selectMany2 ([<InlineIfLambda>]resultSelector: 'source -> 'collection -> 'result) ([<InlineIfLambda>]collectionSelector: 'source -> seq<'collection>) (src: seq<'source>) = src.SelectMany(collectionSelector, resultSelector)
   let inline selectMany2' ([<InlineIfLambda>]resultSelector: 'source -> 'collection -> 'result) ([<InlineIfLambda>]collectionSelector: 'source -> int -> seq<'collection>) (src: seq<'source>) = src.SelectMany(collectionSelector, resultSelector)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sequenceequal?view=net-6.0
-  let inline sequenceEqual (snd: seq<'source>) (fst: seq<'source>) = fst.SequenceEqual(snd)
-  let inline sequenceEqual' (comparer: IEqualityComparer<'source>) (snd: seq<'source>) (fst: seq<'source>) = fst.SequenceEqual(snd, comparer)
+  let inline sequenceEqual< ^T> (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd)
+  let inline sequenceEqual'< ^T> (comparer: IEqualityComparer< ^T>) (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.single?view=net-6.0
-  let inline single (src: seq<'source>) = src.Single()
-  let inline single' ([<InlineIfLambda>]predicate: 'source -> bool) (src: seq<'source>) = src.Single(predicate)
+  let inline single< ^T> (src: seq< ^T>) = src.Single()
+  let inline single'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Single(predicate)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.singleordefault?view=net-6.0
   let inline singleOrDefault (src: seq<'source>) = src.SingleOrDefault()
