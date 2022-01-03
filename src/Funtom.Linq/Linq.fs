@@ -138,14 +138,27 @@ module Linq =
   let inline groupJoin2'< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
-  // (TODO) Intersect
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersect?view=net-6.0
+  let inline intersect< ^Source> (second: seq< ^Source>) (first: seq< ^Source>)  = first.Intersect second
+  let inline intersect'< ^Source> (second: seq< ^Source>) (first: seq< ^Source>) (comparer: IEqualityComparer< ^Source>) = first.Intersect (second, comparer)
+  let inline intersect2< ^Source> (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect second
+  let inline intersect2'< ^Source> (comparer: IEqualityComparer< ^Source>) (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect (second, comparer)
 
-  // (TODO) IntersectBy
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersectby?view=net-6.0
+  let inline intersectBy< ^Source, ^Key> (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>)  = first.IntersectBy (second, keySelector)
+  let inline intersectBy'< ^Source, ^Key> (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>) = first.IntersectBy (second, keySelector, comparer)
+  let inline intersectBy2< ^Source, ^Key> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>, second: seq< ^Key>)  = first.IntersectBy (second, keySelector)
+  let inline intersectBy2'< ^Source, ^Key> ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>, second: seq< ^Key>) = first.IntersectBy (second, keySelector, comparer)
 
-  // (TODO) Join
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.join?view=net-6.0
+  let inline join< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>) =
+    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
+  let inline join'< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
+    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
+  let inline join2< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
+  let inline join2'< ^Outer, ^Inner, ^Key, ^Result> ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.last?view=net-6.0
