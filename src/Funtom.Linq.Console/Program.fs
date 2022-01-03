@@ -137,3 +137,7 @@ let is_even v = v % 2 = 0
 //xs
 //|> Linq.ofType<int>
 //|> Seq.iter (fun x -> printfn "%d" x)
+
+let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
+let ys = xs |> Core.cast<int> |> Linq.toArray
+//let ys = xs.Cast<int>().ToArray()

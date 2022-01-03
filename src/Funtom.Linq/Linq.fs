@@ -43,7 +43,10 @@ module Linq =
   let inline asEnumerable< ^T> (src: seq< ^T>) = src.AsEnumerable()
     
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.cast?view=net-6.0
-  let inline cast< ^T> (src: IEnumerable) = src.Cast< ^T>()
+  let inline cast< ^T> (source: IEnumerable) : IEnumerable< ^T> = 
+    match source with
+    | :? IEnumerable< ^T> as src -> src
+    | _ -> CastIterator< ^T> source
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.chunk?view=net-6.0
   let inline chunk< ^T> (size: int) (src: seq< ^T>) = src.Chunk size
