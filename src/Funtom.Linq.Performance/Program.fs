@@ -9,12 +9,24 @@ type Benchmark () =
   let xs = [| 0..10000 |]
 
   [<Benchmark>]
-  member __.System_Linq_aggregate() =
-    xs.Aggregate(fun v next -> v + next)
+  member __.System_Linq_all() =
+    xs.All(fun x -> x < 10000)
 
   [<Benchmark>]
-  member __.Funtom_Linq_aggregate() =
-    xs |> Linq.aggregate'' (fun v next -> v + next)
+  member __.Funtom_Linq_all() =
+    xs |> Linq.all (fun x -> x < 10000)
+
+
+
+  //let xs = [| 0..10000 |]
+
+  //[<Benchmark>]
+  //member __.System_Linq_aggregate() =
+  //  xs.Aggregate(fun v next -> v + next)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_aggregate() =
+  //  xs |> Linq.aggregate'' (fun v next -> v + next)
 
 
   //let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
