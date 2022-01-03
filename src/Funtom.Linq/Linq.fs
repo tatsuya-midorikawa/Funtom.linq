@@ -60,7 +60,6 @@ module Linq =
       else
         true
     fn ()
-    //src.All predicate
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
   let inline any (src: seq< ^T>) = src.Any()
