@@ -24,9 +24,13 @@ module Linq =
   let inline toList< ^T> (src: seq< ^T>) = src.ToList()
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0
-  let inline aggregate< ^T, ^Accumulate, ^Result> ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) ([<InlineIfLambda>]selector: ^Accumulate -> ^Result) (seed: ^Accumulate) (src: seq< ^T>) =
-    src.Aggregate(seed, fx, selector)
-  
+  let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
+    src.Aggregate(seed, fx)
+  let inline aggregate' (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) ([<InlineIfLambda>]resultSelector: ^Accumulate -> ^Result) (src: seq< ^T>) =
+    src.Aggregate(seed, fx, resultSelector)
+  let inline aggregate'' ([<InlineIfLambda>]fx: ^T -> ^T -> ^T) (src: seq< ^T>) =
+    src.Aggregate(fx)
+
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.all?view=net-6.0
   let inline all< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.All predicate
   
