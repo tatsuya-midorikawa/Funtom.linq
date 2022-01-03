@@ -350,3 +350,38 @@ module rec Core =
     interface IEnumerator<'R> with member __.Current with get() = __.current 
     interface IEnumerable with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
     interface IEnumerable<'R> with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
+    
+  [<NoComparison;NoEquality>]
+  type OfTypeEnumerator<'T> (iter: IEnumerator) =
+    let mutable current: 'T = Unchecked.defaultof<'T>
+    let dispose () = ()
+    let rec move_next () =
+      if iter.MoveNext() then
+        let mutable c = iter.Current
+        match c with
+        | :? 'T -> current <- Unsafe.As<obj, 'T>(&c); true
+        | _ -> move_next () 
+      else
+        dispose ()
+        false
+    let current (): 'T = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
+    interface IEnumerator with
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
+
+  [<NoComparison;NoEquality>]
+  type OfTypeIterator<'T> (source: IEnumerable) =
+    let get_enumerator () = new OfTypeEnumerator<'T> (source.GetEnumerator())
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
+    

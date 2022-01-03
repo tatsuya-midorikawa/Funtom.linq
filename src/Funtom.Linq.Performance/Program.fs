@@ -3,8 +3,19 @@ open BenchmarkDotNet.Running
 open Funtom.Linq
 open System.Linq
 open System
+open System.Collections
 
 type Benchmark () =
+  let xs = ArrayList([| 10 :> obj; ""; 20.5; 11; 20; ""; ""; 20.5; 11; 20; ""; ""; 20.5; 11; 20; ""; ""; 20.5; 11; 20; ""; ""; 20.5; 11; 20; ""; ""; 20.5; 11; 20; "" |])
+  
+  [<Benchmark>]
+  member __.Funtom_Linq_oftype() =
+    xs |> Linq.ofType<string> |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Dotnet_Linq_oftype() =
+    xs.OfType<string>().ToArray()
+
   //let xs = [ 0 .. 10000 ]
 
   //[<Benchmark>]
@@ -311,58 +322,60 @@ type Benchmark () =
   //member __.Linq_Sum_resizearry() =
   //  zs.Sum()
   
-  let xs = [ 0 .. 10000 ]
-  let ys = [| 0 .. 10000 |]
-  let zs = ResizeArray([| 0 .. 10000 |])
-  let ss = seq { 0 .. 10000 }
 
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_fslist() =
-    xs |> Seq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_fslist() =
-    xs |> Linq.sum
+  //let xs = [ 0 .. 10000 ]
+  //let ys = [| 0 .. 10000 |]
+  //let zs = ResizeArray([| 0 .. 10000 |])
+  //let ss = seq { 0 .. 10000 }
 
-  [<Benchmark>]
-  member __.Linq_Sum_fslist() =
-    xs.Sum()
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_fslist() =
+  //  xs |> Seq.sum
 
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_array() =
-    ys |> Seq.sum
+  //[<Benchmark>]
+  //member __.Funtom_sum_fslist() =
+  //  xs |> Linq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_array() =
-    ys |> Linq.sum
+  //[<Benchmark>]
+  //member __.Linq_Sum_fslist() =
+  //  xs.Sum()
 
-  [<Benchmark>]
-  member __.Linq_Sum_array() =
-    ys.Sum()
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_array() =
+  //  ys |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_sum_array() =
+  //  ys |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_array() =
+  //  ys.Sum()
   
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_resizearray() =
-    zs |> Seq.sum
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_resizearray() =
+  //  zs |> Seq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_resizearray() =
-    zs |> Linq.sum
+  //[<Benchmark>]
+  //member __.Funtom_sum_resizearray() =
+  //  zs |> Linq.sum
 
-  [<Benchmark>]
-  member __.Linq_Sum_resizearray() =
-    zs.Sum()
+  //[<Benchmark>]
+  //member __.Linq_Sum_resizearray() =
+  //  zs.Sum()
   
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_seq() =
-    ss |> Seq.sum
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_seq() =
+  //  ss |> Seq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_seq() =
-    ss |> Linq.sum
+  //[<Benchmark>]
+  //member __.Funtom_sum_seq() =
+  //  ss |> Linq.sum
 
-  [<Benchmark>]
-  member __.Linq_Sum_seq() =
-    ss.Sum()
+  //[<Benchmark>]
+  //member __.Linq_Sum_seq() =
+  //  ss.Sum()
 
   //[<Benchmark>]
   //member __.Fsharp_Seq_map() =

@@ -272,7 +272,7 @@ module Linq =
   let inline minBy' ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IComparer< ^Key>) (src: seq< ^T>) = src.MinBy(selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.oftype?view=net-6.0
-  let inline ofType< ^T> (src: IEnumerable) = src.OfType< ^T>()
+  let inline ofType< ^T> (src: IEnumerable) = OfTypeIterator< ^T> src
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.orderby?view=net-6.0
   let inline orderBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.OrderBy(selector)
