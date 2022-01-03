@@ -1,10 +1,12 @@
 ﻿namespace Funtom.Linq
 
+open System
 open System.Linq
 open System.Collections
 open System.Collections.Generic
 open Funtom.Linq.Core
 open System.Runtime.CompilerServices
+open System.Diagnostics
 
 module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
@@ -25,11 +27,26 @@ module Linq =
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0
   let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
-    src.Aggregate(seed, fx)
+    use iter = src.GetEnumerator()
+    let rec fn (seed': ^Accumulate) =
+      if iter.MoveNext() then fn (fx seed' iter.Current)
+      else seed'
+    fn seed
   let inline aggregate' (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) ([<InlineIfLambda>]resultSelector: ^Accumulate -> ^Result) (src: seq< ^T>) =
-    src.Aggregate(seed, fx, resultSelector)
+    use iter = src.GetEnumerator()
+    let rec fn (seed': ^Accumulate) =
+      if iter.MoveNext() then fn (fx seed' iter.Current)
+      else seed'
+    fn seed |> resultSelector
   let inline aggregate'' ([<InlineIfLambda>]fx: ^T -> ^T -> ^T) (src: seq< ^T>) =
-    src.Aggregate(fx)
+    use iter = src.GetEnumerator()
+    if iter.MoveNext() then
+      let rec fn (seed': ^T) =
+        if iter.MoveNext() then fn (fx seed' iter.Current)
+        else seed'
+      fn iter.Current
+    else
+      raise (invalidOp "Sequence contains no elements.")
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.all?view=net-6.0
   let inline all< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.All predicate

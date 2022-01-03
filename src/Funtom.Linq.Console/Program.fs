@@ -138,6 +138,14 @@ let is_even v = v % 2 = 0
 //|> Linq.ofType<int>
 //|> Seq.iter (fun x -> printfn "%d" x)
 
-let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
-let ys = xs |> Core.cast<int> |> Linq.toArray
+//let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
+//let ys = xs |> Core.cast<int> |> Linq.toArray
 //let ys = xs.Cast<int>().ToArray()
+
+let xs = [| 0..10 |]
+xs 
+|> Linq.aggregate'' (fun v next -> v + next)
+|> printfn "%d"
+
+xs.Aggregate (fun v next -> v + next)
+|> printfn "%d"

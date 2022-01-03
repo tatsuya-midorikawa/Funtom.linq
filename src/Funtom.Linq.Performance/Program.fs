@@ -6,24 +6,35 @@ open System
 open System.Collections
 
 type Benchmark () =
-  let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
-  let ys = ArrayList([| 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; |])
+  let xs = [| 0..10000 |]
+
+  [<Benchmark>]
+  member __.System_Linq_aggregate() =
+    xs.Aggregate(fun v next -> v + next)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_aggregate() =
+    xs |> Linq.aggregate'' (fun v next -> v + next)
+
+
+  //let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
+  //let ys = ArrayList([| 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; |])
   
-  [<Benchmark>]
-  member __.Funtom_Linq_cast_class() =
-    xs |> Linq.cast<string> |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_cast_class() =
+  //  xs |> Linq.cast<string> |> Linq.toArray
 
-  [<Benchmark>]
-  member __.Dotnet_Linq_cast_class() =
-    xs.Cast<string>().ToArray()
+  //[<Benchmark>]
+  //member __.Dotnet_Linq_cast_class() =
+  //  xs.Cast<string>().ToArray()
 
-  [<Benchmark>]
-  member __.Funtom_Linq_cast_struct() =
-    ys |> Linq.cast<int> |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_cast_struct() =
+  //  ys |> Linq.cast<int> |> Linq.toArray
 
-  [<Benchmark>]
-  member __.Dotnet_Linq_cast_struct() =
-    ys.Cast<int>().ToArray()
+  //[<Benchmark>]
+  //member __.Dotnet_Linq_cast_struct() =
+  //  ys.Cast<int>().ToArray()
 
   //[<Benchmark>]
   //member __.Funtom_Linq_oftype() =
