@@ -11,36 +11,16 @@ open System.Runtime.InteropServices
 
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
-
+  let inline combine_selectors ([<InlineIfLambda>] lhs: 'T -> 'U) ([<InlineIfLambda>] rhs: 'U -> 'V) = lhs >> rhs
+  
   /// <summary>
   /// 
   /// </summary>
-  type WhereEnumerableIterator<'source> (source: seq<'source>, [<InlineIfLambda>] predicate: 'source -> bool) as self =
-    let mutable state : int = 0
-    let mutable enumerator : IEnumerator<'source> = Unchecked.defaultof<IEnumerator<'source>>
-    let mutable current : 'source = Unchecked.defaultof<'source>
-    let thread_id : int = Environment.CurrentManagedThreadId
-    
-    let clone () = 
-      new WhereEnumerableIterator<'source>(source, predicate)
-
-    let dispose () = 
-      if enumerator <> Unchecked.defaultof<IEnumerator<'source>> then
-        enumerator.Dispose()
-        enumerator <- Unchecked.defaultof<IEnumerator<'source>>
-        current <- Unchecked.defaultof<'source>
-        state <- -1
-
-    let get_enumerator () =
-      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
-        state <- 1
-        self
-      else
-        let enumerator = clone()
-        enumerator.State <- 1
-        enumerator
-      
-    let rec move_next () =
+  [<NoComparison;NoEquality;>]
+  type WhereEnumerator<'T>(enumerator: IEnumerator<'T>, [<InlineIfLambda>] predicate: 'T -> bool)=
+    let mutable current : 'T = Unchecked.defaultof<'T>
+    let dispose () = enumerator.Dispose()
+    let rec move_next () = 
       if enumerator.MoveNext() then
         let item = enumerator.Current
         if predicate item then
@@ -49,180 +29,126 @@ module rec Core =
         else
           move_next ()
       else
-        dispose()
+        dispose ()
         false
+    let current (): 'T = current
+    let reset () = enumerator.Reset()
 
-    interface IDisposable with
-      member __.Dispose () = dispose ()
-
-    interface IEnumerator with
-      member __.MoveNext () : bool = 
-
-        match state with
-        | 1 -> 
-          enumerator <- source.GetEnumerator()
-          state <- 2
-          move_next ()
-        | 2 ->
-          move_next ()
-        | _ -> 
-          false
-
-      member __.Current with get() = current
-      member __.Reset () = raise(NotSupportedException "not supported")
-
-    interface IEnumerator<'source> with
-      member __.Current with get() = current
-
-    interface IEnumerable with
-      member __.GetEnumerator () = get_enumerator ()
-
-    interface IEnumerable<'source> with
-      member __.GetEnumerator () = get_enumerator ()
-
-    member __.where (predicate': 'source -> bool) =
-      let p = combine_predicates predicate predicate'
-      new WhereEnumerableIterator<'source>(source, p)
-
-    member private __.State with get() = state and set v = state <- v
-
-  /// <summary>
-  /// 
-  /// </summary>
-  type WhereArrayIterator<'source> (source: array<'source>, [<InlineIfLambda>] predicate: 'source -> bool) as self =
-    let mutable state : int = 0
-    let mutable current : 'source = Unchecked.defaultof<'source>
-    let thread_id : int = Environment.CurrentManagedThreadId
-  
-    let clone () = new WhereArrayIterator<'source>(source, predicate)
-  
-    let dispose () = 
-      current <- Unchecked.defaultof<'source>
-      state <- -1
-  
-    let get_enumerator () =
-      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
-        state <- 1
-        self
-      else
-        let enumerator = clone()
-        enumerator.State <- 1
-        enumerator
-  
-    let rec move_next (src: array<'source>, index: int) =
-      if uint index < uint src.Length then
-        let item = src[index]
-        state <- state + 1
-        if predicate item then
-          current <- item
-          true
-        else
-          move_next(src, index + 1)
-      else
-        dispose()
-        false
-  
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
     interface IDisposable with member __.Dispose () = dispose ()
-  
     interface IEnumerator with
-      member __.MoveNext () : bool = move_next (source, state - 1)
-      member __.Current with get() = current
-      member __.Reset () = raise(NotSupportedException "not supported")
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
   
-    interface IEnumerator<'source> with member __.Current with get() = current
-  
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type WhereIterator<'T> (source: seq<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let get_enumerator () = new WhereEnumerator<'T> (source.GetEnumerator(), predicate)
     interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
+    member __.where (predicate': 'T -> bool) = WhereIterator<'T>(source, (combine_predicates predicate predicate'))
   
-    interface IEnumerable<'source> with member __.GetEnumerator () = get_enumerator ()
-  
-    member __.where (predicate': 'source -> bool) = new WhereArrayIterator<'source>(source, combine_predicates predicate predicate')
-  
-    member private __.State with get() = state and set v = state <- v
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type WhereArrayEnumerator<'T> (source: array<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let mutable current : 'T = Unchecked.defaultof<'T>
+    let mutable index : int = 0
+    let dispose () = ()
+    let rec move_next () =
+      if index < source.Length then
+        let item = source[index]
+        index <- index + 1
+        if predicate item then current <- item; true
+        else move_next ()
+      else
+        dispose ()
+        false
+    let current (): 'T = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
+    interface IEnumerator with
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
 
   /// <summary>
   /// 
   /// </summary>
-  type WhereListIterator<'source> (source: ResizeArray<'source>, [<InlineIfLambda>] predicate: 'source -> bool) as self =
-    let mutable state : int = 0
-    let mutable current : 'source = Unchecked.defaultof<'source>
-    let thread_id : int = Environment.CurrentManagedThreadId
-  
-    let clone () = new WhereListIterator<'source>(source, predicate)
-  
-    let dispose () = 
-      current <- Unchecked.defaultof<'source>
-      state <- -1
-  
-    let get_enumerator () =
-      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
-        state <- 1
-        self
+  [<NoComparison;NoEquality;>]
+  type WhereArrayIterator<'T> (source: array<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let get_enumerator () = new WhereArrayEnumerator<'T> (source, predicate)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
+    member __.where (predicate': 'T -> bool) = WhereArrayIterator<'T>(source, (combine_predicates predicate predicate'))
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type WhereResizeArrayEnumerator<'T> (source: ResizeArray<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let mutable current : 'T = Unchecked.defaultof<'T>
+    let mutable index : int = 0
+    let dispose () = ()
+    let rec move_next () =
+      if index < source.Count then
+        let item = source[index]
+        index <- index + 1
+        if predicate item then current <- item; true
+        else move_next ()
       else
-        let enumerator = clone()
-        enumerator.State <- 1
-        enumerator
-  
-    let rec move_next (src: ResizeArray<'source>, index: int) =
-      if uint index < uint src.Count then
-        let item = src[index]
-        state <- state + 1
-        if predicate item then
-          current <- item
-          true
-        else
-          move_next(src, index + 1)
-      else
-        dispose()
+        dispose ()
         false
-  
-    interface IDisposable with
-      member __.Dispose () = dispose ()
-  
+    let current (): 'T = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
     interface IEnumerator with
-      member __.MoveNext () : bool = move_next (source, state - 1)  
-      member __.Current with get() = current
-      member __.Reset () = raise(NotSupportedException "not supported")
-  
-    interface IEnumerator<'source> with
-      member __.Current with get() = current
-  
-    interface IEnumerable with
-      member __.GetEnumerator () = get_enumerator ()
-  
-    interface IEnumerable<'source> with
-      member __.GetEnumerator () = get_enumerator ()
-  
-    member __.where (predicate': 'source -> bool) =
-      let p = combine_predicates predicate predicate'
-      new WhereListIterator<'source>(source, p)
-  
-    member private __.State with get() = state and set v = state <- v
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type WhereResizeArrayIterator<'T> (source: ResizeArray<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let get_enumerator () = new WhereResizeArrayEnumerator<'T> (source, predicate)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
+    member __.where (predicate': 'T -> bool) = WhereResizeArrayIterator<'T>(source, (combine_predicates predicate predicate'))
   
   /// <summary>
   /// 
   /// </summary>
-  type WhereFsListIterator<'source> (source: list<'source>, [<InlineIfLambda>] predicate: 'source -> bool) as self =
-    let mutable state : int = 0
-    let mutable cache : list<'source> = source
-    let mutable current : 'source = Unchecked.defaultof<'source>
-    let thread_id : int = Environment.CurrentManagedThreadId
-  
-    let clone () = new WhereFsListIterator<'source>(source, predicate)
-  
-    let dispose () = 
-      current <- Unchecked.defaultof<'source>
-      state <- -1
-  
-    let get_enumerator () =
-      if state = 0 && thread_id = Environment.CurrentManagedThreadId then
-        state <- 1
-        self
-      else
-        let enumerator = clone()
-        enumerator.State <- 1
-        enumerator
-  
-    let rec move_next (src: list<'source>) =
+  [<NoComparison;NoEquality;>]
+  type WhereListEnumerator<'T> (source: list<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let mutable current : 'T = Unchecked.defaultof<'T>
+    let mutable cache : list<'T> = source
+    let dispose () = ()
+    let rec move_next (src: list<'T>) =
       match src with
       | h::tail ->
         if predicate h then
@@ -234,136 +160,110 @@ module rec Core =
       | _ ->
         dispose()
         false
-  
-    interface IDisposable with
-      member __.Dispose () = dispose ()
-  
+    let current (): 'T = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next cache
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
     interface IEnumerator with
-      member __.MoveNext () : bool = 
-        move_next cache
-  
-      member __.Current with get() = current
-      member __.Reset () = raise(NotSupportedException "not supported")
-  
-    interface IEnumerator<'source> with
-      member __.Current with get() = current
-  
-    interface IEnumerable with
-      member __.GetEnumerator () = get_enumerator ()
-  
-    interface IEnumerable<'source> with
-      member __.GetEnumerator () = get_enumerator ()
-  
-    member __.where (predicate': 'source -> bool) =
-      let p = combine_predicates predicate predicate'
-      new WhereFsListIterator<'source>(source, p)
-  
-    member private __.State with get() = state and set v = state <- v
+         member __.MoveNext () = move_next cache
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
 
   /// <summary>
   /// 
   /// </summary>
-  module SelectEnumerableIterator =
-    let inline create ([<InlineIfLambda>]selector: 'T -> 'R) (source: seq<'T>) = 
-      { 
-        SelectEnumerableIterator.source = source
-        selector = selector
-        thread_id = Environment.CurrentManagedThreadId
-        enumerator = Unchecked.defaultof<IEnumerator<'T>>
-        current = Unchecked.defaultof<'R>
-        state = -1
-      }
-    let inline dispose (iter: SelectEnumerableIterator<'T, 'R>) = 
-      if iter.enumerator <> Unchecked.defaultof<IEnumerator<'T>> then
-        iter.enumerator.Dispose()
-        iter.enumerator <- Unchecked.defaultof<IEnumerator<'T>>
-        iter.current <- Unchecked.defaultof<'R>
-        iter.state <- -1
+  [<NoComparison;NoEquality;>]
+  type WhereListIterator<'T> (source: list<'T>, [<InlineIfLambda>] predicate: 'T -> bool) =
+    let get_enumerator () = new WhereListEnumerator<'T> (source, predicate)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
+    member __.where (predicate': 'T -> bool) = WhereListIterator<'T>(source, (combine_predicates predicate predicate'))
 
-    let inline get_enumerator (iter: SelectEnumerableIterator<'T, 'R>) =
-      if iter.state = -1 && iter.thread_id = Environment.CurrentManagedThreadId then
-        iter.enumerator <- iter.source.GetEnumerator()
-        iter.state <- 0
-        iter
-      else
-        { iter with thread_id = Environment.CurrentManagedThreadId; state = -1; current = Unchecked.defaultof<'R> }
-
-    let inline move_next (iter: SelectEnumerableIterator<'T, 'R>) =
-      if iter.enumerator.MoveNext() then
-        iter.current <- iter.selector iter.enumerator.Current
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type SelectEnumerator<'T, 'U> (iterator: IEnumerator<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let mutable current : 'U = Unchecked.defaultof<'U>
+    let dispose () = ()
+    let rec move_next () =
+      if iterator.MoveNext() then
+        current <- selector iterator.Current
         true
       else
-        dispose iter
         false
-  
-  /// <summary>
-  /// 
-  /// </summary>
-  [<NoComparison;NoEquality>]
-  type SelectEnumerableIterator<'T, 'R> =
-    {
-      source: seq<'T>
-      selector: 'T -> 'R
-      thread_id : int 
-      mutable enumerator : IEnumerator<'T>
-      mutable current : 'R
-      mutable state : int
-    }
-    interface IDisposable with member __.Dispose () = SelectEnumerableIterator.dispose __
-    interface IEnumerator with 
-      member __.MoveNext () : bool = SelectEnumerableIterator.move_next __
-      member __.Current with get() = __.current :> obj
-      member __.Reset () = raise(NotSupportedException "not supported")
-    interface IEnumerator<'R> with member __.Current with get() = __.current
-    interface IEnumerable with member __.GetEnumerator () = SelectEnumerableIterator.get_enumerator __
-    interface IEnumerable<'R> with member __.GetEnumerator () = SelectEnumerableIterator.get_enumerator __
+    let current (): 'U = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get(): 'U = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
+    interface IEnumerator with
+      member __.MoveNext () = move_next ()
+      member __.Current with get() = current ()
+      member __.Reset () = reset ()
+    interface IEnumerator<'U> with member __.Current with get() = current ()
 
   /// <summary>
   /// 
   /// </summary>
-  module SelectArrayIterator =
-    let inline create ([<InlineIfLambda>]selector: 'T -> 'R) (source: array<'T>) = 
-      { 
-        SelectArrayIterator.source = source
-        selector = selector
-        thread_id = Environment.CurrentManagedThreadId
-        state = -1
-      }
-    let inline dispose (iter: SelectArrayIterator<'source, 'result>) = iter.state <- -2
-    let inline get_enumerator (iter: SelectArrayIterator<'source, 'result>) = 
-      if iter.state = -2 && iter.thread_id = Environment.CurrentManagedThreadId then
-        iter.state <- -1
-        iter
-      else
-        { iter with state = -1; thread_id = Environment.CurrentManagedThreadId }
-    let inline move_next (iter: SelectArrayIterator<'source, 'result>) =
-      if iter.state < -1 || iter.state = iter.source.Length - 1 then
-        dispose iter
-        false
-      else
-        iter.state <- iter.state + 1
-        true
-        
+  [<NoComparison;NoEquality;>]
+  type SelectIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let get_enumerator () = new SelectEnumerator<'T, 'U> (source.GetEnumerator(), selector)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'U> with member __.GetEnumerator () = get_enumerator ()
+    member __.select<'V> (selector': 'U -> 'V) = SelectIterator<'T, 'V>(source, (combine_selectors selector selector'))
+
   /// <summary>
   /// 
   /// </summary>
-  [<NoComparison;NoEquality>]
-  type SelectArrayIterator<'source, 'result> =
-    {
-      source: array<'source>
-      selector: 'source -> 'result
-      thread_id : int
-      mutable state : int
-    }
-    interface IDisposable with member __.Dispose () = SelectArrayIterator.dispose __
+  [<NoComparison;NoEquality;>]
+  type SelectArrayEnumerator<'T, 'U> (source: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let mutable current : 'U = Unchecked.defaultof<'U>
+    let mutable index : int = 0
+    let dispose () = ()
+    let move_next () =
+      if index < source.Length then
+        current <- selector source[index]
+        index <- index + 1
+        true
+      else
+        dispose ()
+        false
+    let current (): 'U = current
+    let reset () = ()
+
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'U = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
     interface IEnumerator with
-      member __.MoveNext () : bool = SelectArrayIterator.move_next __
-      member __.Current with get() = (__.selector __.source[__.state]) :> obj
-      member __.Reset () = raise(NotSupportedException "not supported")
-    interface IEnumerator<'result> with member __.Current with get() = __.selector __.source[__.state]
-    interface IEnumerable with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
-    interface IEnumerable<'result> with member __.GetEnumerator () = SelectArrayIterator.get_enumerator __
-  
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'U> with member __.Current with get() = current ()
+
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality;>]
+  type SelectArrayIterator<'T, 'U> (source: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
+    let get_enumerator () = new SelectArrayEnumerator<'T, 'U> (source, selector)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'U> with member __.GetEnumerator () = get_enumerator ()
+    member __.select<'V> (selector': 'U -> 'V) = SelectArrayIterator<'T, 'V>(source, (combine_selectors selector selector'))
+
   /// <summary>
   /// 
   /// </summary>

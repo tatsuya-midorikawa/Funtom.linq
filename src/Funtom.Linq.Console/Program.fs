@@ -69,22 +69,40 @@ let is_even v = v % 2 = 0
 //let zs = ResizeArray([| 0 .. 10000 |])
 //let ss = seq { 0 .. 10000 }
 
+//xs |> Linq.min |> printfn "%d"
+//ys |> Linq.min |> printfn "%d"
+//zs |> Linq.min |> printfn "%d"
+//ss |> Linq.min |> printfn "%d"
+
+//xs |> Linq.max |> printfn "%d"
+//ys |> Linq.max |> printfn "%d"
+//zs |> Linq.max |> printfn "%d"
+//ss |> Linq.max |> printfn "%d"
+
+//let xs = [ 0 .. 10000 ]
+//let ys = [| 0 .. 10000 |]
+//let zs = ResizeArray([| 0 .. 10000 |])
+//let ss = seq { 0 .. 10000 }
+
 //xs |> Seq.min |> printfn "%d"
 //ys |> Seq.min |> printfn "%d"
 //zs |> Seq.min |> printfn "%d"
 //ss |> Seq.min |> printfn "%d"
 
-let xs = [ 0..10 ]
+//let xs = ResizeArray([| 0 .. 10 |]) 
+let xs = [| 0 .. 10 |]
 
 xs
-  .Where((>) 5)
-  .Select((*) 2)
+  .Where((<) 5)
+  //.Select((*) 2)
 |> printfn "%A"
 
-xs
-|> Linq.where ((>) 5)
-|> Linq.select ((*) 2)
-|> printfn "%A"
+//xs
+////|> Linq.where ((<) 5)
+//|> Linq.select0 ((*) 2)
+//|> Linq.select0 ((*) 2)
+//|> Linq.toArray
+//|> printfn "%A"
 
 //let inline S f g x = (f x) (g x)
 //let inline K x y = x

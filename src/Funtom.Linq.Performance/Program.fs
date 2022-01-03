@@ -317,52 +317,137 @@ type Benchmark () =
   let ss = seq { 0 .. 10000 }
 
   [<Benchmark>]
-  member __.Fsharp_Seq_map_fslist() =
-    xs |> Seq.map ((*) 2) |> Linq.toArray
+  member __.Fsharp_Seq_sum_fslist() =
+    xs |> Seq.sum
 
   [<Benchmark>]
-  member __.Funtom_select_fslist() =
-    xs |> Linq.select ((*) 2) |> Linq.toArray
+  member __.Funtom_sum_fslist() =
+    xs |> Linq.sum
 
   [<Benchmark>]
-  member __.Linq_Select_fslist() =
-    xs.Select((*) 2).ToArray()
+  member __.Linq_Sum_fslist() =
+    xs.Sum()
+
+  [<Benchmark>]
+  member __.Fsharp_Seq_sum_array() =
+    ys |> Seq.sum
+
+  [<Benchmark>]
+  member __.Funtom_sum_array() =
+    ys |> Linq.sum
+
+  [<Benchmark>]
+  member __.Linq_Sum_array() =
+    ys.Sum()
   
   [<Benchmark>]
-  member __.Fsharp_Seq_map_array() =
-    ys |> Seq.map ((*) 2) |> Linq.toArray
+  member __.Fsharp_Seq_sum_resizearray() =
+    zs |> Seq.sum
 
   [<Benchmark>]
-  member __.Funtom_select_array() =
-    ys |> Linq.select ((*) 2) |> Linq.toArray
+  member __.Funtom_sum_resizearray() =
+    zs |> Linq.sum
 
   [<Benchmark>]
-  member __.Linq_Select_array() =
-    ys.Select((*) 2).ToArray()
+  member __.Linq_Sum_resizearray() =
+    zs.Sum()
   
   [<Benchmark>]
-  member __.Fsharp_Seq_map_resizearry() =
-    zs |> Seq.map ((*) 2) |> Linq.toArray
+  member __.Fsharp_Seq_sum_seq() =
+    ss |> Seq.sum
 
   [<Benchmark>]
-  member __.Funtom_select_resizearry() =
-    zs |> Linq.select ((*) 2) |> Linq.toArray
+  member __.Funtom_sum_seq() =
+    ss |> Linq.sum
 
   [<Benchmark>]
-  member __.Linq_Select_resizearry() =
-    zs.Select((*) 2).ToArray()
+  member __.Linq_Sum_seq() =
+    ss.Sum()
 
-  [<Benchmark>]
-  member __.Fsharp_Seq_map_seq() =
-    ss |> Seq.map ((*) 2) |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map() =
+  //  ys 
+  //  |> Seq.map (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
 
-  [<Benchmark>]
-  member __.Funtom_select_seq() =
-    ss |> Linq.select ((*) 2) |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_select1() =
+  //  ys 
+  //  |> Linq.select1 (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
 
-  [<Benchmark>]
-  member __.Linq_Select_seq() =
-    ss.Select((*) 2).ToArray()
+  //[<Benchmark>]
+  //member __.Linq_Select() =
+  //  ys
+  //    .Select(fun x -> x % 2 = 0)
+  //    .ToArray()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_filter() =
+  //  ys 
+  //  |> Seq.filter (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_where() =
+  //  ys 
+  //  |> Linq.where (fun x -> x % 2 = 0)
+  //  |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Where() =
+  //  ys
+  //    .Where(fun x -> x % 2 = 0)
+  //    .ToArray()
+
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_fslist() =
+  //  xs |> Seq.map ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_select_fslist() =
+  //  xs |> Linq.select ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_fslist() =
+  //  xs.Select((*) 2).ToArray()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_array() =
+  //  ys |> Seq.map ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_select_array() =
+  //  ys |> Linq.select ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_array() =
+  //  ys.Select((*) 2).ToArray()
+  
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_resizearry() =
+  //  zs |> Seq.map ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_select_resizearry() =
+  //  zs |> Linq.select ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_resizearry() =
+  //  zs.Select((*) 2).ToArray()
+
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_map_seq() =
+  //  ss |> Seq.map ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Funtom_select_seq() =
+  //  ss |> Linq.select ((*) 2) |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Linq_Select_seq() =
+  //  ss.Select((*) 2).ToArray()
 
   //[<Benchmark>]
   //member __.Funtom_wherei() =
