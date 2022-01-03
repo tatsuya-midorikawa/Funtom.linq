@@ -128,8 +128,15 @@ module Linq =
   let inline groubBy2'< ^Source, ^Key, ^Element, ^Result> (keySelector: ^Source -> ^Key) (elementSelector: ^Source -> ^Element) (resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
     source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
 
-  // (TODO) GroupJoin
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
+  let inline groupJoin< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>)  (outerKeySelector: ^Outer -> ^Key) (innerKeySelector: ^Inner -> ^Key) (resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>) =
+    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
+  let inline groupJoin'< ^Outer, ^Inner, ^Key, ^Result> (inner: seq< ^Inner>)  (outerKeySelector: ^Outer -> ^Key) (innerKeySelector: ^Inner -> ^Key) (resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
+    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
+  let inline groupJoin2< ^Outer, ^Inner, ^Key, ^Result> (outerKeySelector: ^Outer -> ^Key) (innerKeySelector: ^Inner -> ^Key) (resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
+  let inline groupJoin2'< ^Outer, ^Inner, ^Key, ^Result> (outerKeySelector: ^Outer -> ^Key) (innerKeySelector: ^Inner -> ^Key) (resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
+    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
   // (TODO) Intersect
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersect?view=net-6.0
