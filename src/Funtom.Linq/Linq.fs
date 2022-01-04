@@ -250,7 +250,7 @@ module Linq =
       else
         Unchecked.defaultof< ^T>
     | _ ->
-      let iter = src.GetEnumerator()
+      use iter = src.GetEnumerator()
       if iter.MoveNext() then
         let mutable v = iter.Current
         while iter.MoveNext() do
@@ -294,7 +294,7 @@ module Linq =
       else
         Unchecked.defaultof< ^T>
     | _ ->
-      let iter = src.GetEnumerator()
+      use iter = src.GetEnumerator()
       if iter.MoveNext() then
         let mutable v = iter.Current
         while iter.MoveNext() do
@@ -392,7 +392,7 @@ module Linq =
       | h::tail -> f tail h
       | _ -> Unchecked.defaultof< ^T>
     | _ ->
-      let iter = src.GetEnumerator()
+      use iter = src.GetEnumerator()
       if iter.MoveNext() then
         let mutable acc = iter.Current
         while iter.MoveNext() do
