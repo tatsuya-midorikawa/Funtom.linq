@@ -6,15 +6,94 @@ open System
 open System.Collections
 
 type Benchmark () =
-  let xs = [| 0..10000 |]
+  let xs = [ 0..10000 ]
+  let ys = [| 0..10000 |]
+  let zs = ResizeArray [| 0..10000 |]
+  let ss = seq { 0..10000 }
 
   [<Benchmark>]
-  member __.System_Linq_all() =
-    xs.All(fun x -> x < 10000)
+  member __.System_Linq_any_fslist() =
+    xs.Any(fun x -> 10000 < x)
 
   [<Benchmark>]
-  member __.Funtom_Linq_all() =
-    xs |> Linq.all (fun x -> x < 10000)
+  member __.Funtom_Linq_any_fslist() =
+    xs |> Linq.any' (fun x -> 10000 < x)
+    
+  [<Benchmark>]
+  member __.System_Linq_any_array() =
+    ys.Any(fun x -> 10000 < x)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_any_array() =
+    ys |> Linq.any' (fun x -> 10000 < x)
+    
+  [<Benchmark>]
+  member __.System_Linq_any_resizearray() =
+    zs.Any(fun x -> 10000 < x)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_any_resizearray() =
+    zs |> Linq.any' (fun x -> 10000 < x)
+    
+  [<Benchmark>]
+  member __.System_Linq_any_seq() =
+    ss.Any(fun x -> 10000 < x)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_any_seq() =
+    ss |> Linq.any' (fun x -> 10000 < x)
+
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_any_fslist() =
+  //  xs.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_fslist() =
+  //  xs |> Linq.any
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_array() =
+  //  ys.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_array() =
+  //  ys |> Linq.any
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_resizearray() =
+  //  zs.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_resizearray() =
+  //  zs |> Linq.any
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_seq() =
+  //  ss.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_seq() =
+  //  ss |> Linq.any
+
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_any() =
+  //  xs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any() =
+  //  xs |> Linq.all (fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.System_Linq_all() =
+  //  xs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all() =
+  //  xs |> Linq.all (fun x -> x < 10000)
 
 
 

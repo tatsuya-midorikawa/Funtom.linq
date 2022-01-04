@@ -64,11 +64,51 @@ module Linq =
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
   // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs
-  let inline any (src: seq< ^T>) = src.Any()
+  let inline any (src: seq< ^T>) =
+    match src with
+    | :? ICollection< ^T> as xs -> xs.Count <> 0
+    | :? IReadOnlyCollection< ^T> as xs -> xs.Count <> 0
+    | _ -> 
+      use iter = src.GetEnumerator()
+      iter.MoveNext()
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Boolean__
   // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs
-  let inline any' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Any predicate
+  let inline any' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = 
+    match src with
+    | :? list< ^T> as ls ->
+      let rec fn(xs: list< ^T>) =
+        match xs with
+        | h::tail ->
+          if predicate h then true
+          else fn tail
+        | _ -> false
+      fn ls
+    | :? array< ^T> as ary ->
+      let rec fn(i: int) =
+        if i < ary.Length then
+          if predicate ary[i] then true
+          else fn (i + 1)
+        else false
+      fn 0
+    | :? ResizeArray< ^T> as ary ->
+      let rec fn(i: int) =
+        if i < ary.Count then
+          if predicate ary[i] then true
+          else fn (i + 1)
+        else false
+      fn 0
+    | _ ->
+      use iter = src.GetEnumerator()
+      let rec fn() =
+        if iter.MoveNext() then
+          if predicate iter.Current then true
+          else fn()
+        else
+          false
+      fn()
+
+    //src.Any predicate
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.append?view=net-6.0
   let inline append (element: ^T) (src: seq< ^T>) = src.Append element
