@@ -108,8 +108,6 @@ module Linq =
           false
       fn()
 
-    //src.Any predicate
-
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.append?view=net-6.0
   let inline append (element: ^T) (src: seq< ^T>) = src.Append element
 
