@@ -1,5 +1,6 @@
 ﻿open Funtom.Linq
 open System.Linq
+open System.Collections
 open System.Collections.Generic
 open Funtom.Linq.Core
 open System.Runtime.CompilerServices
@@ -89,13 +90,13 @@ let is_even v = v % 2 = 0
 //zs |> Seq.min |> printfn "%d"
 //ss |> Seq.min |> printfn "%d"
 
-//let xs = ResizeArray([| 0 .. 10 |]) 
-let xs = [| 0 .. 10 |]
+////let xs = ResizeArray([| 0 .. 10 |]) 
+//let xs = [| 0 .. 10 |]
 
-xs
-  .Where((<) 5)
-  //.Select((*) 2)
-|> printfn "%A"
+//xs
+//  .Where((<) 5)
+//  //.Select((*) 2)
+//|> printfn "%A"
 
 //xs
 ////|> Linq.where ((<) 5)
@@ -128,3 +129,39 @@ xs
 //  //    acc.Add(f' (f v))
 //  //  acc :> seq< ^V3>
 
+//let xs = ArrayList([| 10 :> obj; "test"; 20.5; 11; 20; "foo" |])
+//xs
+//|> Core.ofType<int>
+//|> Seq.iter (fun x -> printfn "%d" x)
+//printfn "---"
+//xs
+//|> Linq.ofType<int>
+//|> Seq.iter (fun x -> printfn "%d" x)
+
+//let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
+//let ys = xs |> Core.cast<int> |> Linq.toArray
+//let ys = xs.Cast<int>().ToArray()
+
+//let xs = [| 0..10 |]
+ResizeArray [| 0..10 |]
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+[| 0..10 |]
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+[ 0..10 ]
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+seq { 0..10 }
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+
+//xs.Aggregate (fun v next -> v + next)
+//|> printfn "%d"
+
+//[| 0..5 |].All(fun x -> x < 0) |> printfn "%b"
+//[| 0..5 |] |> Linq.all (fun x -> x < 0) |> printfn "%b"

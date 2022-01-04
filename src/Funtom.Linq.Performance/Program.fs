@@ -3,8 +3,204 @@ open BenchmarkDotNet.Running
 open Funtom.Linq
 open System.Linq
 open System
+open System.Collections
 
 type Benchmark () =
+  let xs = [ 0..10000 ]
+  let ys = [| 0..10000 |]
+  let zs = ResizeArray [| 0..10000 |]
+  let ss = seq { 0..10000 }
+  
+  [<Benchmark>]
+  member __.System_Linq_aggregate_fslist() =
+    xs.Aggregate(0, fun v next -> v + next)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_aggregate_fslist() =
+    xs |> Linq.aggregate 0 (fun v next -> v + next)
+    
+  [<Benchmark>]
+  member __.System_Linq_aggregate_array() =
+    ys.Aggregate(0, fun v next -> v + next)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_aggregate_array() =
+    ys |> Linq.aggregate 0 (fun v next -> v + next)
+    
+  [<Benchmark>]
+  member __.System_Linq_aggregate_resizearray() =
+    zs.Aggregate(0, fun v next -> v + next)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_aggregate_resizearray() =
+    zs |> Linq.aggregate 0 (fun v next -> v + next)
+    
+  [<Benchmark>]
+  member __.System_Linq_aggregate_seq() =
+    ss.Aggregate(0, fun v next -> v + next)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_aggregate_seq() =
+    ss |> Linq.aggregate 0 (fun v next -> v + next)
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_all_fslist() =
+  //  xs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_fslist() =
+  //  xs |> Linq.all (fun x -> x < 10000)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_all_array() =
+  //  ys.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_array() =
+  //  ys |> Linq.all (fun x -> x < 10000)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_all_resizearray() =
+  //  zs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_resizearray() =
+  //  zs |> Linq.all (fun x -> x < 10000)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_all_seq() =
+  //  ss.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_seq() =
+  //  ss |> Linq.all (fun x -> x < 10000)
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_any_fslist() =
+  //  xs.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_fslist() =
+  //  xs |> Linq.any' (fun x -> 10000 < x)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_array() =
+  //  ys.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_array() =
+  //  ys |> Linq.any' (fun x -> 10000 < x)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_resizearray() =
+  //  zs.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_resizearray() =
+  //  zs |> Linq.any' (fun x -> 10000 < x)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_seq() =
+  //  ss.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_seq() =
+  //  ss |> Linq.any' (fun x -> 10000 < x)
+
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_any_fslist() =
+  //  xs.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_fslist() =
+  //  xs |> Linq.any
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_array() =
+  //  ys.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_array() =
+  //  ys |> Linq.any
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_resizearray() =
+  //  zs.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_resizearray() =
+  //  zs |> Linq.any
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_seq() =
+  //  ss.Any()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_seq() =
+  //  ss |> Linq.any
+
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_any() =
+  //  xs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any() =
+  //  xs |> Linq.all (fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.System_Linq_all() =
+  //  xs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all() =
+  //  xs |> Linq.all (fun x -> x < 10000)
+
+
+
+  //let xs = [| 0..10000 |]
+
+  //[<Benchmark>]
+  //member __.System_Linq_aggregate() =
+  //  xs.Aggregate(fun v next -> v + next)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_aggregate() =
+  //  xs |> Linq.aggregate'' (fun v next -> v + next)
+
+
+  //let xs = ArrayList([| ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; ""; |])
+  //let ys = ArrayList([| 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; 10; |])
+  
+  //[<Benchmark>]
+  //member __.Funtom_Linq_cast_class() =
+  //  xs |> Linq.cast<string> |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Dotnet_Linq_cast_class() =
+  //  xs.Cast<string>().ToArray()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_cast_struct() =
+  //  ys |> Linq.cast<int> |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Dotnet_Linq_cast_struct() =
+  //  ys.Cast<int>().ToArray()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_oftype() =
+  //  xs |> Linq.ofType<string> |> Linq.toArray
+
+  //[<Benchmark>]
+  //member __.Dotnet_Linq_oftype() =
+  //  xs.OfType<string>().ToArray()
+
   //let xs = [ 0 .. 10000 ]
 
   //[<Benchmark>]
@@ -311,58 +507,60 @@ type Benchmark () =
   //member __.Linq_Sum_resizearry() =
   //  zs.Sum()
   
-  let xs = [ 0 .. 10000 ]
-  let ys = [| 0 .. 10000 |]
-  let zs = ResizeArray([| 0 .. 10000 |])
-  let ss = seq { 0 .. 10000 }
 
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_fslist() =
-    xs |> Seq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_fslist() =
-    xs |> Linq.sum
+  //let xs = [ 0 .. 10000 ]
+  //let ys = [| 0 .. 10000 |]
+  //let zs = ResizeArray([| 0 .. 10000 |])
+  //let ss = seq { 0 .. 10000 }
 
-  [<Benchmark>]
-  member __.Linq_Sum_fslist() =
-    xs.Sum()
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_fslist() =
+  //  xs |> Seq.sum
 
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_array() =
-    ys |> Seq.sum
+  //[<Benchmark>]
+  //member __.Funtom_sum_fslist() =
+  //  xs |> Linq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_array() =
-    ys |> Linq.sum
+  //[<Benchmark>]
+  //member __.Linq_Sum_fslist() =
+  //  xs.Sum()
 
-  [<Benchmark>]
-  member __.Linq_Sum_array() =
-    ys.Sum()
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_array() =
+  //  ys |> Seq.sum
+
+  //[<Benchmark>]
+  //member __.Funtom_sum_array() =
+  //  ys |> Linq.sum
+
+  //[<Benchmark>]
+  //member __.Linq_Sum_array() =
+  //  ys.Sum()
   
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_resizearray() =
-    zs |> Seq.sum
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_resizearray() =
+  //  zs |> Seq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_resizearray() =
-    zs |> Linq.sum
+  //[<Benchmark>]
+  //member __.Funtom_sum_resizearray() =
+  //  zs |> Linq.sum
 
-  [<Benchmark>]
-  member __.Linq_Sum_resizearray() =
-    zs.Sum()
+  //[<Benchmark>]
+  //member __.Linq_Sum_resizearray() =
+  //  zs.Sum()
   
-  [<Benchmark>]
-  member __.Fsharp_Seq_sum_seq() =
-    ss |> Seq.sum
+  //[<Benchmark>]
+  //member __.Fsharp_Seq_sum_seq() =
+  //  ss |> Seq.sum
 
-  [<Benchmark>]
-  member __.Funtom_sum_seq() =
-    ss |> Linq.sum
+  //[<Benchmark>]
+  //member __.Funtom_sum_seq() =
+  //  ss |> Linq.sum
 
-  [<Benchmark>]
-  member __.Linq_Sum_seq() =
-    ss.Sum()
+  //[<Benchmark>]
+  //member __.Linq_Sum_seq() =
+  //  ss.Sum()
 
   //[<Benchmark>]
   //member __.Fsharp_Seq_map() =
