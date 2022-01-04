@@ -143,12 +143,25 @@ let is_even v = v % 2 = 0
 //let ys = xs.Cast<int>().ToArray()
 
 //let xs = [| 0..10 |]
-//xs 
-//|> Linq.aggregate'' (fun v next -> v + next)
-//|> printfn "%d"
+ResizeArray [| 0..10 |]
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+[| 0..10 |]
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+[ 0..10 ]
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
+seq { 0..10 }
+|> Linq.aggregate 0 (fun v next -> v + next)
+|> printfn "%d"
+
 
 //xs.Aggregate (fun v next -> v + next)
 //|> printfn "%d"
 
-[| 0..5 |].All(fun x -> x < 0) |> printfn "%b"
-[| 0..5 |] |> Linq.all (fun x -> x < 0) |> printfn "%b"
+//[| 0..5 |].All(fun x -> x < 0) |> printfn "%b"
+//[| 0..5 |] |> Linq.all (fun x -> x < 0) |> printfn "%b"

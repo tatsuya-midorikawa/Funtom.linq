@@ -27,18 +27,37 @@ module Linq =
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__2_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__
   let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
-    use iter = src.GetEnumerator()
-    let rec fn (seed': ^Accumulate) =
-      if iter.MoveNext() then fn (fx seed' iter.Current)
-      else seed'
-    fn seed
+    match src with
+    | :? list< ^T> as ls ->
+      let rec fn(xs: list< ^T>) (seed': ^Accumulate) =
+        match xs with
+        | h::tail ->
+          fn tail (fx seed' h)
+        | _ -> seed'
+      fn ls seed
+    | :? array< ^T> as ary ->
+      let rec fn(i: int) (seed': ^Accumulate)=
+        if i < ary.Length then
+          fn (i + 1) (fx seed' ary[i])
+        else seed'
+      fn 0 seed
+    | :? ResizeArray< ^T> as ary ->
+      let rec fn(i: int) (seed': ^Accumulate)=
+        if i < ary.Count then
+          fn (i + 1) (fx seed' ary[i])
+        else seed'
+      fn 0 seed
+    | _ ->
+      use iter = src.GetEnumerator()
+      let rec fn (seed': ^Accumulate) =
+        if iter.MoveNext() then fn (fx seed' iter.Current)
+        else seed'
+      fn seed
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__3_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__System_Func___1___2__
   let inline aggregate' (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) ([<InlineIfLambda>]resultSelector: ^Accumulate -> ^Result) (src: seq< ^T>) =
-    use iter = src.GetEnumerator()
-    let rec fn (seed': ^Accumulate) =
-      if iter.MoveNext() then fn (fx seed' iter.Current)
-      else seed'
-    fn seed |> resultSelector
+    src
+    |> aggregate seed fx 
+    |> resultSelector
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__1_System_Collections_Generic_IEnumerable___0__System_Func___0___0___0__
   let inline aggregate'' ([<InlineIfLambda>]fx: ^T -> ^T -> ^T) (src: seq< ^T>) =
     use iter = src.GetEnumerator()
@@ -85,7 +104,6 @@ module Linq =
         else
           true
       fn()
-
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
   // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs

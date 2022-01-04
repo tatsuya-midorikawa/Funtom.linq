@@ -12,36 +12,69 @@ type Benchmark () =
   let ss = seq { 0..10000 }
   
   [<Benchmark>]
-  member __.System_Linq_all_fslist() =
-    xs.All(fun x -> x < 10000)
+  member __.System_Linq_aggregate_fslist() =
+    xs.Aggregate(0, fun v next -> v + next)
 
   [<Benchmark>]
-  member __.Funtom_Linq_all_fslist() =
-    xs |> Linq.all (fun x -> x < 10000)
+  member __.Funtom_Linq_aggregate_fslist() =
+    xs |> Linq.aggregate 0 (fun v next -> v + next)
     
   [<Benchmark>]
-  member __.System_Linq_all_array() =
-    ys.All(fun x -> x < 10000)
+  member __.System_Linq_aggregate_array() =
+    ys.Aggregate(0, fun v next -> v + next)
 
   [<Benchmark>]
-  member __.Funtom_Linq_all_array() =
-    ys |> Linq.all (fun x -> x < 10000)
+  member __.Funtom_Linq_aggregate_array() =
+    ys |> Linq.aggregate 0 (fun v next -> v + next)
     
   [<Benchmark>]
-  member __.System_Linq_all_resizearray() =
-    zs.All(fun x -> x < 10000)
+  member __.System_Linq_aggregate_resizearray() =
+    zs.Aggregate(0, fun v next -> v + next)
 
   [<Benchmark>]
-  member __.Funtom_Linq_all_resizearray() =
-    zs |> Linq.all (fun x -> x < 10000)
+  member __.Funtom_Linq_aggregate_resizearray() =
+    zs |> Linq.aggregate 0 (fun v next -> v + next)
     
   [<Benchmark>]
-  member __.System_Linq_all_seq() =
-    ss.All(fun x -> x < 10000)
+  member __.System_Linq_aggregate_seq() =
+    ss.Aggregate(0, fun v next -> v + next)
 
   [<Benchmark>]
-  member __.Funtom_Linq_all_seq() =
-    ss |> Linq.all (fun x -> x < 10000)
+  member __.Funtom_Linq_aggregate_seq() =
+    ss |> Linq.aggregate 0 (fun v next -> v + next)
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_all_fslist() =
+  //  xs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_fslist() =
+  //  xs |> Linq.all (fun x -> x < 10000)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_all_array() =
+  //  ys.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_array() =
+  //  ys |> Linq.all (fun x -> x < 10000)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_all_resizearray() =
+  //  zs.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_resizearray() =
+  //  zs |> Linq.all (fun x -> x < 10000)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_all_seq() =
+  //  ss.All(fun x -> x < 10000)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_all_seq() =
+  //  ss |> Linq.all (fun x -> x < 10000)
 
 
   //[<Benchmark>]
