@@ -52,15 +52,40 @@ module Linq =
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.all?view=net-6.0
   // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs
-  let inline all ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) =
-    use iter = src.GetEnumerator()
-    let rec fn () =
-      if iter.MoveNext() then
-        if predicate iter.Current then fn()
-        else false
-      else
-        true
-    fn ()
+  let inline all ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) =    
+    match src with
+    | :? list< ^T> as ls ->
+      let rec fn(xs: list< ^T>) =
+        match xs with
+        | h::tail ->
+          if predicate h then fn tail
+          else false
+        | _ -> true
+      fn ls
+    | :? array< ^T> as ary ->
+      let rec fn(i: int) =
+        if i < ary.Length then
+          if predicate ary[i] then fn (i + 1)
+          else false
+        else true
+      fn 0
+    | :? ResizeArray< ^T> as ary ->
+      let rec fn(i: int) =
+        if i < ary.Count then
+          if predicate ary[i] then fn (i + 1)
+          else false
+        else true
+      fn 0
+    | _ ->
+      use iter = src.GetEnumerator()
+      let rec fn() =
+        if iter.MoveNext() then
+          if predicate iter.Current then fn()
+          else false
+        else
+          true
+      fn()
+
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
   // https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AnyAll.cs

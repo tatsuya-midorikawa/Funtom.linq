@@ -10,38 +10,71 @@ type Benchmark () =
   let ys = [| 0..10000 |]
   let zs = ResizeArray [| 0..10000 |]
   let ss = seq { 0..10000 }
+  
+  [<Benchmark>]
+  member __.System_Linq_all_fslist() =
+    xs.All(fun x -> x < 10000)
 
   [<Benchmark>]
-  member __.System_Linq_any_fslist() =
-    xs.Any(fun x -> 10000 < x)
-
-  [<Benchmark>]
-  member __.Funtom_Linq_any_fslist() =
-    xs |> Linq.any' (fun x -> 10000 < x)
+  member __.Funtom_Linq_all_fslist() =
+    xs |> Linq.all (fun x -> x < 10000)
     
   [<Benchmark>]
-  member __.System_Linq_any_array() =
-    ys.Any(fun x -> 10000 < x)
+  member __.System_Linq_all_array() =
+    ys.All(fun x -> x < 10000)
 
   [<Benchmark>]
-  member __.Funtom_Linq_any_array() =
-    ys |> Linq.any' (fun x -> 10000 < x)
+  member __.Funtom_Linq_all_array() =
+    ys |> Linq.all (fun x -> x < 10000)
     
   [<Benchmark>]
-  member __.System_Linq_any_resizearray() =
-    zs.Any(fun x -> 10000 < x)
+  member __.System_Linq_all_resizearray() =
+    zs.All(fun x -> x < 10000)
 
   [<Benchmark>]
-  member __.Funtom_Linq_any_resizearray() =
-    zs |> Linq.any' (fun x -> 10000 < x)
+  member __.Funtom_Linq_all_resizearray() =
+    zs |> Linq.all (fun x -> x < 10000)
     
   [<Benchmark>]
-  member __.System_Linq_any_seq() =
-    ss.Any(fun x -> 10000 < x)
+  member __.System_Linq_all_seq() =
+    ss.All(fun x -> x < 10000)
 
   [<Benchmark>]
-  member __.Funtom_Linq_any_seq() =
-    ss |> Linq.any' (fun x -> 10000 < x)
+  member __.Funtom_Linq_all_seq() =
+    ss |> Linq.all (fun x -> x < 10000)
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_any_fslist() =
+  //  xs.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_fslist() =
+  //  xs |> Linq.any' (fun x -> 10000 < x)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_array() =
+  //  ys.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_array() =
+  //  ys |> Linq.any' (fun x -> 10000 < x)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_resizearray() =
+  //  zs.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_resizearray() =
+  //  zs |> Linq.any' (fun x -> 10000 < x)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_any_seq() =
+  //  ss.Any(fun x -> 10000 < x)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_any_seq() =
+  //  ss |> Linq.any' (fun x -> 10000 < x)
 
 
 
