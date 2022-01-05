@@ -169,3 +169,5 @@ let is_even v = v % 2 = 0
 
 [| 0..10 |].Append(11).ToArray() |> printfn "%A"
 [| 0..10 |] |> Linq.append 11 |> Linq.toArray |> printfn "%A"
+
+1 <<< 1 |> printfn "%d"
