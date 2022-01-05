@@ -11,37 +11,152 @@ type Benchmark () =
   let zs = ResizeArray [| 0..10000 |]
   let ss = seq { 0..10000 }
   
-  [<Benchmark>]
-  member __.System_Linq_aggregate_fslist() =
-    xs.Aggregate(0, fun v next -> v + next)
 
   [<Benchmark>]
-  member __.Funtom_Linq_aggregate_fslist() =
-    xs |> Linq.aggregate 0 (fun v next -> v + next)
+  member __.System_Linq_select_fslist() =
+    let mutable acc = 0
+    for x in xs.Append(10) do
+      acc <- acc + x
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_fslist() =
+    let mutable acc = 0
+    for x in xs |> Linq.append 10 do
+      acc <- acc + x
+    acc
     
   [<Benchmark>]
-  member __.System_Linq_aggregate_array() =
-    ys.Aggregate(0, fun v next -> v + next)
+  member __.System_Linq_select_array() =
+    let mutable acc = 0
+    for y in ys.Append(10) do
+      acc <- acc + y
+    acc
 
   [<Benchmark>]
-  member __.Funtom_Linq_aggregate_array() =
-    ys |> Linq.aggregate 0 (fun v next -> v + next)
+  member __.Funtom_Linq_select_array() =
+    let mutable acc = 0
+    for y in ys |> Linq.append 10 do
+      acc <- acc + y
+    acc
     
   [<Benchmark>]
-  member __.System_Linq_aggregate_resizearray() =
-    zs.Aggregate(0, fun v next -> v + next)
+  member __.System_Linq_append_resizearray() =
+    let mutable acc = 0
+    for z in zs.Append(10) do
+      acc <- acc + z
+    acc
 
   [<Benchmark>]
-  member __.Funtom_Linq_aggregate_resizearray() =
-    zs |> Linq.aggregate 0 (fun v next -> v + next)
+  member __.Funtom_Linq_select_resizearray() =
+    let mutable acc = 0
+    for z in zs |> Linq.append 10 do
+      acc <- acc + z
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss.Append(10) do
+      acc <- acc + s
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss |> Linq.append 10 do
+      acc <- acc + s
+    acc
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_select_fslist() =
+  //  let mutable acc = 0
+  //  for x in xs.Select(fun v -> v) do
+  //    acc <- acc + x
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_fslist() =
+  //  let mutable acc = 0
+  //  for x in xs |> Linq.select (fun v -> v) do
+  //    acc <- acc + x
+  //  acc
     
-  [<Benchmark>]
-  member __.System_Linq_aggregate_seq() =
-    ss.Aggregate(0, fun v next -> v + next)
+  //[<Benchmark>]
+  //member __.System_Linq_select_array() =
+  //  let mutable acc = 0
+  //  for y in ys.Select(fun v -> v) do
+  //    acc <- acc + y
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_aggregate_seq() =
-    ss |> Linq.aggregate 0 (fun v next -> v + next)
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_array() =
+  //  let mutable acc = 0
+  //  for y in ys |> Linq.select (fun v -> v) do
+  //    acc <- acc + y
+  //  acc
+    
+  //[<Benchmark>]
+  //member __.System_Linq_append_resizearray() =
+  //  let mutable acc = 0
+  //  for z in zs.Select(fun v -> v) do
+  //    acc <- acc + z
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_resizearray() =
+  //  let mutable acc = 0
+  //  for z in zs |> Linq.select (fun v -> v) do
+  //    acc <- acc + z
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss.Select(fun v -> v) do
+  //    acc <- acc + s
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Linq.select (fun v -> v) do
+  //    acc <- acc + s
+  //  acc
+  
+  
+  //[<Benchmark>]
+  //member __.System_Linq_aggregate_fslist() =
+  //  xs.Aggregate(0, fun v next -> v + next)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_aggregate_fslist() =
+  //  xs |> Linq.aggregate 0 (fun v next -> v + next)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_aggregate_array() =
+  //  ys.Aggregate(0, fun v next -> v + next)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_aggregate_array() =
+  //  ys |> Linq.aggregate 0 (fun v next -> v + next)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_aggregate_resizearray() =
+  //  zs.Aggregate(0, fun v next -> v + next)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_aggregate_resizearray() =
+  //  zs |> Linq.aggregate 0 (fun v next -> v + next)
+    
+  //[<Benchmark>]
+  //member __.System_Linq_aggregate_seq() =
+  //  ss.Aggregate(0, fun v next -> v + next)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_aggregate_seq() =
+  //  ss |> Linq.aggregate 0 (fun v next -> v + next)
 
 
   //[<Benchmark>]

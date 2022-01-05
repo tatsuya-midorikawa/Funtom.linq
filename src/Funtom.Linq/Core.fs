@@ -431,4 +431,38 @@ module rec Core =
     interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
     interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
 
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality>]
+  type AppendEnumerator<'T> (iter: IEnumerator<'T>, item: 'T) =
+    let mutable current: 'T = Unchecked.defaultof<'T>
+    let mutable isEnd = false
+    let dispose () = ()
+    let move_next () =
+      if iter.MoveNext() then current <- iter.Current; true
+      else if isEnd then dispose(); false
+      else current <- item; isEnd <- true; true
+    let current (): 'T = current
+    let reset () = ()
 
+    member __.Dispose() = dispose ()
+    member __.MoveNext() = move_next ()
+    member __.Current with get() : 'T = current ()
+    member __.Reset() = reset ()
+    
+    interface IDisposable with member __.Dispose () = dispose ()
+    interface IEnumerator with
+         member __.MoveNext () = move_next ()
+         member __.Current with get() = current ()
+         member __.Reset () = reset ()
+    interface IEnumerator<'T> with member __.Current with get() = current ()
+  
+  /// <summary>
+  /// 
+  /// </summary>
+  [<NoComparison;NoEquality>]
+  type AppendIterator<'T> (source: seq<'T>, item: 'T) =
+    let get_enumerator () = new AppendEnumerator<'T> (source.GetEnumerator(), item)
+    interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
