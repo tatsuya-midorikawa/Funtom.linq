@@ -35,7 +35,7 @@ module ArrayOp =
     member __.Buffer with get() = __.array'
     member __.Count with get() = __.count'
     member __.Item with get(index: int) =
-      assert(0 <= index && index < __.count')
+      assert (0 <= index && index < __.count')
       __.array'[index]
 
     member __.Add (item: 'T) =
@@ -43,13 +43,9 @@ module ArrayOp =
         __.EnsureCapacity(__.count' + 1)
       __.UncheckedAdd item
 
-    member __.First () =
-      assert(0 < __.count')
-      __.array'[0]
+    member __.First () = __.array'[0]
 
-    member __.Last () =
-      assert(0 < __.count')
-      __.array'[__.count' - 1]
+    member __.Last () = __.array'[__.count' - 1]
 
     member __.ToArray () =
       let mutable result = __.array'
@@ -63,7 +59,6 @@ module ArrayOp =
       __.count' <- __.count' + 1
 
     member private __.EnsureCapacity (minimum: int) =
-      assert(__.Capacity < minimum)
       let capacity = __.Capacity
       let mutable nextCapacity = if capacity = 0 then DefaultCapacity else 2 * capacity
       if uint MaxCoreClrArrayLength < uint nextCapacity then
@@ -95,3 +90,40 @@ module ArrayOp =
       index' = 0
       count' = 0 }
 
+    member __.Count = __.count'
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Add (item: 'T) =
+      assert (__.count' < __.maxCapacity')
+      let mutable index = __.index'
+      let current = __.current'
+      if uint current.Length <= uint index then
+        __.AddWithBufferAllocation item
+      else
+       current[index] <- item
+       __.index' <- index + 1
+      __.count' <- __.count' + 1
+
+    // TODO
+    // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L105
+    member __.AddRange (items: seq<'T>) =
+      ()
+        
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    member private __.AddWithBufferAllocation (item: 'T) =
+      __.AllocateBuffer ()
+      __.current'[__.index'] <- item
+      __.index' <- __.index' + 1
+
+    member private __.AllocateBuffer () =      
+      if uint __.count' < uint ResizeLimit then
+        let nextCapacity = min (if __.count' = 0 then StartingCapacity else 2 * __.count') __.maxCapacity'
+        __.current' <- create<'T> nextCapacity
+        System.Array.Copy(__.first', 0, __.current', 0, __.count')
+        __.first' <- __.current'
+      else
+        let nextCapacity =
+          if __.count' = ResizeLimit then ResizeLimit
+          else __.buffers'.Add __.current'; min __.count' (__.maxCapacity' - __.count')
+        __.current' <- create<'T> nextCapacity
+        __.index' <- 0
