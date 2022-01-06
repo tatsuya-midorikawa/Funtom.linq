@@ -8,7 +8,7 @@ module Enumerable =
   /// 
   /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/f0d3761d8e875f6fa17e43ab715b746bbcb68716/src/Common/src/System/Collections/Generic/EnumerableHelpers.cs">EnumerableHelpers.ToArray()</see>
-  let inline toArray< ^T>(source: seq< ^T>) =
+  let inline toArray< ^T> (source: seq< ^T>) =
     match source with
     | :? ICollection< ^T> as collection ->
       let count = collection.Count
@@ -38,3 +38,41 @@ module Enumerable =
         acc
       else
         Array.empty< ^T>
+
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/EnumerableHelpers.Linq.cs#L22">bool TryGetCount<T>(IEnumerable<T> source, out int count)</see>
+  let inline tryGetCount< ^T> (source: seq< ^T>, count: outref<int>) =
+    match source with
+    | :? ICollection< ^T> as collection ->
+      count <- collection.Count
+      true
+    // TODO: IListProveider< ^T>
+    //| :? IListProvider< ^T> as provider ->
+    //  count <- provider.GetCount()
+    //  count >= 0
+    | _ ->
+      count <- -1
+      false
+      
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/EnumerableHelpers.Linq.cs#L74">void IterativeCopy<T>(IEnumerable<T> source, T[] array, int arrayIndex, int count)</see>
+  let inline iterativeCopy< ^T> (source: seq< ^T>, array: array< ^T>, arrayIndex: int, count: int) =
+    let mutable index = arrayIndex
+    let endIndex = arrayIndex + count
+    for v in source do
+      array[index] <- v
+      index <- index + 1
+    assert(arrayIndex = endIndex)
+      
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/EnumerableHelpers.Linq.cs#L49">void Copy<T>(IEnumerable<T> source, T[] array, int arrayIndex, int count)</see>
+  let inline copy< ^T> (source: seq< ^T>, array: array< ^T>, arrayIndex: int, count: int) =
+    match source with
+    | :? ICollection< ^T> as collection -> collection.CopyTo(array, arrayIndex)
+    | _ -> iterativeCopy(source, array, arrayIndex, count)
