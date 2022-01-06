@@ -83,5 +83,15 @@ module ArrayOp =
   type LargeArrayBuilder<'T> =
     val mutable maxCapacity': int
     val mutable first': array<'T>
-    new (maxCapacity: int) = { maxCapacity' = maxCapacity; first' = Array.empty<'T>; }
+    val mutable buffers': ArrayBuilder<array<'T>>
+    val mutable current': array<'T>
+    val mutable index': int
+    val mutable count': int
+    new (maxCapacity: int) = { 
+      maxCapacity' = maxCapacity
+      first' = Array.empty<'T>
+      buffers' = ArrayBuilder(StartingCapacity)
+      current' = Array.empty<'T>
+      index' = 0
+      count' = 0 }
 
