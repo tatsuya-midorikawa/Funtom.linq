@@ -120,6 +120,11 @@ module ArrayOp =
 
       __.count' <- __.count' + (index - __.index')
       __.index' <- index
+
+    // TODO
+    // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L157
+    member __.CopyTo (array: array<'T>, arrayIndex: int, count: int) =
+      ()
         
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T) =
