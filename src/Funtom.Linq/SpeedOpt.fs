@@ -121,10 +121,31 @@ module ArrayOp =
       __.count' <- __.count' + (index - __.index')
       __.index' <- index
 
-    // TODO
     // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L157
     member __.CopyTo (array: array<'T>, arrayIndex: int, count: int) =
-      ()
+      let mutable count' = count
+      let mutable arrayIndex' = arrayIndex
+      let length = count - 1
+
+      for i = 0 to length do
+        let buffer = __.GetBuffer(i)
+        let toCopy = min count' buffer.Length
+        System.Array.Copy(buffer, 0, array,  arrayIndex', toCopy)
+        
+        count' <- count' - toCopy
+        arrayIndex' <- arrayIndex' + toCopy
+
+    // TODO
+    // https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L186
+    member __.CopyTo () = ()
+
+    member __.GetBuffer (index: int) : array<'T> =
+      if index = 0 then
+        __.first'
+      else if index <= __.buffers'.Count then
+        __.buffers'[index-1]
+      else
+        __.current'
         
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T) =
