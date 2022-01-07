@@ -104,16 +104,35 @@ module ArrayOp =
        __.index' <- index + 1
       __.count' <- __.count' + 1
 
-    // TODO
     // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L105
     member __.AddRange (items: seq<'T>) =
-      ()
+      use enumerator = items.GetEnumerator()
+      let mutable destination = __.current'
+      let mutable index = __.index'
+
+      while enumerator.MoveNext() do
+        let item = enumerator.Current
+        if uint destination.Length <= uint index then
+          __.AddWithBufferAllocation(item, &destination, &index)
+        else
+          destination[index] <- item
+        index <- index + 1 
+
+      __.count' <- __.count' + (index - __.index')
+      __.index' <- index
         
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T) =
       __.AllocateBuffer ()
       __.current'[__.index'] <- item
       __.index' <- __.index' + 1
+      
+       
+    // TODO 
+    // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L141
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    member private __.AddWithBufferAllocation (item: 'T, destination: byref<array<'T>>, index: byref<int>) =
+      ()
 
     member private __.AllocateBuffer () =      
       if uint __.count' < uint ResizeLimit then
