@@ -127,12 +127,15 @@ module ArrayOp =
       __.current'[__.index'] <- item
       __.index' <- __.index' + 1
       
-       
-    // TODO 
     // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L141
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T, destination: byref<array<'T>>, index: byref<int>) =
-      ()
+      __.count' <- __.count' + (index - __.index')
+      __.index' <- index
+      __.AllocateBuffer()
+      destination <- __.current'
+      index <- __.index'
+      __.current'[index] <- item
 
     member private __.AllocateBuffer () =      
       if uint __.count' < uint ResizeLimit then
