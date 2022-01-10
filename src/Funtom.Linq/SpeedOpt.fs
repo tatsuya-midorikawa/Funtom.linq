@@ -191,6 +191,8 @@ module ArrayOp =
       else
         __.current'
 
+    member __.SlowAdd(item: 'T) = __.Add(item)
+
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T) =
       __.AllocateBuffer ()
