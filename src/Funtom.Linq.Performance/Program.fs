@@ -102,6 +102,14 @@ type Benchmark () =
       acc <- acc + x
     acc
     
+    
+  [<Benchmark>]
+  member __.Fsharp_map_fslist() =
+    let mutable acc = 0
+    for x in xs |> List.map (fun v -> v / 2) do
+      acc <- acc + x
+    acc
+  
   [<Benchmark>]
   member __.System_Linq_select_array() =
     let mutable acc = 0
@@ -113,6 +121,13 @@ type Benchmark () =
   member __.Funtom_Linq_select_array() =
     let mutable acc = 0
     for y in ys |> Linq.select (fun v -> v / 2) do
+      acc <- acc + y
+    acc
+    
+  [<Benchmark>]
+  member __.Fsharp_map_array() =
+    let mutable acc = 0
+    for y in ys |> Array.map (fun v -> v / 2) do
       acc <- acc + y
     acc
     
@@ -144,6 +159,12 @@ type Benchmark () =
       acc <- acc + s
     acc
   
+  [<Benchmark>]
+  member __.Fsharp_map_seq() =
+    let mutable acc = 0
+    for s in ss |> Seq.map (fun v -> v / 2) do
+      acc <- acc + s
+    acc
   
   //[<Benchmark>]
   //member __.System_Linq_aggregate_fslist() =
