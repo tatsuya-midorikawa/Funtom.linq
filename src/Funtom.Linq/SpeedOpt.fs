@@ -1,6 +1,7 @@
 ﻿namespace Funtom.Linq.SpeedOpt
 
 open System.Runtime.CompilerServices
+open System.Diagnostics
 
 module ArrayOp =
   [<Literal>]
@@ -18,6 +19,21 @@ module ArrayOp =
   let inline create<'T> length = 
     if 0 < length then Array.create length Unchecked.defaultof<'T> 
     else Array.empty<'T>
+
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.cs#L13">CopyPosition</see>
+  [<Struct; IsReadOnly; DebuggerDisplay("{DebuggerDisplay, nq}")>]
+  type CopyPosition = {
+    row: int
+    column: int
+  } with
+    static member start () = { row = 0; column = 0; }
+    member __.normalize (endColumn: int) =
+      if __.column = endColumn then { row = __.row + 1; column = 0}
+      else __
+    member __.debuggerDisplay() = $"[%d{__.row}, %d{__.column}]"
 
   /// <summary>
   /// 
@@ -135,9 +151,37 @@ module ArrayOp =
         count' <- count' - toCopy
         arrayIndex' <- arrayIndex' + toCopy
 
-    // TODO
     // https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L186
-    member __.CopyTo () = ()
+    member __.CopyTo (position: CopyPosition, array: array<'T>, arrayIndex: int, count: int) =
+      let mutable arrayIndex = arrayIndex
+      let mutable count = count
+
+      let copyToCore (sourceBuffer: array<'T>, sourceIndex: int) =
+        let copyCount = min (sourceBuffer.Length - sourceIndex) count
+        System.Array.Copy(sourceBuffer, sourceIndex, array, arrayIndex, copyCount)
+        arrayIndex <- arrayIndex + copyCount
+        count <- count - copyCount
+        copyCount
+        
+      let mutable row = position.row
+      let col = position.column
+      let mutable buf = __.GetBuffer row
+      let mutable copied = copyToCore(buf, col)
+
+      if count = 0 then
+        let p = { row = row; column = col + copied }
+        p.normalize(buf.Length)
+      else
+        buf <- __.GetBuffer row
+        row <- row + 1
+        copied <- copyToCore(buf, 0)
+        
+        while 0 < count do 
+          buf <- __.GetBuffer row
+          row <- row + 1
+          copied <- copyToCore(buf, 0)
+        let p = { row = row; column = copied }
+        p.normalize(buf.Length)
 
     member __.GetBuffer (index: int) : array<'T> =
       if index = 0 then
@@ -146,7 +190,7 @@ module ArrayOp =
         __.buffers'[index-1]
       else
         __.current'
-        
+
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T) =
       __.AllocateBuffer ()
