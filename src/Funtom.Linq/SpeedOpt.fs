@@ -39,7 +39,7 @@ module ArrayOp =
   /// 
   /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/ArrayBuilder.cs#L13">struct ArrayBuilder&lt;T&gt;</see>
-  [<Struct;NoComparison;NoEquality;IsByRefLike>]
+  [<Struct;NoComparison;NoEquality>]
   type ArrayBuilder<'T> =
     val mutable array': array<'T>
     val mutable count': int
@@ -90,7 +90,7 @@ module ArrayOp =
   /// 
   /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L14">LargeArrayBuilder&lt;T&gt;</see>
-  [<Struct;NoComparison;NoEquality;IsByRefLike>]
+  [<Struct;NoComparison;NoEquality>]
   type LargeArrayBuilder<'T> =
     val mutable maxCapacity': int
     val mutable first': array<'T>
@@ -237,3 +237,22 @@ module ArrayOp =
           else __.buffers'.Add __.current'; min __.count' (__.maxCapacity' - __.count')
         __.current' <- create<'T> nextCapacity
         __.index' <- 0
+
+  /// <summary>
+  /// 
+  /// </summary>
+  // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/SparseArrayBuilder.cs#L13
+  [<Struct; IsReadOnly; DebuggerDisplay("{DebuggerDisplay, nq}")>]
+  type Maker = { count: int; index: int }
+  with member __.DebuggerDisplay with get() = $"index: {__.index}, count: {__.count}"
+
+  /// <summary>
+  /// TODO: 
+  /// </summary>
+  // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/SparseArrayBuilder.cs#L49
+  [<Struct;NoComparison;NoEquality;>]
+  type SparseArrayBuilder<'T> = {
+    mutable builder : LargeArrayBuilder<'T>
+    mutable makers: ArrayBuilder<Maker>
+  }
+    
