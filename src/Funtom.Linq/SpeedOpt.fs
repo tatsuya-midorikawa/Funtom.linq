@@ -29,11 +29,11 @@ module ArrayOp =
     row: int
     column: int
   } with
-    static member start () = { row = 0; column = 0; }
-    member __.normalize (endColumn: int) =
+    static member Start () = { row = 0; column = 0; }
+    member __.Normalize (endColumn: int) =
       if __.column = endColumn then { row = __.row + 1; column = 0}
       else __
-    member __.debuggerDisplay() = $"[%d{__.row}, %d{__.column}]"
+    member __.DebuggerDisplay() = $"[%d{__.row}, %d{__.column}]"
 
   /// <summary>
   /// 
@@ -170,7 +170,7 @@ module ArrayOp =
 
       if count = 0 then
         let p = { row = row; column = col + copied }
-        p.normalize(buf.Length)
+        p.Normalize(buf.Length)
       else
         buf <- __.GetBuffer row
         row <- row + 1
@@ -181,7 +181,7 @@ module ArrayOp =
           row <- row + 1
           copied <- copyToCore(buf, 0)
         let p = { row = row; column = copied }
-        p.normalize(buf.Length)
+        p.Normalize(buf.Length)
 
     member __.GetBuffer (index: int) : array<'T> =
       if index = 0 then
@@ -254,5 +254,13 @@ module ArrayOp =
   type SparseArrayBuilder<'T> = {
     mutable builder : LargeArrayBuilder<'T>
     mutable makers: ArrayBuilder<Maker>
+    mutable reservedCount: int
   }
-    
+  with
+    static member Create() = { builder = LargeArrayBuilder<'T>(System.Int32.MaxValue); makers = ArrayBuilder<Maker>(); reservedCount = 0 }
+    member __.Count with get() = __.builder.Count + __.reservedCount
+    member __.Add (item: 'T) = __.builder.Add(item)
+    member __.AddRange (items: seq<'T>) = __.builder.AddRange(items)
+
+
+
