@@ -457,6 +457,16 @@ module rec Core =
          member __.Current with get() = current ()
          member __.Reset () = reset ()
     interface IEnumerator<'T> with member __.Current with get() = current ()
+
+    // TODO
+    // src: https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L106
+    member private __.LazyToArray() =
+      ()
+
+    // TODO
+    // src: https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L44
+    member __.ToArray() =
+      ()
   
   /// <summary>
   /// 
