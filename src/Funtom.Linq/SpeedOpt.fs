@@ -191,7 +191,22 @@ module ArrayOp =
       else
         __.current'
 
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
     member __.SlowAdd(item: 'T) = __.Add(item)
+
+    // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L266
+    member __.ToArray() =
+      let mutable ary = Unchecked.defaultof<array<'T>>
+      if __.TryMove &ary then
+        ary
+      else
+        ary <- Array.zeroCreate<'T> __.count'
+        __.CopyTo(ary, 0, __.count')
+        ary
+
+    member __.TryMove(array: outref<array<'T>>) =
+      array <- __.first'
+      __.count' = __.first'.Length
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     member private __.AddWithBufferAllocation (item: 'T) =
@@ -209,6 +224,7 @@ module ArrayOp =
       index <- __.index'
       __.current'[index] <- item
 
+    // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.SpeedOpt.cs#L290
     member private __.AllocateBuffer () =      
       if uint __.count' < uint ResizeLimit then
         let nextCapacity = min (if __.count' = 0 then StartingCapacity else 2 * __.count') __.maxCapacity'
