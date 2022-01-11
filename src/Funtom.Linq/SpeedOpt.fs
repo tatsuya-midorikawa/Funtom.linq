@@ -29,7 +29,7 @@ module ArrayOp =
     row: int
     column: int
   } with
-    static member Start () = { row = 0; column = 0; }
+    static member Start with get() = { row = 0; column = 0; }
     member __.Normalize (endColumn: int) =
       if __.column = endColumn then { row = __.row + 1; column = 0}
       else __
@@ -261,6 +261,42 @@ module ArrayOp =
     member __.Count with get() = __.builder.Count + __.reservedCount
     member __.Add (item: 'T) = __.builder.Add(item)
     member __.AddRange (items: seq<'T>) = __.builder.AddRange(items)
+    member __.CopyTo (array: array<'T>, arrayIndex: int, count: int) =
+      let mutable arrayIndex = arrayIndex
+      let mutable count = count
+      let mutable copied = 0
+      let mutable position = CopyPosition.Start
 
+      for i = 0 to __.makers.Count - 1 do
+        let maker = __.makers[i]
+        let toCopy = min (maker.index - copied ) count
+        if 0 < toCopy then
+          position <- __.builder.CopyTo(position, array, arrayIndex, toCopy)
+          arrayIndex <- arrayIndex + toCopy
+          copied <- copied + toCopy
+          count <- count - toCopy
 
+        if count = 0 then
+          ()
+        else
+          let reservedCount = min maker.count count
+          arrayIndex <- arrayIndex + reservedCount
+          copied <- copied + reservedCount
+          count <- count - reservedCount
+      
+      if 0 < count then
+        __.builder.CopyTo(position, array, arrayIndex, count) |> ignore
+
+    member __.Reserve (count: int) =
+      __.makers.Add { count = count; index = __.Count }
+      __.reservedCount <- Checked.(+) __.reservedCount count
+
+    member __.ReserveOrAdd (items: seq<'T>) =
+      let mutable itemCount = 0
+      if Funtom.Linq.Enumerable.tryGetCount<'T>(items, &itemCount) then
+        if 0 < itemCount then __.Reserve(itemCount); true
+        else false
+      else
+        __.AddRange(items)
+        false
 
