@@ -43,9 +43,9 @@ module Enumerable =
   /// 
   /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/EnumerableHelpers.Linq.cs#L22">bool TryGetCount<T>(IEnumerable<T> source, out int count)</see>
-  let inline tryGetCount< ^T> (source: seq< ^T>, count: outref<int>) =
+  let inline tryGetCount< 'T> (source: seq< 'T>, count: outref<int>) =
     match source with
-    | :? ICollection< ^T> as collection ->
+    | :? ICollection< 'T> as collection ->
       count <- collection.Count
       true
     // TODO: IListProveider< ^T>

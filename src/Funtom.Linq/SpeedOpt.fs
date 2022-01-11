@@ -247,7 +247,7 @@ module ArrayOp =
   with member __.DebuggerDisplay with get() = $"index: {__.index}, count: {__.count}"
 
   /// <summary>
-  /// TODO: 
+  /// 
   /// </summary>
   // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/SparseArrayBuilder.cs#L49
   [<Struct;NoComparison;NoEquality;>]
@@ -300,3 +300,10 @@ module ArrayOp =
         __.AddRange(items)
         false
 
+    member __.ToArray() =
+      if __.makers.Count = 0 then
+        __.builder.ToArray()
+      else
+        let array = Array.zeroCreate __.Count
+        __.CopyTo(array, 0, array.Length)
+        array
