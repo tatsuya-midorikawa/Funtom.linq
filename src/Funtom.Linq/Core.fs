@@ -459,9 +459,10 @@ module rec Core =
     interface IEnumerator<'T> with member __.Current with get() = current ()
 
     // TODO
-    // src: https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L106
+    // src: https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L27
     member private __.LazyToArray() =
       let builder = SparseArrayBuilder<'T>.Create()
+
       ()
 
     // TODO
