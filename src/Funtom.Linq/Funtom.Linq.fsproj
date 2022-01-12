@@ -30,9 +30,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Core.fs" />
     <Compile Include="Enumerable.fs" />
     <Compile Include="SpeedOpt.fs" />
+    <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />
     <Compile Include="LinqExtensions.fs" />
