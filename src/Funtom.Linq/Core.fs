@@ -7,7 +7,7 @@ open System.Linq
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
-
+open Funtom.Linq.SpeedOpt.ArrayOp
 
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
@@ -461,6 +461,7 @@ module rec Core =
     // TODO
     // src: https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L106
     member private __.LazyToArray() =
+      let builder = SparseArrayBuilder<'T>.Create()
       ()
 
     // TODO
