@@ -32,15 +32,11 @@ module Basis =
 
     abstract member Clone : unit -> Iterator<'T>
 
-    interface IDisposable with
-      member __.Dispose () = __.Dispose()
+    interface IDisposable with member __.Dispose () = __.Dispose()
     interface IEnumerator with
       member __.MoveNext() = __.MoveNext()
       member __.Current with get() = __.Current
       member __.Reset () = __.Reset ()
-    interface IEnumerator<'T> with
-      member __.Current with get() = __.Current
-    interface IEnumerable with
-      member __.GetEnumerator () = __.GetEnumerator ()
-    interface IEnumerable<'T> with
-      member __.GetEnumerator () = __.GetEnumerator ()
+    interface IEnumerator<'T> with member __.Current with get() = __.Current
+    interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+    interface IEnumerable<'T> with member __.GetEnumerator () = __.GetEnumerator ()
