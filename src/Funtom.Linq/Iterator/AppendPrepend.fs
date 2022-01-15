@@ -15,6 +15,9 @@ module AppendPrepend =
 
     abstract member Append : 'T -> AppendPrependIteratpr<'T>
     abstract member Prepend : 'T -> AppendPrependIteratpr<'T>
+    abstract member ToArray : unit -> array<'T>
+    abstract member ToList : unit -> ResizeArray<'T>
+    abstract member GetCount : bool -> int
 
     member internal __.GetSourceEnumerator() = __.enumerator <- __.source.GetEnumerator()
     member internal __.LoadFromEnumerator() =
