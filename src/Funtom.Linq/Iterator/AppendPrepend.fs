@@ -7,6 +7,7 @@ open Basis
 
 module AppendPrepend =
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L39
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L11
   [<AbstractClass>]
   type AppendPrependIteratpr<'T> (source: seq<'T>) =
     inherit Iterator<'T> ()
@@ -32,3 +33,4 @@ module AppendPrepend =
         __.enumerator.Dispose()
         __.enumerator <- Unchecked.defaultof<IEnumerator<'T>>
       base.Dispose()
+
