@@ -63,4 +63,7 @@ module Basis =
       node
     member __.ToArray (count: int) =
       // TODO
+      let mutable array = Array.zeroCreate count
+      let mutable index = count
+
       ()
