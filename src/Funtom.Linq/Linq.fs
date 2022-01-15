@@ -245,7 +245,7 @@ module Linq =
     source.GroupBy(keySelector, elementSelector, resultSelector)
   let inline groubBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
     source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
-
+    
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
   let inline groupJoin (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)

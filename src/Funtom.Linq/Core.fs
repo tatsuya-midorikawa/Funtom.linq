@@ -461,7 +461,7 @@ module rec Core =
     // TODO
     // src: https://github.com/dotnet/corefx/blob/master/src/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L27
     member private __.LazyToArray() =
-      let builder = SparseArrayBuilder<'T>.Create()
+      let builder = LargeArrayBuilder<'T>(System.Int32.MaxValue)
 
       ()
 

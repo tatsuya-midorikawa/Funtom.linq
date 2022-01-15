@@ -30,6 +30,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Iterator\Basis.fs" />
+    <Compile Include="Interfaces.fs" />
     <Compile Include="Enumerable.fs" />
     <Compile Include="SpeedOpt.fs" />
     <Compile Include="Core.fs" />
