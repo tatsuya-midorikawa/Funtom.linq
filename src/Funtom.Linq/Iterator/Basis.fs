@@ -62,8 +62,12 @@ module Basis =
         node <- node.Linked
       node
     member __.ToArray (count: int) =
-      // TODO
-      let mutable array = Array.zeroCreate count
-      let mutable index = count
-
-      ()
+      let mutable array = Array.zeroCreate<'T> count
+      let rec fx(node: SingleLinkedNode<'T>, index: int) =
+        if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+          array[index] <- node.Item
+          fx(node.Linked, index)
+        else
+          ()
+      fx(__, 0)
+      array
