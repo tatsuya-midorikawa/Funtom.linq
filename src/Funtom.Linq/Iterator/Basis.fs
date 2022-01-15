@@ -40,3 +40,27 @@ module Basis =
     interface IEnumerator<'T> with member __.Current with get() = __.Current
     interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
     interface IEnumerable<'T> with member __.GetEnumerator () = __.GetEnumerator ()
+
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/SingleLinkedNode.cs#L12
+  [<Sealed>]
+  type SingleLinkedNode<'T> private (linked: SingleLinkedNode<'T>, item: 'T) =
+    new (item: 'T) = SingleLinkedNode(Unchecked.defaultof<SingleLinkedNode<'T>>, item)
+
+    member __.Item with get() = item
+    member __.Linked with get() = linked
+    member __.Add (item: 'T) = SingleLinkedNode(item)
+    member __.GetCount () =
+      let rec counts(node: SingleLinkedNode<'T>, count: int) =
+        if node = Unchecked.defaultof<SingleLinkedNode<'T>> then
+          count
+        else
+          counts (node.Linked, count + 1)
+      counts (__, 0)
+    member __.GetNode (index: int) =
+      let mutable node = __
+      for i = index downto 0 do
+        node <- node.Linked
+      node
+    member __.ToArray (count: int) =
+      // TODO
+      ()

@@ -34,3 +34,45 @@ module AppendPrepend =
         __.enumerator <- Unchecked.defaultof<IEnumerator<'T>>
       base.Dispose()
 
+  [<Sealed>]
+  type AppendPrependN<'T> (source: seq<'T>, prepended: SingleLinkedNode<'T>) =
+    inherit AppendPrependIteratpr<'T>(source)
+
+
+  [<Sealed>]
+  type AppendPrepend1Iterator<'T> (source: seq<'T>, item: 'T, appending: bool) =
+    inherit AppendPrependIteratpr<'T>(source)
+    override __.Clone() = new AppendPrepend1Iterator<'T>(source, item, appending)
+    override __.MoveNext() =
+      let getSouceEnumerator() =
+        __.GetSourceEnumerator()
+        __.state <- 3
+      let loadFromEnumerator() =
+        if __.LoadFromEnumerator() then
+          true
+        else
+          if appending then
+            __.current <- item
+            true
+          else
+            __.Dispose()
+            false
+            
+      match __.state with
+      | 1 ->
+        __.state <- 2
+        if appending then
+          __.current <- item
+          true
+        else
+          getSouceEnumerator()
+          loadFromEnumerator()
+      | 2 ->
+        getSouceEnumerator()
+        loadFromEnumerator()
+      | 3 ->
+        loadFromEnumerator()
+      | _ ->
+        __.Dispose()
+        false
+
