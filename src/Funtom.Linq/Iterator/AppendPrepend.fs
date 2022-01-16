@@ -132,12 +132,55 @@ module AppendPrepend =
 
     override __.ToArray() =
       let count = __.GetCount(true)
-      ()
+      if count = -1 then
+        __.LazyToArray()
+      else
+        let mutable array = Array.zeroCreate<'T>(count)
+        let rec prepend(node: SingleLinkedNode<'T>, index: int) =
+          if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+            array[index] <- node.Item
+            prepend(node.Linked, index + 1)
+          else
+            index
+        let mutable length = prepend(prepended, 0)
+
+        match __.source with
+        | :? ICollection<'T> as collection -> collection.CopyTo(array, length)
+        | _ ->
+          for item in __.source do
+            array[length] <- item
+            length <- length + 1
+
+        length <- array.Length - 1
+        let rec append (node: SingleLinkedNode<'T>, index: int) =
+          if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+            array[index] <- node.Item
+            append(node.Linked, index - 1)
+        append(appended, 0)
+        array
+
+    override __.ToList() =
+      let count = __.GetCount(true)
+      let list = ResizeArray<'T>(max count 4)
+      let rec prepend(node: SingleLinkedNode<'T>) =
+        if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+          list.Add(node.Item)
+          prepend(node.Linked)        
+
+      prepend(prepended)
+      list.AddRange(__.source)
+      // TODO: なんで appended だけ、ToArray(int) で AddRange してるの？
+      if appended <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+        list.AddRange(appended.ToArray(appendCount))
+
+      list
 
   [<Sealed>]
   type AppendPrepend1Iterator<'T> (source: seq<'T>, item: 'T, appending: bool) =
     inherit AppendPrependIterator<'T>(source)
+
     override __.Clone() = new AppendPrepend1Iterator<'T>(source, item, appending)
+
     override __.MoveNext() =
       let getSouceEnumerator() =
         __.GetSourceEnumerator()
@@ -170,4 +213,8 @@ module AppendPrepend =
       | _ ->
         __.Dispose()
         false
+
+
+
+
 

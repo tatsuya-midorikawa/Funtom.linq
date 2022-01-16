@@ -65,13 +65,11 @@ module Basis =
       node
     member __.ToArray (count: int) =
       let mutable array = Array.zeroCreate<'T> count
-      let rec fx(node: SingleLinkedNode<'T>, index: int) =
+      let rec copy(node: SingleLinkedNode<'T>, index: int) =
         if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
           array[index] <- node.Item
-          fx(node.Linked, index)
-        else
-          ()
-      fx(__, 0)
+          copy(node.Linked, index)
+      copy(__, 0)
       array
 
   [<Literal>]
