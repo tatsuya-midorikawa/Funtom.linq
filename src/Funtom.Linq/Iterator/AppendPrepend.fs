@@ -209,14 +209,10 @@ module AppendPrepend =
           -1
 
     override __.Append (item': 'T) =
-      if appending then
-        new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
-      else
-        new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item), SingleLinkedNode<'T>(item'), 1, 1)
+      if appending then new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
+      else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item), SingleLinkedNode<'T>(item'), 1, 1)
       
     override __.Prepend (item': 'T) =
-      if appending then
-        new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item'), SingleLinkedNode<'T>(item), 1, 1)
-      else
-        new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item).Add(item'), Unchecked.defaultof<SingleLinkedNode<'T>>, 2, 0)
+      if appending then new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item'), SingleLinkedNode<'T>(item), 1, 1)
+      else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item).Add(item'), Unchecked.defaultof<SingleLinkedNode<'T>>, 2, 0)
       
