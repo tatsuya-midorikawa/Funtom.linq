@@ -1,4 +1,4 @@
-﻿namespace Funtom.Linq
+﻿namespace Funtom.Linq.Common
 
 open System
 open System.Collections.Generic

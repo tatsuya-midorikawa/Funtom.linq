@@ -3,7 +3,9 @@
 open System
 open System.Collections
 open System.Collections.Generic
+open Funtom.Linq.Common
 open Basis
+open Interfaces
 
 module AppendPrepend =
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L39
@@ -106,9 +108,30 @@ module AppendPrepend =
         builder.Reserve(appendCount)
 
       let mutable array = builder.ToArray()
-      let mutable index = 0
+      let rec fx (node: SingleLinkedNode<'T>, index: int) =
+        if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+          array[index] <- node.Item
+          fx(node.Linked, index + 1)
+      fx(__.node, 0)
+      array
 
+    override __.GetCount (onlyIfCheap: bool) =
+      match source with
+      | :? IListProvider<'T> as provider ->
+        let count = provider.GetCount(onlyIfCheap)
+        if count = -1 then -1 else count + appendCount + prependCount
+      | _ -> 
+        if not onlyIfCheap || source.GetType() = typeof<ICollection<'T>> then
+          let length =
+            match source with
+            | :? ICollection<'T> as collection -> collection.Count
+            | :? IReadOnlyCollection<'T> as collection -> collection.Count
+            | _ -> source |> Seq.length
+          length + appendCount + prependCount
+        else -1
 
+    override __.ToArray() =
+      let count = __.GetCount(true)
       ()
 
   [<Sealed>]
