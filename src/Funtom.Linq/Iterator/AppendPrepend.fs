@@ -47,7 +47,7 @@ module AppendPrepend =
       new AppendPrependN<'T> (source, prepended, appended, prependCount, appendCount)
 
     override __.MoveNext () =
-      let getSourceEnumerator () =
+      let inline getSourceEnumerator () =
         if __.node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
           __.current <- __.node.Item
           __.node <- __.node.Linked
@@ -57,7 +57,7 @@ module AppendPrepend =
           __.state <- 3
           false
       
-      let loadFromEnumerator () =
+      let inline loadFromEnumerator () =
         if __.LoadFromEnumerator() then true
         else
           if appended = Unchecked.defaultof<SingleLinkedNode<'T>> then false
@@ -120,7 +120,7 @@ module AppendPrepend =
             match source with
             | :? ICollection<'T> as collection -> collection.Count
             | :? IReadOnlyCollection<'T> as collection -> collection.Count
-            | _ -> source |> Seq.length // Seq.length 辞めたい
+            | _ -> source |> Seq.length // TODO: Seq.length 辞めたい
           length + appendCount + prependCount
         else -1
 
@@ -180,8 +180,8 @@ module AppendPrepend =
     // TODO: 実装再確認
     // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L103
     override __.MoveNext() =
-      let getSouceEnumerator() = __.GetSourceEnumerator(); __.state <- 3
-      let loadFromEnumerator() =
+      let inline getSouceEnumerator() = __.GetSourceEnumerator(); __.state <- 3
+      let inline loadFromEnumerator() =
         if __.LoadFromEnumerator() then true
         else
           if appending then __.current <- item; true
@@ -204,7 +204,7 @@ module AppendPrepend =
         if count = -1 then -1 else count + 1
       | _ -> 
         if not onlyIfCheap || source.GetType() = typeof<ICollection<'T>> then
-          (Seq.length __.source) + 1  // Seq.length 辞めたい
+          (Seq.length __.source) + 1  // TODO: Seq.length 辞めたい
         else
           -1
 
