@@ -58,11 +58,9 @@ module AppendPrepend =
           false
       
       let loadFromEnumerator () =
-        if __.LoadFromEnumerator() then
-          true
+        if __.LoadFromEnumerator() then true
         else
-          if appended = Unchecked.defaultof<SingleLinkedNode<'T>> then
-            false
+          if appended = Unchecked.defaultof<SingleLinkedNode<'T>> then false
           else
             __.enumerator <- (appended.ToArray(appendCount) :> IEnumerable<'T>).GetEnumerator()
             __.state <- 4
@@ -77,13 +75,9 @@ module AppendPrepend =
       | 2 ->
         if getSourceEnumerator() then true
         else loadFromEnumerator()
-      | 3 ->
-        loadFromEnumerator()
-      | 4 ->
-        __.LoadFromEnumerator()
-      | _ ->
-        __.Dispose()
-        false
+      | 3 -> loadFromEnumerator()
+      | 4 -> __.LoadFromEnumerator()
+      | _ -> __.Dispose(); false
 
     override __.Append (item: 'T) =
       let appended =
@@ -126,7 +120,7 @@ module AppendPrepend =
             match source with
             | :? ICollection<'T> as collection -> collection.Count
             | :? IReadOnlyCollection<'T> as collection -> collection.Count
-            | _ -> source |> Seq.length
+            | _ -> source |> Seq.length // Seq.length 辞めたい
           length + appendCount + prependCount
         else -1
 
@@ -175,46 +169,43 @@ module AppendPrepend =
 
       list
 
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L89
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L20
   [<Sealed>]
   type AppendPrepend1Iterator<'T> (source: seq<'T>, item: 'T, appending: bool) =
     inherit AppendPrependIterator<'T>(source)
 
     override __.Clone() = new AppendPrepend1Iterator<'T>(source, item, appending)
 
+    // TODO: 実装再確認
+    // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L103
     override __.MoveNext() =
-      let getSouceEnumerator() =
-        __.GetSourceEnumerator()
-        __.state <- 3
+      let getSouceEnumerator() = __.GetSourceEnumerator(); __.state <- 3
       let loadFromEnumerator() =
-        if __.LoadFromEnumerator() then
-          true
+        if __.LoadFromEnumerator() then true
         else
-          if appending then
-            __.current <- item
-            true
-          else
-            __.Dispose()
-            false
-            
+          if appending then __.current <- item; true
+          else __.Dispose(); false
+      let exec = (getSouceEnumerator >> loadFromEnumerator)
+
       match __.state with
       | 1 ->
         __.state <- 2
-        if appending then
-          __.current <- item
-          true
+        if appending then __.current <- item; true
+        else exec()
+      | 2 -> exec()
+      | 3 -> loadFromEnumerator()
+      | _ -> __.Dispose(); false
+
+    override __.GetCount (onlyIfCheap: bool) =
+      match source with
+      | :? IListProvider<'T> as provider ->
+        let count = provider.GetCount(onlyIfCheap)
+        if count = -1 then -1 else count + 1
+      | _ -> 
+        if not onlyIfCheap || source.GetType() = typeof<ICollection<'T>> then
+          (Seq.length __.source) + 1  // Seq.length 辞めたい
         else
-          getSouceEnumerator()
-          loadFromEnumerator()
-      | 2 ->
-        getSouceEnumerator()
-        loadFromEnumerator()
-      | 3 ->
-        loadFromEnumerator()
-      | _ ->
-        __.Dispose()
-        false
-
-
-
+          -1
 
 
