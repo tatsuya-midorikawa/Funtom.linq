@@ -97,6 +97,18 @@ module AppendPrepend =
 
     member private __.LazyToArray() =
       let mutable builder = SparseArrayBuilder<'T>.Create()
+      if prepended <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+        builder.Reserve(prependCount)
+
+      builder.AddRange(source)
+
+      if appended <> Unchecked.defaultof<SingleLinkedNode<'T>> then
+        builder.Reserve(appendCount)
+
+      let mutable array = builder.ToArray()
+      let mutable index = 0
+
+
       ()
 
   [<Sealed>]
