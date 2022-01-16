@@ -95,6 +95,10 @@ module AppendPrepend =
         else new SingleLinkedNode<'T>(item)
       new AppendPrependN<'T>(source, prepended, appended, prependCount + 1, appendCount)
 
+    member private __.LazyToArray() =
+      let mutable builder = SparseArrayBuilder<'T>.Create()
+      ()
+
   [<Sealed>]
   type AppendPrepend1Iterator<'T> (source: seq<'T>, item: 'T, appending: bool) =
     inherit AppendPrependIterator<'T>(source)

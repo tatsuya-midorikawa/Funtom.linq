@@ -7,7 +7,8 @@ open System.Linq
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
-open Funtom.Linq.SpeedOpt.ArrayOp
+open Funtom.Linq.Iterator
+open Funtom.Linq.Iterator.Basis
 
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
