@@ -6,6 +6,7 @@ open System.Collections.Generic
 open Funtom.Linq.Common
 open Basis
 open Interfaces
+open System.Runtime.CompilerServices
 
 module AppendPrepend =
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L39
@@ -175,6 +176,13 @@ module AppendPrepend =
   type AppendPrepend1Iterator<'T> (source: seq<'T>, item: 'T, appending: bool) =
     inherit AppendPrependIterator<'T>(source)
 
+    let lazyToArray() =
+      let mutable builder = new LargeArrayBuilder<'T>(Int32.MaxValue)
+      if not appending then builder.SlowAdd(item)
+      builder.AddRange(source)
+      if appending then builder.SlowAdd(item)
+      builder.ToArray()
+
     override __.Clone() = new AppendPrepend1Iterator<'T>(source, item, appending)
 
     // TODO: 実装再確認
@@ -207,7 +215,7 @@ module AppendPrepend =
           (Seq.length __.source) + 1  // TODO: Seq.length 辞めたい
         else
           -1
-
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Append (item': 'T) =
       if appending then new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
       else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item), SingleLinkedNode<'T>(item'), 1, 1)
@@ -216,3 +224,25 @@ module AppendPrepend =
       if appending then new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item'), SingleLinkedNode<'T>(item), 1, 1)
       else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item).Add(item'), Unchecked.defaultof<SingleLinkedNode<'T>>, 2, 0)
       
+    override __.ToArray() =
+      let count = __.GetCount(true)
+      if count = -1 then
+        lazyToArray()
+      else
+        let array = Array.zeroCreate<'T>(count)
+        let mutable index = 
+          if appending then 0
+          else array[0] <- item; 1
+        Enumerable.copy (source, array, index, count - 1)
+        if appending then array[array.Length - 1] <- item
+        array
+
+    override __.ToList() =
+      let count = __.GetCount(true)
+      let list =
+        if count = -1 then ResizeArray()
+        else ResizeArray(count)
+      if not appending then list.Add(item)
+      list.AddRange(source)
+      if appending then list.Add(item)
+      list
