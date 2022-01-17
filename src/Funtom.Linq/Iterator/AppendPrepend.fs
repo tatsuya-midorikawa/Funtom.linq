@@ -39,7 +39,7 @@ module AppendPrepend =
 
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L168
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L103
-  [<Sealed>]
+  [<Sealed;NoComparison;NoEquality>]
   type AppendPrependN<'T> (source: seq<'T>, prepended: SingleLinkedNode<'T>, appended: SingleLinkedNode<'T>, prependCount: int, appendCount: int) =
     inherit AppendPrependIterator<'T>(source)
     member val private node = Unchecked.defaultof<SingleLinkedNode<'T>> with get, set
@@ -172,7 +172,7 @@ module AppendPrepend =
 
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L89
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L20
-  [<Sealed>]
+  [<Sealed;NoComparison;NoEquality>]
   type AppendPrepend1Iterator<'T> (source: seq<'T>, item: 'T, appending: bool) =
     inherit AppendPrependIterator<'T>(source)
 
