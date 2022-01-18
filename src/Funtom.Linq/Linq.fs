@@ -159,7 +159,6 @@ module Linq =
     | :? AppendPrependIterator< ^T> as appendable -> 
       appendable.Append(element)
     | _ -> 
-      printfn "b"
       new AppendPrepend1Iterator< ^T>(src, element, true)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.asenumerable?view=net-6.0

@@ -13,7 +13,8 @@ open System.Diagnostics
 let xs = [ 0..10 ]
 xs
 |> Linq.append 1
-|> Linq.append 1
+|> Linq.append 2
+|> Linq.append 3
 |> Linq.toArray
 |> printfn "%A"
 

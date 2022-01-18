@@ -217,7 +217,6 @@ module AppendPrepend =
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Append (item': 'T) =
-      printfn "a"
       if appending then new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
       else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item), SingleLinkedNode<'T>(item'), 1, 1)
       

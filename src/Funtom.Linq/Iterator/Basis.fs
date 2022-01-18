@@ -47,11 +47,11 @@ module Basis =
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/SingleLinkedNode.cs#L12
   [<Sealed>]
   type SingleLinkedNode<'T> private (linked: SingleLinkedNode<'T>, item: 'T) =
-    new (item: 'T) = SingleLinkedNode(Unchecked.defaultof<SingleLinkedNode<'T>>, item)
+    new (item': 'T) = SingleLinkedNode(Unchecked.defaultof<SingleLinkedNode<'T>>, item')
 
     member __.Item with get() = item
     member __.Linked with get() = linked
-    member __.Add (item: 'T) = SingleLinkedNode(item)
+    member __.Add (item': 'T) = SingleLinkedNode(__, item')
     member __.GetCount () =
       let rec counts(node: SingleLinkedNode<'T>, count: int) =
         if node = Unchecked.defaultof<SingleLinkedNode<'T>> then
@@ -65,12 +65,12 @@ module Basis =
         node <- node.Linked
       node
     member __.ToArray (count: int) =
-      let mutable array = Array.zeroCreate<'T> count
+      let array = Array.zeroCreate<'T> count
       let rec copy(node: SingleLinkedNode<'T>, index: int) =
         if node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
           array[index] <- node.Item
-          copy(node.Linked, index)
-      copy(__, 0)
+          copy(node.Linked, index - 1)
+      copy(__, count - 1)
       array
 
   [<Literal>]
