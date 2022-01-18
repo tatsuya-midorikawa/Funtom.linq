@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open Funtom.Linq.Common.Interfaces
 
 module Enumerable =
 
@@ -41,7 +42,7 @@ module Enumerable =
         Array.empty<'T>
 
   /// <summary>
-  /// TODO
+  /// 
   /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/EnumerableHelpers.Linq.cs#L22">bool TryGetCount<T>(IEnumerable<T> source, out int count)</see>
   let inline tryGetCount<'T> (source: seq<'T>, count: outref<int>) =
@@ -49,10 +50,9 @@ module Enumerable =
     | :? ICollection<'T> as collection ->
       count <- collection.Count
       true
-    // TODO: IListProveider< ^T>
-    //| :? IListProvider< ^T> as provider ->
-    //  count <- provider.GetCount()
-    //  count >= 0
+    | :? IListProvider<'T> as provider ->
+      count <- provider.GetCount(true)
+      0 <= count
     | _ ->
       count <- -1
       false
