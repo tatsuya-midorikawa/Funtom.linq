@@ -64,7 +64,7 @@ module AppendPrepend =
         else
           if appended = Unchecked.defaultof<SingleLinkedNode<'T>> then false
           else
-            __.enumerator <- (appended.ToArray(appendCount) :> IEnumerable<'T>).GetEnumerator()
+            __.enumerator <- (appended.ToArray(appendCount) :> seq<'T>).GetEnumerator()
             __.state <- 4
             __.LoadFromEnumerator()
 
@@ -217,6 +217,7 @@ module AppendPrepend =
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Append (item': 'T) =
+      printfn "a"
       if appending then new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
       else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item), SingleLinkedNode<'T>(item'), 1, 1)
       

@@ -10,14 +10,22 @@ open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
 
-let inline eval q = LeafExpressionConverter.EvaluateQuotation q
+let xs = [ 0..10 ]
+xs
+|> Linq.append 1
+|> Linq.append 1
+|> Linq.toArray
+|> printfn "%A"
 
-//seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
-//printfn ""
-//Enumerable.Range(0, 10) 
-//|> Seq.iter (fun x -> printf $"{x} ")
 
-let is_even v = v % 2 = 0
+//let inline eval q = LeafExpressionConverter.EvaluateQuotation q
+
+////seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
+////printfn ""
+////Enumerable.Range(0, 10) 
+////|> Seq.iter (fun x -> printf $"{x} ")
+
+//let is_even v = v % 2 = 0
 
 //let xs = 
 //  [0;1;2;3;4;5;]
@@ -172,5 +180,5 @@ let is_even v = v % 2 = 0
 
 //1 <<< 1 |> printfn "%d"
 
-Checked.(+) 1 1
-|> printfn "%d"
+//Checked.(+) 1 1
+//|> printfn "%d"

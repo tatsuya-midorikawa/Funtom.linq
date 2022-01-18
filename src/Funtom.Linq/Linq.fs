@@ -156,8 +156,11 @@ module Linq =
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L11
   let inline append (element: ^T) (src: seq< ^T>) = 
     match src with
-    | :? AppendPrependIterator< ^T> as appendable -> appendable.Append(element)
-    | _ -> new AppendPrepend1Iterator< ^T>(src, element, true)
+    | :? AppendPrependIterator< ^T> as appendable -> 
+      appendable.Append(element)
+    | _ -> 
+      printfn "b"
+      new AppendPrepend1Iterator< ^T>(src, element, true)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.asenumerable?view=net-6.0
   let inline asEnumerable (src: seq< ^T>) = src.AsEnumerable()
