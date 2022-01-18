@@ -186,7 +186,6 @@ module AppendPrepend =
 
     override __.Clone() = new AppendPrepend1Iterator<'T>(source, item, appending)
 
-    // TODO: 実装再確認
     // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L103
     override __.MoveNext() =
       let inline getSouceEnumerator() = __.GetSourceEnumerator(); __.state <- 3
@@ -200,7 +199,7 @@ module AppendPrepend =
       match __.state with
       | 1 ->
         __.state <- 2
-        if appending then __.current <- item; true
+        if not appending then __.current <- item; true
         else exec()
       | 2 -> exec()
       | 3 -> loadFromEnumerator()
@@ -212,10 +211,10 @@ module AppendPrepend =
         let count = provider.GetCount(onlyIfCheap)
         if count = -1 then -1 else count + 1
       | _ -> 
-        if not onlyIfCheap || source.GetType() = typeof<ICollection<'T>> then
-          (Seq.length __.source) + 1  // TODO: Seq.length 辞めたい
-        else
-          -1
+        if not onlyIfCheap || source.GetType() = typeof<ICollection<'T>>
+          then (Seq.length __.source) + 1  // TODO: Seq.length 辞めたい
+          else -1
+
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Append (item': 'T) =
       if appending then new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
