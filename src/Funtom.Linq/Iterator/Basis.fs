@@ -5,6 +5,7 @@ open System.Collections
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Diagnostics
+open Funtom.Linq
 
 module Basis =
   [<AbstractClass>]
@@ -361,7 +362,7 @@ module Basis =
 
     member __.ReserveOrAdd (items: seq<'T>) =
       let mutable itemCount = 0
-      if Funtom.Linq.Enumerable.tryGetCount<'T>(items, &itemCount) then
+      if Enumerable.tryGetCount<'T>(items, &itemCount) then
         if 0 < itemCount then __.Reserve(itemCount); true
         else false
       else

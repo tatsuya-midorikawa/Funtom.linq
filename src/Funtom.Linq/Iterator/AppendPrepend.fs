@@ -3,6 +3,7 @@
 open System
 open System.Collections
 open System.Collections.Generic
+open Funtom.Linq
 open Funtom.Linq.Common
 open Basis
 open Interfaces
