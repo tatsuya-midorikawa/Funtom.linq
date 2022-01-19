@@ -10,16 +10,17 @@ open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
 
-let xs = [ 0..10 ]
-xs
-|> Linq.prepend 1
-|> Linq.prepend 2
-|> Linq.prepend 3
-|> Linq.toArray
-|> printfn "%A"
+//let xs = [ 0..10 ]
+//xs
+//|> Linq.prepend 1
+//|> Linq.prepend 2
+//|> Linq.prepend 3
+//|> Linq.toArray
+//|> printfn "%A"
 
-xs.Prepend(1).Prepend(2).Prepend(3).ToArray()
-|> printfn "%A"
+//xs.Prepend(1).Prepend(2).Prepend(3).ToArray()
+//|> printfn "%A"
+
 
 //let inline eval q = LeafExpressionConverter.EvaluateQuotation q
 

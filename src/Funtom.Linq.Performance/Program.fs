@@ -25,147 +25,132 @@ type Benchmark () =
   
   
   [<GlobalSetup>]
-    member this.Setup() =
-        xs <- [for _ in 1..10000 do fake.Random.Int()]
-        ys <- [|for _ in 1..10000 do fake.Random.Int()|]
-        zs <- ResizeArray([|for _ in 1..10000 do fake.Random.Int()|])
-        ss <- [|for _ in 1..10000 do fake.Random.Int()|] |> Seq.ofArray
+  member this.Setup() =
+    xs <- [for _ in 1..10000 do fake.Random.Int()]
+    ys <- [|for _ in 1..10000 do fake.Random.Int()|]
+    zs <- ResizeArray([|for _ in 1..10000 do fake.Random.Int()|])
+    ss <- [|for _ in 1..10000 do fake.Random.Int()|] |> Seq.ofArray
+
+
+  [<Benchmark>]
+  member __.Funtom_Linq_append() =
+    let mutable ls : seq<int> = [||]
+    for i = 0 to 1000 do
+      ls <- ls |> Linq.append i
+    ls |> Linq.toArray
+
+  [<Benchmark>]
+  member __.System_Linq_append() =
+    let mutable ls : seq<int> = [||]
+    for i = 0 to 1000 do
+      ls <- ls.Append i
+    ls |> Linq.toArray
+
+  [<Benchmark>]
+  member __.Funtom_Linq_append2() =
+    let mutable ls : seq<int> = [||]
+    for i = 0 to 1000 do
+      ls <- ls |> Linq.append i
+
+    let mutable acc = 0
+    for x in ls do
+      acc <- acc + x
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_append2() =
+    let mutable ls : seq<int> = [||]
+    for i = 0 to 1000 do
+      ls <- ls.Append i
+
+    let mutable acc = 0
+    for x in ls do
+      acc <- acc + x
+    acc
+
 
   //[<Benchmark>]
-  //member __.System_Linq_append_fslist() =
+  //member __.System_Linq_select_fslist() =
   //  let mutable acc = 0
-  //  for x in xs.Append(10) do
+  //  for x in xs.Select(fun v -> v / 2) do
   //    acc <- acc + x
   //  acc
 
   //[<Benchmark>]
-  //member __.Funtom_Linq_append_fslist() =
+  //member __.Funtom_Linq_select_fslist() =
   //  let mutable acc = 0
-  //  for x in xs |> Linq.append 10 do
+  //  for x in xs |> Linq.select (fun v -> v / 2) do
   //    acc <- acc + x
   //  acc
     
+    
   //[<Benchmark>]
-  //member __.System_Linq_append_array() =
+  //member __.Fsharp_map_fslist() =
   //  let mutable acc = 0
-  //  for y in ys.Append(10) do
+  //  for x in xs |> List.map (fun v -> v / 2) do
+  //    acc <- acc + x
+  //  acc
+  
+  //[<Benchmark>]
+  //member __.System_Linq_select_array() =
+  //  let mutable acc = 0
+  //  for y in ys.Select(fun v -> v / 2) do
   //    acc <- acc + y
   //  acc
 
   //[<Benchmark>]
-  //member __.Funtom_Linq_append_array() =
+  //member __.Funtom_Linq_select_array() =
   //  let mutable acc = 0
-  //  for y in ys |> Linq.append 10 do
+  //  for y in ys |> Linq.select (fun v -> v / 2) do
   //    acc <- acc + y
   //  acc
     
   //[<Benchmark>]
-  //member __.System_Linq_append_resizearray() =
+  //member __.Fsharp_map_array() =
   //  let mutable acc = 0
-  //  for z in zs.Append(10) do
+  //  for y in ys |> Array.map (fun v -> v / 2) do
+  //    acc <- acc + y
+  //  acc
+    
+  //[<Benchmark>]
+  //member __.System_Linq_select_resizearray() =
+  //  let mutable acc = 0
+  //  for z in zs.Select(fun v -> v / 2) do
   //    acc <- acc + z
   //  acc
 
   //[<Benchmark>]
-  //member __.Funtom_Linq_append_resizearray() =
+  //member __.Funtom_Linq_select_resizearray() =
   //  let mutable acc = 0
-  //  for z in zs |> Linq.append 10 do
+  //  for z in zs |> Linq.select (fun v -> v / 2) do
   //    acc <- acc + z
   //  acc
 
-//  [<Benchmark>]
-//  member __.System_Linq_append_seq() =
-//    let mutable acc = 0
-//    for s in ss.Append(10) do
-//      acc <- acc + s
-//    acc
-//
-//  [<Benchmark>]
-//  member __.Funtom_Linq_append_seq() =
-//    let mutable acc = 0
-//    for s in ss |> Linq.append 10 do
-//      acc <- acc + s
-//    acc
+  //[<Benchmark>]
+  //member __.System_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss.Select(fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
 
-
-  [<Benchmark>]
-  member __.System_Linq_select_fslist() =
-    let mutable acc = 0
-    for x in xs.Select(fun v -> v / 2) do
-      acc <- acc + x
-    acc
-
-  [<Benchmark>]
-  member __.Funtom_Linq_select_fslist() =
-    let mutable acc = 0
-    for x in xs |> Linq.select (fun v -> v / 2) do
-      acc <- acc + x
-    acc
-    
-    
-  [<Benchmark>]
-  member __.Fsharp_map_fslist() =
-    let mutable acc = 0
-    for x in xs |> List.map (fun v -> v / 2) do
-      acc <- acc + x
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Linq.select (fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
   
-  [<Benchmark>]
-  member __.System_Linq_select_array() =
-    let mutable acc = 0
-    for y in ys.Select(fun v -> v / 2) do
-      acc <- acc + y
-    acc
-
-  [<Benchmark>]
-  member __.Funtom_Linq_select_array() =
-    let mutable acc = 0
-    for y in ys |> Linq.select (fun v -> v / 2) do
-      acc <- acc + y
-    acc
-    
-  [<Benchmark>]
-  member __.Fsharp_map_array() =
-    let mutable acc = 0
-    for y in ys |> Array.map (fun v -> v / 2) do
-      acc <- acc + y
-    acc
-    
-  [<Benchmark>]
-  member __.System_Linq_select_resizearray() =
-    let mutable acc = 0
-    for z in zs.Select(fun v -> v / 2) do
-      acc <- acc + z
-    acc
-
-  [<Benchmark>]
-  member __.Funtom_Linq_select_resizearray() =
-    let mutable acc = 0
-    for z in zs |> Linq.select (fun v -> v / 2) do
-      acc <- acc + z
-    acc
-
-  [<Benchmark>]
-  member __.System_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss.Select(fun v -> v / 2) do
-      acc <- acc + s
-    acc
-
-  [<Benchmark>]
-  member __.Funtom_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss |> Linq.select (fun v -> v / 2) do
-      acc <- acc + s
-    acc
+  //[<Benchmark>]
+  //member __.Fsharp_map_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Seq.map (fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
   
-  [<Benchmark>]
-  member __.Fsharp_map_seq() =
-    let mutable acc = 0
-    for s in ss |> Seq.map (fun v -> v / 2) do
-      acc <- acc + s
-    acc
-  
+
+
+
+
   //[<Benchmark>]
   //member __.System_Linq_aggregate_fslist() =
   //  xs.Aggregate(0, fun v next -> v + next)

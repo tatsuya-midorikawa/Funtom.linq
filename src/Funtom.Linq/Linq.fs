@@ -152,6 +152,8 @@ module Linq =
           false
       fn()
 
+  // TODO: It is a very slow function compared to System.Linq,
+  //       so performance tuning should be done.
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.append?view=net-6.0
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L11
   let inline append (element: ^T) (src: seq< ^T>) = 
@@ -405,6 +407,8 @@ module Linq =
   let inline orderByDescending ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.OrderByDescending(selector)
   let inline orderByDescending' ([<InlineIfLambda>]selector: 'source -> 'key) (comparer: IComparer<'key>) (src: seq<'source>) = src.OrderByDescending(selector, comparer)
 
+  // TODO: It is a very slow function compared to System.Linq,
+  //       so performance tuning should be done.
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.prepend?view=net-6.0
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L23
   let inline prepend (element: ^T) (src: seq< ^T>) =
