@@ -15,7 +15,6 @@ module AppendPrepend =
   [<AbstractClass>]
   type AppendPrependIterator<'T> (source: seq<'T>) =
     inherit Iterator<'T> ()
-    member val internal source = source
     member val internal enumerator = Unchecked.defaultof<IEnumerator<'T>> with get, set
 
     abstract member Append : 'T -> AppendPrependIterator<'T>
@@ -24,7 +23,7 @@ module AppendPrepend =
     abstract member ToList : unit -> ResizeArray<'T>
     abstract member GetCount : bool -> int
 
-    member internal __.GetSourceEnumerator() = __.enumerator <- __.source.GetEnumerator()
+    member internal __.GetSourceEnumerator() = __.enumerator <- source.GetEnumerator()
     member internal __.LoadFromEnumerator() =
       if __.enumerator.MoveNext() then
         __.current <- __.enumerator.Current
@@ -140,10 +139,10 @@ module AppendPrepend =
             index
         let mutable length = prepend(prepended, 0)
 
-        match __.source with
+        match source with
         | :? ICollection<'T> as collection -> collection.CopyTo(array, length)
         | _ ->
-          for item in __.source do
+          for item in source do
             array[length] <- item
             length <- length + 1
 
@@ -164,7 +163,7 @@ module AppendPrepend =
           prepend(node.Linked)        
 
       prepend(prepended)
-      list.AddRange(__.source)
+      list.AddRange(source)
       // TODO: なんで appended だけ、ToArray(int) で AddRange してるの？
       if appended <> Unchecked.defaultof<SingleLinkedNode<'T>> then
         list.AddRange(appended.ToArray(appendCount))
@@ -212,7 +211,7 @@ module AppendPrepend =
         if count = -1 then -1 else count + 1
       | _ -> 
         if not onlyIfCheap || source.GetType() = typeof<ICollection<'T>>
-          then (Seq.length __.source) + 1  // TODO: Seq.length 辞めたい
+          then (Seq.length source) + 1  // TODO: Seq.length 辞めたい
           else -1
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
