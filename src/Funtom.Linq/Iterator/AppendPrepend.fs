@@ -17,20 +17,13 @@ module AppendPrepend =
     inherit Iterator<'T> ()
     member val internal enumerator = Unchecked.defaultof<IEnumerator<'T>> with get, set
     
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member Append : 'T -> AppendPrependIterator<'T>
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member Prepend : 'T -> AppendPrependIterator<'T>
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member ToArray : unit -> array<'T>
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member ToList : unit -> ResizeArray<'T>
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member GetCount : bool -> int
     
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member internal __.GetSourceEnumerator() = __.enumerator <- source.GetEnumerator()
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member internal __.LoadFromEnumerator() =
       if __.enumerator.MoveNext() then
         __.current <- __.enumerator.Current
@@ -46,11 +39,8 @@ module AppendPrepend =
       base.Dispose()
 
     interface IListProvider<'T> with
-      [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
       member __.ToArray() = __.ToArray()
-      [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
       member __.ToList() = __.ToList()
-      [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
 

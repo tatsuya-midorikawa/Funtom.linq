@@ -386,7 +386,7 @@ module Basis =
 module Select =
   open Basis
 
-  let defaultval<'T> = Unchecked.defaultof<'T>
+  let inline defaultval<'T> = Unchecked.defaultof<'T>
   let inline combine_selectors ([<InlineIfLambda>] lhs: 'T -> 'U) ([<InlineIfLambda>] rhs: 'U -> 'V) = lhs >> rhs
 
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L98
@@ -394,33 +394,50 @@ module Select =
   [<Sealed>]
   type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
     inherit Iterator<'U>()
-    member val internal enumerator = Unchecked.defaultof<IEnumerator<'T>> with get, set
+    let mutable enumerator : IEnumerator<'T> = source.GetEnumerator()
     
     override __.Clone() = new SelectEnumerableIterator<'T, 'U>(source, selector)
 
     override __.Dispose() =
-      if __.enumerator <> defaultval<IEnumerator<'T>> then
-        __.enumerator.Dispose()
-        __.enumerator <- defaultval<IEnumerator<'T>>
+      if enumerator <> defaultval<IEnumerator<'T>> then
+        enumerator.Dispose()
+        enumerator <- defaultval<IEnumerator<'T>>
       base.Dispose()
-
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.MoveNext() =
-      let rec switch(state: int) = 
-        match state with
-        | 1 -> 
-          __.enumerator <- source.GetEnumerator()
-          __.state <- 2
-          switch(2)
-        | 2 ->
-          if __.enumerator.MoveNext() then
-            __.current <- selector(__.enumerator.Current)
-            true
-          else
-            __.Dispose()
-            false
-        | _ -> false
-
-      switch(__.state)
-
+      if enumerator.MoveNext()
+      then __.current <- selector(enumerator.Current); true
+      else __.Dispose(); false
+    
     override __.Select<'U2> (selector': 'U -> 'U2) =
       new SelectEnumerableIterator<'T, 'U2>(source, combine_selectors selector selector')
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.ToArray () =
+      let mutable builder = LargeArrayBuilder<'U>(Int32.MaxValue)
+      for item in source do
+        builder.Add(selector item)
+      builder.ToArray()
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.ToList () =
+      let mutable list = ResizeArray()
+      for item in source do
+        list.Add(selector item)
+      list
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.GetCount (onlyIfCheap: bool) =
+      if onlyIfCheap then 
+        -1
+      else
+        let mutable count = 0
+        for item in source do
+          count <- Checked.(+) count 1
+        count
+
+    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+      member __.ToArray() = __.ToArray()
+      member __.ToList() = __.ToList()
+      member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)

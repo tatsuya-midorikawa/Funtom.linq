@@ -32,41 +32,41 @@ type Benchmark () =
     ss <- [|for _ in 1..10000 do fake.Random.Int()|] |> Seq.ofArray
 
 
-  [<Benchmark>]
-  member __.Funtom_Linq_append() =
-    let mutable ls : seq<int> = [||]
-    for i = 0 to 1000 do
-      ls <- ls |> Linq.append i
-    ls |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_append() =
+  //  let mutable ls : seq<int> = [||]
+  //  for i = 0 to 1000 do
+  //    ls <- ls |> Linq.append i
+  //  ls |> Linq.toArray
 
-  [<Benchmark>]
-  member __.System_Linq_append() =
-    let mutable ls : seq<int> = [||]
-    for i = 0 to 1000 do
-      ls <- ls.Append i
-    ls |> Linq.toArray
+  //[<Benchmark>]
+  //member __.System_Linq_append() =
+  //  let mutable ls : seq<int> = [||]
+  //  for i = 0 to 1000 do
+  //    ls <- ls.Append i
+  //  ls |> Linq.toArray
 
-  [<Benchmark>]
-  member __.Funtom_Linq_append2() =
-    let mutable ls : seq<int> = [||]
-    for i = 0 to 1000 do
-      ls <- ls |> Linq.append i
+  //[<Benchmark>]
+  //member __.Funtom_Linq_append2() =
+  //  let mutable ls : seq<int> = [||]
+  //  for i = 0 to 1000 do
+  //    ls <- ls |> Linq.append i
 
-    let mutable acc = 0
-    for x in ls do
-      acc <- acc + x
-    acc
+  //  let mutable acc = 0
+  //  for x in ls do
+  //    acc <- acc + x
+  //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_append2() =
-    let mutable ls : seq<int> = [||]
-    for i = 0 to 1000 do
-      ls <- ls.Append i
+  //[<Benchmark>]
+  //member __.System_Linq_append2() =
+  //  let mutable ls : seq<int> = [||]
+  //  for i = 0 to 1000 do
+  //    ls <- ls.Append i
 
-    let mutable acc = 0
-    for x in ls do
-      acc <- acc + x
-    acc
+  //  let mutable acc = 0
+  //  for x in ls do
+  //    acc <- acc + x
+  //  acc
 
 
   //[<Benchmark>]
@@ -126,19 +126,26 @@ type Benchmark () =
   //    acc <- acc + z
   //  acc
 
-  //[<Benchmark>]
-  //member __.System_Linq_select_seq() =
-  //  let mutable acc = 0
-  //  for s in ss.Select(fun v -> v / 2) do
-  //    acc <- acc + s
-  //  acc
+  [<Benchmark>]
+  member __.System_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss.Select(fun v -> v * 2) do
+      acc <- acc + s
+    acc
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_seq() =
-  //  let mutable acc = 0
-  //  for s in ss |> Linq.select (fun v -> v / 2) do
-  //    acc <- acc + s
-  //  acc
+  [<Benchmark>]
+  member __.Funtom_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss |> Linq.select (fun v -> v * 2) do
+      acc <- acc + s
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select2_seq() =
+    let mutable acc = 0
+    for s in ss |> Linq.select2 (fun v -> v * 2) do
+      acc <- acc + s
+    acc
   
   //[<Benchmark>]
   //member __.Fsharp_map_seq() =

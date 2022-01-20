@@ -432,6 +432,9 @@ module Linq =
     //| :? list< ^T> as ls -> SelectFsListIterator.create selector ls
     //| _ -> source.Select selector //SelectEnumerableIterator.create selector source
 
+  let inline select2 ([<InlineIfLambda>] selector: ^T -> ^Result) (source: seq< ^T>) : seq< ^Result> =
+    new Funtom.Linq.Iterator.Select.SelectEnumerableIterator< ^T, ^Result>(source, selector)
+
   //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
   let inline select' ([<InlineIfLambda>]selector: ^T -> int -> ^Result) (src: seq< ^T>): seq< ^Result> = src.Select selector
 
