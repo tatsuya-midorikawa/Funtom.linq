@@ -16,14 +16,21 @@ module AppendPrepend =
   type AppendPrependIterator<'T> (source: seq<'T>) =
     inherit Iterator<'T> ()
     member val internal enumerator = Unchecked.defaultof<IEnumerator<'T>> with get, set
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member Append : 'T -> AppendPrependIterator<'T>
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member Prepend : 'T -> AppendPrependIterator<'T>
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member ToArray : unit -> array<'T>
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member ToList : unit -> ResizeArray<'T>
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     abstract member GetCount : bool -> int
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member internal __.GetSourceEnumerator() = __.enumerator <- source.GetEnumerator()
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member internal __.LoadFromEnumerator() =
       if __.enumerator.MoveNext() then
         __.current <- __.enumerator.Current
@@ -31,11 +38,21 @@ module AppendPrepend =
       else
         __.Dispose()
         false
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Dispose() = 
       if __.enumerator <> Unchecked.defaultof<IEnumerator<'T>> then
         __.enumerator.Dispose()
         __.enumerator <- Unchecked.defaultof<IEnumerator<'T>>
       base.Dispose()
+
+    interface IListProvider<'T> with
+      [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+      member __.ToArray() = __.ToArray()
+      [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+      member __.ToList() = __.ToList()
+      [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+      member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+
 
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L168
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.SpeedOpt.cs#L103
@@ -46,7 +63,8 @@ module AppendPrepend =
 
     override __.Clone () =
       new AppendPrependN<'T> (source, prepended, appended, prependCount, appendCount)
-
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.MoveNext () =
       let inline getSourceEnumerator () =
         if __.node <> Unchecked.defaultof<SingleLinkedNode<'T>> then
@@ -79,19 +97,22 @@ module AppendPrepend =
       | 3 -> loadFromEnumerator()
       | 4 -> __.LoadFromEnumerator()
       | _ -> __.Dispose(); false
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Append (item: 'T) =
       let appended =
         if appended <> Unchecked.defaultof<SingleLinkedNode<'T>> then appended.Add(item)
         else new SingleLinkedNode<'T>(item)
       new AppendPrependN<'T>(source, prepended, appended, prependCount, appendCount + 1)
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Prepend (item: 'T) =
       let prepended =
         if prepended <> Unchecked.defaultof<SingleLinkedNode<'T>> then prepended.Add(item)
         else new SingleLinkedNode<'T>(item)
       new AppendPrependN<'T>(source, prepended, appended, prependCount + 1, appendCount)
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member private __.LazyToArray() =
       let mutable builder = SparseArrayBuilder<'T>.Create()
       if prepended <> Unchecked.defaultof<SingleLinkedNode<'T>> then
@@ -109,7 +130,8 @@ module AppendPrepend =
           fx(node.Linked, index + 1)
       fx(__.node, 0)
       array
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.GetCount (onlyIfCheap: bool) =
       match source with
       | :? IListProvider<'T> as provider ->
@@ -124,7 +146,8 @@ module AppendPrepend =
             | _ -> source |> Seq.length // TODO: Seq.length 辞めたい
           length + appendCount + prependCount
         else -1
-
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.ToArray() =
       let count = __.GetCount(true)
       if count = -1 then
@@ -153,7 +176,8 @@ module AppendPrepend =
             append(node.Linked, index - 1)
         append(appended, 0)
         array
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.ToList() =
       let count = __.GetCount(true)
       let list = ResizeArray<'T>(max count 4)
@@ -182,10 +206,12 @@ module AppendPrepend =
       builder.AddRange(source)
       if appending then builder.SlowAdd(item)
       builder.ToArray()
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Clone() = new AppendPrepend1Iterator<'T>(source, item, appending)
 
     // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/AppendPrepend.cs#L103
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.MoveNext() =
       let inline getSouceEnumerator() = __.GetSourceEnumerator(); __.state <- 3
       let inline loadFromEnumerator() =
@@ -203,7 +229,8 @@ module AppendPrepend =
       | 2 -> exec()
       | 3 -> loadFromEnumerator()
       | _ -> __.Dispose(); false
-
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.GetCount (onlyIfCheap: bool) =
       match source with
       | :? IListProvider<'T> as provider ->
@@ -218,11 +245,13 @@ module AppendPrepend =
     override __.Append (item': 'T) =
       if appending then new AppendPrependN<'T>(source, Unchecked.defaultof<SingleLinkedNode<'T>>, SingleLinkedNode<'T>(item).Add(item'), 0, 2)
       else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item), SingleLinkedNode<'T>(item'), 1, 1)
-      
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.Prepend (item': 'T) =
       if appending then new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item'), SingleLinkedNode<'T>(item), 1, 1)
       else new AppendPrependN<'T>(source, SingleLinkedNode<'T>(item).Add(item'), Unchecked.defaultof<SingleLinkedNode<'T>>, 2, 0)
-      
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.ToArray() =
       let count = __.GetCount(true)
       if count = -1 then
@@ -236,6 +265,7 @@ module AppendPrepend =
         if appending then array[array.Length - 1] <- item
         array
 
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.ToList() =
       let count = __.GetCount(true)
       let list =

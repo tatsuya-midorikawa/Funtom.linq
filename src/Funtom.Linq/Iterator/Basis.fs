@@ -1,4 +1,4 @@
-﻿namespace Funtom.Linq.Iterator
+﻿namespace rec Funtom.Linq.Iterator
 
 open System
 open System.Collections
@@ -32,6 +32,12 @@ module Basis =
         else __.Clone()
       enumerator.state <- 1
       enumerator
+
+    abstract member Select<'U> : ('T -> 'U) -> seq<'U>
+    default __.Select<'U> (selector: 'T -> 'U) = new Select.SelectEnumerableIterator<'T, 'U>(__, selector)
+
+    //// TODO: implement default
+    //abstract member Where: ('T -> bool) -> seq<'T>
 
     abstract member Clone : unit -> Iterator<'T>
 
@@ -376,3 +382,45 @@ module Basis =
         let array = Array.zeroCreate __.Count
         __.CopyTo(array, 0, array.Length)
         array
+
+module Select =
+  open Basis
+
+  let defaultval<'T> = Unchecked.defaultof<'T>
+  let inline combine_selectors ([<InlineIfLambda>] lhs: 'T -> 'U) ([<InlineIfLambda>] rhs: 'U -> 'V) = lhs >> rhs
+
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L98
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L21
+  [<Sealed>]
+  type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+    inherit Iterator<'U>()
+    member val internal enumerator = Unchecked.defaultof<IEnumerator<'T>> with get, set
+    
+    override __.Clone() = new SelectEnumerableIterator<'T, 'U>(source, selector)
+
+    override __.Dispose() =
+      if __.enumerator <> defaultval<IEnumerator<'T>> then
+        __.enumerator.Dispose()
+        __.enumerator <- defaultval<IEnumerator<'T>>
+      base.Dispose()
+
+    override __.MoveNext() =
+      let rec switch(state: int) = 
+        match state with
+        | 1 -> 
+          __.enumerator <- source.GetEnumerator()
+          __.state <- 2
+          switch(2)
+        | 2 ->
+          if __.enumerator.MoveNext() then
+            __.current <- selector(__.enumerator.Current)
+            true
+          else
+            __.Dispose()
+            false
+        | _ -> false
+
+      switch(__.state)
+
+    override __.Select<'U2> (selector': 'U -> 'U2) =
+      new SelectEnumerableIterator<'T, 'U2>(source, combine_selectors selector selector')

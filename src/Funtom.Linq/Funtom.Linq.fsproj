@@ -34,7 +34,6 @@
     <Compile Include="Enumerable.fs" />
     <Compile Include="Iterator\Basis.fs" />
     <Compile Include="Iterator\AppendPrepend.fs" />
-    <Compile Include="Iterator\Select.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />
