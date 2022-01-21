@@ -389,6 +389,111 @@ module Select =
 
   let inline defaultval<'T> = Unchecked.defaultof<'T>
   let inline combine_selectors ([<InlineIfLambda>] lhs: 'T -> 'U) ([<InlineIfLambda>] rhs: 'U -> 'V) = lhs >> rhs
+  
+  // TODO:
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L675
+  [<Sealed>]
+  type SelectListPartitionIterator<'T, 'U>(source: IList<'T>, [<InlineIfLambda>]selector: 'T -> 'U, minIndexInclusive: int, maxIndexInclusive: int) =
+    inherit Iterator<'U>()
+    override __.Clone() = new SelectListPartitionIterator<'T, 'U>(source, selector, minIndexInclusive, maxIndexInclusive)
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    override __.MoveNext() =
+      let index = __.state - 1
+      if uint index <= uint (maxIndexInclusive - minIndexInclusive) && index < (source.Count - minIndexInclusive) then
+        __.current <- selector (source[minIndexInclusive + index])
+        __.state <- __.state + 1
+        true
+      else
+        __.Dispose()
+        false
+    
+    override __.Select<'U2> (selector': 'U -> 'U2) =
+      new SelectListPartitionIterator<'T, 'U2>(source, combine_selectors selector selector', minIndexInclusive, maxIndexInclusive)
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Skip (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
+      let minIndex = minIndexInclusive + count
+      if uint maxIndexInclusive < uint minIndex
+      then EmptyPartition<'U>.Instance
+      else new SelectListPartitionIterator<'T, 'U>(source, selector, minIndex, maxIndexInclusive)
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Take (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
+      let maxIndex = minIndexInclusive + count - 1
+      if uint maxIndexInclusive <= uint maxIndex
+      then __
+      else new SelectListPartitionIterator<'T, 'U>(source, selector, minIndexInclusive, maxIndex)
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.TryGetElementAt(index: int, found: outref<bool>) =
+      if uint index <= uint (maxIndexInclusive - minIndexInclusive) && index < (source.Count - minIndexInclusive)
+      then found <- true; selector(source[minIndexInclusive + index])
+      else found <- false; Unchecked.defaultof<'U>
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.TryGetFirst(found: outref<bool>) =
+      if minIndexInclusive < source.Count
+      then found <- true; selector(source[minIndexInclusive])
+      else found <- false; Unchecked.defaultof<'U>
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.TryGetLast(found: outref<bool>) =
+      let lastIndex = source.Count - 1
+      if minIndexInclusive <= lastIndex
+      then found <- true; selector(source[min lastIndex maxIndexInclusive])
+      else found <- false; Unchecked.defaultof<'U>
+      
+    member private __.Count with get () =
+      let count = source.Count
+      if count <= minIndexInclusive
+      then 0
+      else (min (count - 1) maxIndexInclusive) - minIndexInclusive + 1
+
+    [<MethodImpl(MethodImplOptions.AggressiveOptimization)>]
+    member __.ToArray () =
+      let count = __.Count
+      if count = 0
+      then Array.Empty<'U>()
+      else
+        let array = Array.zeroCreate<'U>(count)
+        for i = 0 to array.Length do 
+          let j = minIndexInclusive + i
+          array[i] <- selector(source[j])
+        array
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.ToList () =
+      let count = __.Count
+      if count = 0
+      then ResizeArray<'U>()
+      else
+        let list = ResizeArray<'U>(count)
+        let endIndex = minIndexInclusive + count - 1
+        for i = minIndexInclusive to endIndex do
+          list.Add(selector source[i])
+        list
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.GetCount (onlyIfCheap: bool) =
+      let count = __.Count
+      if not onlyIfCheap then
+        let endIndex = minIndexInclusive + count - 1
+        for i = minIndexInclusive to endIndex do
+          selector source[i] |> ignore
+      count
+
+    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+      member __.ToArray() = __.ToArray()
+      member __.ToList() = __.ToList()
+      member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+
+    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+      member __.Skip(count: int) = __.Skip(count)
+      member __.Take(count: int) = __.Take(count)
+      member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
+      member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
+      member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
 
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L98
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L21
@@ -491,26 +596,31 @@ module Select =
       if not onlyIfCheap then 
         for v in source do selector v |> ignore
       source.Length
-
-    member __.Skip (count: int) =
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Skip (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
       if count >= source.Length
       then EmptyPartition<'U>.Instance
       else new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue)
-
-    member __.Take (count: int) =
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Take (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
       if count >= source.Length 
       then __
       else new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
-
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.TryGetElementAt(index: int, found: outref<bool>) =
       if uint index < uint source.Length
       then found <- true; selector(source[index])
       else found <- false; Unchecked.defaultof<'U>
-
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.TryGetFirst(found: outref<bool>) =
       found <- true
       selector(source[0])
-
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.TryGetLast(found: outref<bool>) =
       found <- true
       selector(source[source.Length - 1])
@@ -526,20 +636,19 @@ module Select =
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
       member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
       member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
-
-  // TODO:
+  
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L200
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L291
   [<Sealed>]
-  type SelectListIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>]selector: 'T -> 'U) =
+  type SelectListIterator<'T, 'U> (source: ResizeArray<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
     inherit Iterator<'U>()
-    let enumerator = source.GetEnumerator()
+    let mutable enumerator = source.GetEnumerator()
     override __.Clone() = new SelectListIterator<'T, 'U>(source, selector)
       
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.MoveNext() =
       if enumerator.MoveNext()
-      then __.current <- selector(Unsafe.As<obj, 'T>(ref enumerator.Current)); true
+      then __.current <- selector(enumerator.Current); true // Unsafe.As<obj, 'T>(ref enumerator.Current)
       else __.Dispose(); false
     
     override __.Select<'U2> (selector': 'U -> 'U2) =
@@ -547,54 +656,53 @@ module Select =
     
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.ToArray () =
-      let length = source.Length
-      let results = Array.zeroCreate<'U>(length)
-      let rec copy(i: int) =
-        if i < length then
+      let count = source.Count
+      if count = 0 then 
+        Array.Empty<'U>()
+      else
+        let results = Array.zeroCreate<'U>(count)
+        let length = count - 1
+        for i = 0 to length do
           results[i] <- selector(source[i])
-          copy(i + 1)
-      copy(0)
-      results
-    
+        results
+        
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.ToList () =
-      let length = source.Length
-      let results = ResizeArray<'U>(length)
-      let rec copy(i: int) =
-        if i < length then
-          results.Add(selector(source[i]))
-          copy(i + 1)
-      copy(0)
+      let count = source.Count - 1
+      let results = ResizeArray<'U>(count + 1)
+      for i = 0 to count do
+        results[i] <- selector(source[i])
       results
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetCount (onlyIfCheap: bool) =
-      if not onlyIfCheap then 
-        for v in source do selector v |> ignore
-      source.Length
-
+      let count = source.Count
+      if not onlyIfCheap then
+        for i = 0 to count - 1 do
+          selector(source[i]) |> ignore
+      count
+    
     member __.Skip (count: int) =
-      if count >= source.Length
-      then EmptyPartition<'U>.Instance
-      else new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue)
+      new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue);
 
     member __.Take (count: int) =
-      if count >= source.Length 
-      then __
-      else new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
+      new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
 
     member __.TryGetElementAt(index: int, found: outref<bool>) =
-      if uint index < uint source.Length
+      if uint index < uint source.Count
       then found <- true; selector(source[index])
       else found <- false; Unchecked.defaultof<'U>
 
     member __.TryGetFirst(found: outref<bool>) =
-      found <- true
-      selector(source[0])
+      if 0 < source.Count
+      then found <- true; selector(source[0])
+      else found <- false; Unchecked.defaultof<'U>
 
     member __.TryGetLast(found: outref<bool>) =
-      found <- true
-      selector(source[source.Length - 1])
+      let count = source.Count
+      if 0 < count
+      then found <- true; selector(source[count - 1])
+      else found <- false; Unchecked.defaultof<'U>
 
     interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
