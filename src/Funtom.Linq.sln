@@ -9,6 +9,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.Linq.Console", "Funt
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.Linq.Performance", "Funtom.Linq.Performance\Funtom.Linq.Performance.fsproj", "{85FDAC14-4E24-492E-AFD7-EAC5F79BDD7D}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Funtom.PropertyTests", "Funtom.PropertyTests\Funtom.PropertyTests.fsproj", "{500AD71C-D18B-4DE2-9F89-6A2A36014A89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{85FDAC14-4E24-492E-AFD7-EAC5F79BDD7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85FDAC14-4E24-492E-AFD7-EAC5F79BDD7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85FDAC14-4E24-492E-AFD7-EAC5F79BDD7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{500AD71C-D18B-4DE2-9F89-6A2A36014A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{500AD71C-D18B-4DE2-9F89-6A2A36014A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{500AD71C-D18B-4DE2-9F89-6A2A36014A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{500AD71C-D18B-4DE2-9F89-6A2A36014A89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

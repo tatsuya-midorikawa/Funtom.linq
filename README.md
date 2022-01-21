@@ -8,7 +8,7 @@ This library makes it easier to use pipeline operators and optimizes for FSharp.
 ## Naming rules  
 
 The method names defined in System.Linq are redefined in camelCase.  
-For example, 'Select' becomes 'select', and 'ToList' becomes 'toList'.  
+For example, 'Select' becomes 'select', 'ToList' becomes 'toList' and so on.  
 
 ## Usage    
 
