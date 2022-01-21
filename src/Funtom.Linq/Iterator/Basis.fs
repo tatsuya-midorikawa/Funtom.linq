@@ -715,3 +715,7 @@ module Select =
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
       member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
       member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
+
+
+  // TODO
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L250
