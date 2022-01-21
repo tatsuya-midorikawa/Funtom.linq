@@ -533,21 +533,17 @@ module Select =
   [<Sealed>]
   type SelectListIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>]selector: 'T -> 'U) =
     inherit Iterator<'U>()
-    override __.Clone() = new SelectArrayIterator<'T, 'U>(source, selector)
+    let enumerator = source.GetEnumerator()
+    override __.Clone() = new SelectListIterator<'T, 'U>(source, selector)
       
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     override __.MoveNext() =
-      if __.state < 1 || __.state = source.Length + 1 then
-        __.Dispose()
-        false
-      else
-        let index = __.state - 1
-        __.state <- __.state + 1
-        __.current <- selector(source[index])
-        true
+      if enumerator.MoveNext()
+      then __.current <- selector(Unsafe.As<obj, 'T>(ref enumerator.Current)); true
+      else __.Dispose(); false
     
     override __.Select<'U2> (selector': 'U -> 'U2) =
-      new SelectArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
+      new SelectListIterator<'T, 'U2>(source, combine_selectors selector selector')
     
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.ToArray () =

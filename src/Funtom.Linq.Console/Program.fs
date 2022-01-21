@@ -9,7 +9,6 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
-
 let xs = [ 0..10 ]
 xs
 |> Linq.append 1
