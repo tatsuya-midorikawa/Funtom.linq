@@ -68,6 +68,8 @@ type Benchmark () =
   //    acc <- acc + x
   //  acc
 
+  // ====================
+  // map
 
   //[<Benchmark>]
   //member __.System_Linq_select_fslist() =
@@ -82,7 +84,6 @@ type Benchmark () =
   //  for x in xs |> Linq.select (fun v -> v / 2) do
   //    acc <- acc + x
   //  acc
-    
     
   //[<Benchmark>]
   //member __.Fsharp_map_fslist() =
@@ -126,26 +127,19 @@ type Benchmark () =
   //    acc <- acc + z
   //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss.Select(fun v -> v * 2) do
-      acc <- acc + s
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss.Select(fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss |> Linq.select (fun v -> v * 2) do
-      acc <- acc + s
-    acc
-
-  [<Benchmark>]
-  member __.Funtom_Linq_select2_seq() =
-    let mutable acc = 0
-    for s in ss |> Linq.select2 (fun v -> v * 2) do
-      acc <- acc + s
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Linq.select (fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
   
   //[<Benchmark>]
   //member __.Fsharp_map_seq() =
@@ -154,8 +148,40 @@ type Benchmark () =
   //    acc <- acc + s
   //  acc
   
+  // ====================
+  // map to array
 
+  [<Benchmark>]
+  member __.System_Linq_select_fslist_toarray() =
+    xs.Select(fun v -> v / 2).ToArray()
 
+  [<Benchmark>]
+  member __.Funtom_Linq_select_fslist_toarray() =
+    xs |> Linq.select (fun v -> v / 2) |> Linq.toArray
+    
+  [<Benchmark>]
+  member __.System_Linq_select_array_toarray() =
+    ys.Select(fun v -> v / 2).ToArray()
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_array_toarray() =
+    ys |> Linq.select (fun v -> v / 2) |> Linq.toArray
+    
+  [<Benchmark>]
+  member __.System_Linq_select_resizearray_toarray() =
+    zs.Select(fun v -> v / 2).ToArray()
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_resizearray_toarray() =
+    zs |> Linq.select (fun v -> v / 2) |> Linq.toArray
+
+  [<Benchmark>]
+  member __.System_Linq_select_seq_toarray() =
+    ss.Select(fun v -> v / 2).ToArray()
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_seq_toarray() =
+    ss |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
 
   //[<Benchmark>]

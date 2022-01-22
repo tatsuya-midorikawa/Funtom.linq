@@ -390,7 +390,6 @@ module Select =
   let inline defaultval<'T> = Unchecked.defaultof<'T>
   let inline combine_selectors ([<InlineIfLambda>] lhs: 'T -> 'U) ([<InlineIfLambda>] rhs: 'U -> 'V) = lhs >> rhs
   
-  // TODO:
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L675
   [<Sealed>]
   type SelectListPartitionIterator<'T, 'U>(source: IList<'T>, [<InlineIfLambda>]selector: 'T -> 'U, minIndexInclusive: int, maxIndexInclusive: int) =
@@ -721,7 +720,6 @@ module Select =
       member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
       member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
 
-
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L250
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L390
   [<Sealed>]
@@ -800,6 +798,108 @@ module Select =
       if 0 < count
       then found <- true; selector(source[count - 1])
       else found <- false; Unchecked.defaultof<'U>
+
+    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+      member __.ToArray() = __.ToArray()
+      member __.ToList() = __.ToList()
+      member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+
+    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+      member __.Skip(count: int) = __.Skip(count)
+      member __.Take(count: int) = __.Take(count)
+      member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
+      member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
+      member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
+
+  // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L494
+  [<Sealed>]
+  type SelectIPartitionIterator<'T, 'U>(source: Funtom.Linq.Common.Interfaces.IPartition<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+    inherit Iterator<'U>()
+    let mutable enumerator = source.GetEnumerator()
+
+    let lazyToArray() =
+      let mutable builder = LargeArrayBuilder<'U>(Int32.MaxValue)
+      for item in source do builder.Add(selector item)
+      builder.ToArray()
+
+    let preallocatingToArray(count: int) =
+      let array = Array.zeroCreate<'U>(count)
+      let mutable i = 0
+      for item in source do
+        array[i] <- (selector item)
+        i <- i + 1
+      array
+
+    override __.Clone() = new SelectIPartitionIterator<'T, 'U>(source, selector)
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    override __.MoveNext() =
+      if enumerator.MoveNext()
+      then __.current <- selector(enumerator.Current); true
+      else __.Dispose(); false
+      
+    override __.Dispose() =
+      if enumerator <> Unchecked.defaultof<IEnumerator<'T>> then
+        enumerator.Dispose()
+        enumerator <- Unchecked.defaultof<IEnumerator<'T>>
+      base.Dispose()
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    override __.Select<'U2> (selector': 'U -> 'U2) =
+      new SelectIPartitionIterator<'T, 'U2>(source, combine_selectors selector selector')
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.ToArray () =
+      let count = source.GetCount(true)
+      match count with
+      | -1 -> lazyToArray()
+      | 0 -> Array.Empty<'U>()
+      | _ -> preallocatingToArray(count)
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.ToList () =
+      let count = source.GetCount(true)
+      let list =
+        match count with
+        | -1 | 0 -> ResizeArray<'U>()
+        | _ -> ResizeArray<'U>(count)
+      for item in source do list.Add(selector item)
+      list
+
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.GetCount (onlyIfCheap: bool) =
+      if not onlyIfCheap then
+        let mutable count = 0
+        for item in source do 
+          selector item |> ignore
+          count <- Checked.(+) count 1
+        count
+      else
+        source.GetCount(true)
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Skip (count: int) = new SelectIPartitionIterator<'T, 'U>(source.Skip(count), selector);
+      
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.Take (count: int) = new SelectIPartitionIterator<'T, 'U>(source.Take(count), selector)
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.TryGetElementAt(index: int, found: outref<bool>) =
+      let (item, srcFound) = source.TryGetElementAt(index)
+      found <- srcFound
+      if srcFound then selector item else Unchecked.defaultof<'U>
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.TryGetFirst(found: outref<bool>) =
+      let (item, srcFound) = source.TryGetFirst()
+      found <- srcFound
+      if srcFound then selector item else Unchecked.defaultof<'U>
+    
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+    member __.TryGetLast(found: outref<bool>) =
+      let (item, srcFound) = source.TryGetLast()
+      found <- srcFound
+      if srcFound then selector item else Unchecked.defaultof<'U>
 
     interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()

@@ -4,10 +4,14 @@ open System
 open System.Linq
 open System.Collections
 open System.Collections.Generic
-open Funtom.Linq.Core
 open System.Runtime.CompilerServices
 open System.Diagnostics
-open Funtom.Linq.Iterator.AppendPrepend
+open Funtom.Linq.Core
+open Funtom.Linq.Iterator
+open Empty
+open Basis
+open Select
+open AppendPrepend
 
 module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
@@ -418,22 +422,34 @@ module Linq =
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.reverse?view=net-6.0
   let inline reverse (src: seq< ^T>) = src.Reverse()
-
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.select?view=net-6.0
-  let inline select ([<InlineIfLambda>] selector: ^T -> ^Result) (source: seq< ^T>) : seq< ^Result> =
+  
+  // src: https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/System.Linq/src/System/Linq/Select.cs#L13
+  let inline select<'T, 'U> ([<InlineIfLambda>] selector: 'T -> 'U) (source: seq< 'T>) : seq< 'U> =
     match source with
-    | :? array< ^T> as ary -> SelectArrayIterator (ary, selector)
-    | :? ResizeArray< ^T> as ls -> SelectListIterator.create selector ls
-    | :? list< ^T> as ls -> SelectFsListIterator.create selector ls
-    | _ -> source.Select selector //SelectEnumerableIterator.create selector source
+    | :? Iterator<'T> as iter -> iter.Select selector
+    | :? IList<'T> as ilist ->
+      match ilist with
+      | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
+      | :? ResizeArray<'T> as list -> new SelectListIterator<'T, 'U>(list, selector)
+      | _ -> new SelectIListIterator<'T, 'U>(ilist, selector)
+    | :? Funtom.Linq.Common.Interfaces.IPartition<'T> as partition ->
+      match partition with
+      | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
+      | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)
+    | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
+
+  //// https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.select?view=net-6.0
+  //let inline select ([<InlineIfLambda>] selector: ^T -> ^Result) (source: seq< ^T>) : seq< ^Result> =
+  //  match source with
+  //  | :? array< ^T> as ary -> SelectArrayIterator (ary, selector)
+  //  | :? ResizeArray< ^T> as ls -> SelectListIterator.create selector ls
+  //  | :? list< ^T> as ls -> SelectFsListIterator.create selector ls
+  //  | _ -> source.Select selector //SelectEnumerableIterator.create selector source
     //match source with
     //| :? array< ^T> as ary -> ary.Select selector //SelectArrayIterator.create selector ary
     //| :? ResizeArray< ^T> as ls -> ls.Select selector // SelectListIterator.create selector ls
     //| :? list< ^T> as ls -> SelectFsListIterator.create selector ls
     //| _ -> source.Select selector //SelectEnumerableIterator.create selector source
-
-  let inline select2 ([<InlineIfLambda>] selector: ^T -> ^Result) (source: seq< ^T>) : seq< ^Result> =
-    new Funtom.Linq.Iterator.Select.SelectEnumerableIterator< ^T, ^Result>(source, selector)
 
   //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
   let inline select' ([<InlineIfLambda>]selector: ^T -> int -> ^Result) (src: seq< ^T>): seq< ^Result> = src.Select selector
