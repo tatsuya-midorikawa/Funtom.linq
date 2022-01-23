@@ -15,7 +15,7 @@ module Enumerable =
     | :? ICollection<'T> as collection ->
       let count = collection.Count
       if count <> 0 then
-        let acc = Array.create count Unchecked.defaultof< ^T>
+        let acc = Array.zeroCreate count
         collection.CopyTo(acc, 0)
         acc
       else

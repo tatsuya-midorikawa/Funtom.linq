@@ -9,18 +9,23 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
-let xs = [ 0..10 ]
-xs
-|> Linq.append 1
-|> Linq.append 2
-|> Linq.append 3
-|> Linq.toArray
-|> printfn "%A"
+//let xs = [ 0..10 ]
+//xs
+//|> Linq.append 1
+//|> Linq.append 2
+//|> Linq.append 3
+//|> Linq.toArray
+//|> printfn "%A"
 
-xs
-|> Linq.prepend 1
-|> Linq.prepend 2
-|> Linq.prepend 3
+//xs
+//|> Linq.prepend 1
+//|> Linq.prepend 2
+//|> Linq.prepend 3
+//|> Linq.toArray
+//|> printfn "%A"
+
+seq { 0..10 }
+|> Linq.select (fun v -> v / 2)
 |> Linq.toArray
 |> printfn "%A"
 

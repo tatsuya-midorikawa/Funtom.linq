@@ -148,32 +148,35 @@ type Benchmark () =
   //    acc <- acc + s
   //  acc
   
+
+
+
   // ====================
   // map to array
 
-  [<Benchmark>]
-  member __.System_Linq_select_fslist_toarray() =
-    xs.Select(fun v -> v / 2).ToArray()
+  //[<Benchmark>]
+  //member __.System_Linq_select_fslist_toarray() =
+  //  xs.Select(fun v -> v / 2).ToArray()
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_fslist_toarray() =
-    xs |> Linq.select (fun v -> v / 2) |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_fslist_toarray() =
+  //  xs |> Linq.select (fun v -> v / 2) |> Linq.toArray
     
-  [<Benchmark>]
-  member __.System_Linq_select_array_toarray() =
-    ys.Select(fun v -> v / 2).ToArray()
+  //[<Benchmark>]
+  //member __.System_Linq_select_array_toarray() =
+  //  ys.Select(fun v -> v / 2).ToArray()
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_array_toarray() =
-    ys |> Linq.select (fun v -> v / 2) |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_array_toarray() =
+  //  ys |> Linq.select (fun v -> v / 2) |> Linq.toArray
     
-  [<Benchmark>]
-  member __.System_Linq_select_resizearray_toarray() =
-    zs.Select(fun v -> v / 2).ToArray()
+  //[<Benchmark>]
+  //member __.System_Linq_select_resizearray_toarray() =
+  //  zs.Select(fun v -> v / 2).ToArray()
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_resizearray_toarray() =
-    zs |> Linq.select (fun v -> v / 2) |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_resizearray_toarray() =
+  //  zs |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
   [<Benchmark>]
   member __.System_Linq_select_seq_toarray() =
@@ -182,6 +185,8 @@ type Benchmark () =
   [<Benchmark>]
   member __.Funtom_Linq_select_seq_toarray() =
     ss |> Linq.select (fun v -> v / 2) |> Linq.toArray
+
+
 
 
   //[<Benchmark>]

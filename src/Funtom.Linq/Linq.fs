@@ -12,10 +12,14 @@ open Empty
 open Basis
 open Select
 open AppendPrepend
+open Funtom.Linq.Common.Interfaces
 
 module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
-  let inline toArray (src: seq<'T>) = src.ToArray()
+  let inline toArray (src: seq<'T>) =
+    match src with
+    | :? IListProvider<'T> as provider -> provider.ToArray()
+    | _ -> Enumerable.toArray src
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.todictionary?view=net-6.0
   let inline toDictionary ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToDictionary(selector)

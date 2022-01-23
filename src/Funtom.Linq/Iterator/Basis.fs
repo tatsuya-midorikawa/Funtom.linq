@@ -232,7 +232,7 @@ module Basis =
       let mutable arrayIndex = arrayIndex
       let mutable count = count
 
-      let copyToCore (sourceBuffer: array<'T>, sourceIndex: int) =
+      let inline copyToCore (sourceBuffer: array<'T>, sourceIndex: int) =
         let copyCount = min (sourceBuffer.Length - sourceIndex) count
         System.Array.Copy(sourceBuffer, sourceIndex, array, arrayIndex, copyCount)
         arrayIndex <- arrayIndex + copyCount
@@ -280,6 +280,7 @@ module Basis =
         __.CopyTo(ary, 0, __.count')
         ary
 
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.TryMove(array: outref<array<'T>>) =
       array <- __.first'
       __.count' = __.first'.Length
