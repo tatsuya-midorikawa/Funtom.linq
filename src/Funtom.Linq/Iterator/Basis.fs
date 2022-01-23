@@ -92,13 +92,6 @@ module Basis =
   /// <summary>
   /// 
   /// </summary>
-  let inline create<'T> length = 
-    if 0 < length then Array.create length Unchecked.defaultof<'T> 
-    else Array.empty<'T>
-
-  /// <summary>
-  /// 
-  /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/LargeArrayBuilder.cs#L13">CopyPosition</see>
   [<Struct; IsReadOnly; DebuggerDisplay("{DebuggerDisplay, nq}")>]
   type CopyPosition = {
@@ -120,7 +113,7 @@ module Basis =
     val mutable array': array<'T>
     val mutable count': int
     new (capacity: int) = { 
-      array' = if 0 < capacity then create<'T> capacity else Array.empty<'T>
+      array' = if 0 < capacity then Array.zeroCreate<'T> capacity else Array.empty<'T>
       count' = 0; }
 
     member __.Capacity with get() = __.array'.Length
@@ -142,7 +135,7 @@ module Basis =
     member __.ToArray () =
       let mutable result = __.array'
       if __.count' < result.Length then
-        result <- create<'T> __.count'
+        result <- Array.zeroCreate<'T> __.count'
         System.Array.Copy(__.array', 0, result, 0, __.count')
       result
 
@@ -157,7 +150,7 @@ module Basis =
         nextCapacity <- max (capacity + 1) MaxCoreClrArrayLength
       nextCapacity <- max nextCapacity minimum
 
-      let next = create<'T> nextCapacity
+      let next = Array.zeroCreate<'T> nextCapacity
       if 0 < __.count' then
         System.Array.Copy(__.array', 0, next, 0, __.count')
       __.array' <- next
@@ -186,7 +179,6 @@ module Basis =
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Add (item: 'T) =
-      assert (__.count' < __.maxCapacity')
       let mutable index = __.index'
       let current = __.current'
       if uint current.Length <= uint index then
@@ -305,14 +297,14 @@ module Basis =
     member private __.AllocateBuffer () =      
       if uint __.count' < uint ResizeLimit then
         let nextCapacity = min (if __.count' = 0 then StartingCapacity else 2 * __.count') __.maxCapacity'
-        __.current' <- create<'T> nextCapacity
+        __.current' <- Array.zeroCreate<'T> nextCapacity
         System.Array.Copy(__.first', 0, __.current', 0, __.count')
         __.first' <- __.current'
       else
         let nextCapacity =
           if __.count' = ResizeLimit then ResizeLimit
           else __.buffers'.Add __.current'; min __.count' (__.maxCapacity' - __.count')
-        __.current' <- create<'T> nextCapacity
+        __.current' <- Array.zeroCreate<'T> nextCapacity
         __.index' <- 0
 
   /// <summary>

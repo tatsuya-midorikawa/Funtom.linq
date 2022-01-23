@@ -6,6 +6,11 @@ open Funtom.Linq.Common.Interfaces
 
 module Enumerable =
 
+  [<Literal>]
+  let private maxArrayLength = 0x7FEFFFFF
+  [<Literal>]
+  let private defaultCapacity = 4
+
   /// <summary>
   /// 
   /// </summary>
@@ -23,8 +28,6 @@ module Enumerable =
     | _ ->
       use iter = source.GetEnumerator()
       if iter.MoveNext() then
-        let maxArrayLength = Array.MaxLength  
-        let defaultCapacity = 8
         let mutable acc = Array.create defaultCapacity Unchecked.defaultof< ^T>
         acc[0] <- iter.Current
         let mutable count = 1

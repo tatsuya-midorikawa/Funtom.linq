@@ -25,6 +25,7 @@ open System.Diagnostics
 //|> printfn "%A"
 
 seq { 0..10 }
+//|> Linq.select (fun v -> v * 2)
 |> Linq.select (fun v -> v / 2)
 |> Linq.toArray
 |> printfn "%A"

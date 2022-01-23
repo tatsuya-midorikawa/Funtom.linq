@@ -186,7 +186,14 @@ type Benchmark () =
   member __.Funtom_Linq_select_seq_toarray() =
     ss |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
+    
+  //[<Benchmark>]
+  //member __.System_Linq_toarray_seq() =
+  //  ss.ToArray()
 
+  //[<Benchmark>]
+  //member __.Funtom_Linq_toarray_seq() =
+  //  ss |> Linq.toArray
 
 
   //[<Benchmark>]
