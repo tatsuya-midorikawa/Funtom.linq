@@ -85,33 +85,27 @@ module Linq =
     | :? list< ^T> as ls ->
       let rec fn(xs: list< ^T>) =
         match xs with
-        | h::tail ->
-          if predicate h then fn tail
-          else false
+        | h::tail -> if predicate h then fn tail else false
         | _ -> true
       fn ls
     | :? array< ^T> as ary ->
       let rec fn(i: int) =
-        if i < ary.Length then
-          if predicate ary[i] then fn (i + 1)
-          else false
+        if i < ary.Length 
+        then if predicate ary[i] then fn (i + 1) else false
         else true
       fn 0
     | :? ResizeArray< ^T> as ary ->
       let rec fn(i: int) =
-        if i < ary.Count then
-          if predicate ary[i] then fn (i + 1)
-          else false
+        if i < ary.Count 
+        then if predicate ary[i] then fn (i + 1) else false
         else true
       fn 0
     | _ ->
       use iter = src.GetEnumerator()
       let rec fn() =
-        if iter.MoveNext() then
-          if predicate iter.Current then fn()
-          else false
-        else
-          true
+        if iter.MoveNext()
+        then if predicate iter.Current then fn() else false
+        else true
       fn()
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.any?view=net-6.0#System_Linq_Enumerable_Any__1_System_Collections_Generic_IEnumerable___0__
@@ -131,33 +125,27 @@ module Linq =
     | :? list< ^T> as ls ->
       let rec fn(xs: list< ^T>) =
         match xs with
-        | h::tail ->
-          if predicate h then true
-          else fn tail
+        | h::tail -> if predicate h then true else fn tail
         | _ -> false
       fn ls
     | :? array< ^T> as ary ->
       let rec fn(i: int) =
-        if i < ary.Length then
-          if predicate ary[i] then true
-          else fn (i + 1)
+        if i < ary.Length
+        then if predicate ary[i] then true else fn (i + 1)
         else false
       fn 0
     | :? ResizeArray< ^T> as ary ->
       let rec fn(i: int) =
-        if i < ary.Count then
-          if predicate ary[i] then true
-          else fn (i + 1)
+        if i < ary.Count
+        then if predicate ary[i] then true else fn (i + 1)
         else false
       fn 0
     | _ ->
       use iter = src.GetEnumerator()
       let rec fn() =
-        if iter.MoveNext() then
-          if predicate iter.Current then true
-          else fn()
-        else
-          false
+        if iter.MoveNext()
+        then if predicate iter.Current then true else fn()
+        else false
       fn()
 
   // TODO: It is a very slow function compared to System.Linq,
