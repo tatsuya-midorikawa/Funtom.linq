@@ -127,19 +127,19 @@ type Benchmark () =
   //    acc <- acc + z
   //  acc
 
-  //[<Benchmark>]
-  //member __.System_Linq_select_seq() =
-  //  let mutable acc = 0
-  //  for s in ss.Select(fun v -> v / 2) do
-  //    acc <- acc + s
-  //  acc
+  [<Benchmark>]
+  member __.System_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss.Select(fun v -> v / 2) do
+      acc <- acc + s
+    acc
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_seq() =
-  //  let mutable acc = 0
-  //  for s in ss |> Linq.select (fun v -> v / 2) do
-  //    acc <- acc + s
-  //  acc
+  [<Benchmark>]
+  member __.Funtom_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss |> Linq.select (fun v -> v / 2) do
+      acc <- acc + s
+    acc
   
   //[<Benchmark>]
   //member __.Fsharp_map_seq() =

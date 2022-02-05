@@ -11,6 +11,7 @@ module Enumerable =
   [<Literal>]
   let private defaultCapacity = 4
 
+  // TODO: 高速化対象. IL 見比べて, 原因調査するところから.
   /// <summary>
   /// 
   /// </summary>
@@ -28,7 +29,7 @@ module Enumerable =
     | _ ->
       use iter = source.GetEnumerator()
       if iter.MoveNext() then
-        let mutable acc = Array.create defaultCapacity Unchecked.defaultof< ^T>
+        let mutable acc = Array.zeroCreate defaultCapacity
         acc[0] <- iter.Current
         let mutable count = 1
         while iter.MoveNext() do
