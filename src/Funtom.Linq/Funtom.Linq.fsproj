@@ -5,10 +5,10 @@
 		<LangVersion>6.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.0.5</Version>
+		<Version>0.0.6</Version>
 		<Authors>midoliy</Authors>
 		<Company>midoliy</Company>
-		<Copyright>© 2021 Tatsuya Midorikawa. All rights rserved</Copyright>
+		<Copyright>© 2021-2022 Tatsuya Midorikawa. All rights rserved</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>midoliy,Linq,fsharp,Funtom</PackageTags>
 		<PackageProjectUrl>https://github.com/tatsuya-midorikawa/Funtom.Linq</PackageProjectUrl>
@@ -30,8 +30,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Span.fs" />
+    <Compile Include="Interfaces.fs" />
+    <Compile Include="Enumerable.fs" />
+    <Compile Include="Iterator\Empty.fs" />
+    <Compile Include="Iterator\Basis.fs" />
+    <Compile Include="Iterator\AppendPrepend.fs" />
     <Compile Include="Core.fs" />
+    <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />
     <Compile Include="LinqExtensions.fs" />
   </ItemGroup>

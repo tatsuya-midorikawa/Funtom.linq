@@ -7,7 +7,8 @@ open System.Linq
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
-
+open Funtom.Linq.Iterator
+open Basis
 
 module rec Core =
   let inline combine_predicates ([<InlineIfLambda>] p1: 'source -> bool) ([<InlineIfLambda>] p2: 'source -> bool) (x: 'source) = p1 x && p2 x
@@ -430,5 +431,3 @@ module rec Core =
     let get_enumerator () = new CastEnumerator<'T> (source.GetEnumerator())
     interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
     interface IEnumerable<'T> with member __.GetEnumerator () = get_enumerator ()
-
-

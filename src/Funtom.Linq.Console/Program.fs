@@ -9,15 +9,39 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
+//let xs = [ 0..10 ]
+//xs
+//|> Linq.append 1
+//|> Linq.append 2
+//|> Linq.append 3
+//|> Linq.toArray
+//|> printfn "%A"
 
-let inline eval q = LeafExpressionConverter.EvaluateQuotation q
+//xs
+//|> Linq.prepend 1
+//|> Linq.prepend 2
+//|> Linq.prepend 3
+//|> Linq.toArray
+//|> printfn "%A"
 
-//seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
-//printfn ""
-//Enumerable.Range(0, 10) 
-//|> Seq.iter (fun x -> printf $"{x} ")
+seq { 0..10 }
+//|> Linq.select (fun v -> v * 2)
+|> Linq.select (fun v -> v / 2)
+|> Linq.toArray
+|> printfn "%A"
 
-let is_even v = v % 2 = 0
+//xs.Prepend(1).Prepend(2).Prepend(3).ToArray()
+//|> printfn "%A"
+
+
+//let inline eval q = LeafExpressionConverter.EvaluateQuotation q
+
+////seq { 0..9 } |> Seq.iter (fun x -> printf $"{x} ")
+////printfn ""
+////Enumerable.Range(0, 10) 
+////|> Seq.iter (fun x -> printf $"{x} ")
+
+//let is_even v = v % 2 = 0
 
 //let xs = 
 //  [0;1;2;3;4;5;]
@@ -143,21 +167,21 @@ let is_even v = v % 2 = 0
 //let ys = xs.Cast<int>().ToArray()
 
 //let xs = [| 0..10 |]
-ResizeArray [| 0..10 |]
-|> Linq.aggregate 0 (fun v next -> v + next)
-|> printfn "%d"
+//ResizeArray [| 0..10 |]
+//|> Linq.aggregate 0 (fun v next -> v + next)
+//|> printfn "%d"
 
-[| 0..10 |]
-|> Linq.aggregate 0 (fun v next -> v + next)
-|> printfn "%d"
+//[| 0..10 |]
+//|> Linq.aggregate 0 (fun v next -> v + next)
+//|> printfn "%d"
 
-[ 0..10 ]
-|> Linq.aggregate 0 (fun v next -> v + next)
-|> printfn "%d"
+//[ 0..10 ]
+//|> Linq.aggregate 0 (fun v next -> v + next)
+//|> printfn "%d"
 
-seq { 0..10 }
-|> Linq.aggregate 0 (fun v next -> v + next)
-|> printfn "%d"
+//seq { 0..10 }
+//|> Linq.aggregate 0 (fun v next -> v + next)
+//|> printfn "%d"
 
 
 //xs.Aggregate (fun v next -> v + next)
@@ -165,3 +189,12 @@ seq { 0..10 }
 
 //[| 0..5 |].All(fun x -> x < 0) |> printfn "%b"
 //[| 0..5 |] |> Linq.all (fun x -> x < 0) |> printfn "%b"
+
+
+//[| 0..10 |].Append(11).ToArray() |> printfn "%A"
+//[| 0..10 |] |> Linq.append 11 |> Linq.toArray |> printfn "%A"
+
+//1 <<< 1 |> printfn "%d"
+
+//Checked.(+) 1 1
+//|> printfn "%d"
