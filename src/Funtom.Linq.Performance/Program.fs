@@ -127,19 +127,19 @@ type Benchmark () =
   //    acc <- acc + z
   //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss.Select(fun v -> v / 2) do
-      acc <- acc + s
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss.Select(fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss |> Linq.select (fun v -> v / 2) do
-      acc <- acc + s
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Linq.select (fun v -> v / 2) do
+  //    acc <- acc + s
+  //  acc
   
   //[<Benchmark>]
   //member __.Fsharp_map_seq() =
@@ -147,7 +147,20 @@ type Benchmark () =
   //  for s in ss |> Seq.map (fun v -> v / 2) do
   //    acc <- acc + s
   //  acc
-  
+
+  [<Benchmark>]
+  member __.System_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss.Where(fun v -> v % 2 = 0).Select(fun v -> v * 2) do
+      acc <- acc + s
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_seq() =
+    let mutable acc = 0
+    for s in ss |> Linq.where (fun v -> v % 2 = 0) |> Linq.select (fun v -> v * 2) do
+      acc <- acc + s
+    acc
 
 
 
@@ -178,13 +191,13 @@ type Benchmark () =
   //member __.Funtom_Linq_select_resizearray_toarray() =
   //  zs |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
-  [<Benchmark>]
-  member __.System_Linq_select_seq_toarray() =
-    ss.Select(fun v -> v / 2).ToArray()
+  //[<Benchmark>]
+  //member __.System_Linq_select_seq_toarray() =
+  //  ss.Select(fun v -> v / 2).ToArray()
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_seq_toarray() =
-    ss |> Linq.select (fun v -> v / 2) |> Linq.toArray
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_seq_toarray() =
+  //  ss |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
     
   //[<Benchmark>]
