@@ -33,10 +33,9 @@ module Linq =
   let inline toDictionary2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) =
     src.ToDictionary(keySelector, elementSelector, comparer)
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tohashset?view=net-6.0
-  let inline toHashSet (src: seq< ^T>) = src.ToHashSet()
-  let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.ToHashSet(comparer)
+  let inline toHashSet (src: seq< ^T>) = HashSet< ^T>(src, null)
+  let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = HashSet< ^T>(src, comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolist?view=net-6.0
   let inline toList (src: seq< ^T>) = 
