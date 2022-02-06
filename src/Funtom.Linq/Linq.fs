@@ -38,9 +38,11 @@ module Linq =
   let inline toHashSet (src: seq< ^T>) = src.ToHashSet()
   let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.ToHashSet(comparer)
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolist?view=net-6.0
-  let inline toList (src: seq< ^T>) = src.ToList()
+  let inline toList (src: seq< ^T>) = 
+    match src with
+    | :? IListProvider< ^T> as provider -> provider.ToList()
+    | _ -> ResizeArray(src)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__2_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__
   let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
