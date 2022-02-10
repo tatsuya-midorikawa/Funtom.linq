@@ -35,6 +35,7 @@
     <Compile Include="Iterator\Empty.fs" />
     <Compile Include="Iterator\Basis.fs" />
     <Compile Include="Iterator\AppendPrepend.fs" />
+    <Compile Include="Iterator\Chunk.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />
