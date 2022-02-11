@@ -24,11 +24,17 @@ open System.Diagnostics
 //|> Linq.toArray
 //|> printfn "%A"
 
-seq { 0..10 }
-//|> Linq.select (fun v -> v * 2)
-|> Linq.select (fun v -> v / 2)
-|> Linq.toArray
-|> printfn "%A"
+//seq { 0..10 }
+////|> Linq.select (fun v -> v * 2)
+//|> Linq.select (fun v -> v / 2)
+//|> Linq.toArray
+//|> printfn "%A"
+
+
+seq { 0..97 }
+|> Linq.chunk 5
+|> Seq.iter (fun xs -> xs |> Seq.iter (printf "%d, "); printfn "")
+
 
 //xs.Prepend(1).Prepend(2).Prepend(3).ToArray()
 //|> printfn "%A"

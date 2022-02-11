@@ -32,6 +32,26 @@ type Benchmark () =
     ss <- [|for _ in 1..10000 do fake.Random.Int()|] |> Seq.ofArray
 
 
+
+  //[<Benchmark>]
+  //member __.System_Linq_chunk_seq() =
+  //  let ps = ys.Chunk(10)
+  //  let mutable acc = 0
+  //  for rs in ps do
+  //    for r in rs do
+  //      acc <- acc + r
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_chunk_seq() =
+  //  let ps = ys |> Linq.chunk 10
+  //  let mutable acc = 0
+  //  for rs in ps do
+  //    for r in rs do
+  //      acc <- acc + r
+  //  acc
+
+
   //[<Benchmark>]
   //member __.Funtom_Linq_append() =
   //  let mutable ls : seq<int> = [||]
@@ -148,20 +168,19 @@ type Benchmark () =
   //    acc <- acc + s
   //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss.Where(fun v -> v % 2 = 0).Select(fun v -> v * 2) do
-      acc <- acc + s
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss.Where(fun v -> v % 2 = 0).Select(fun v -> v * 2) do
+  //    acc <- acc + s
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_select_seq() =
-    let mutable acc = 0
-    for s in ss |> Linq.where (fun v -> v % 2 = 0) |> Linq.select (fun v -> v * 2) do
-      acc <- acc + s
-    acc
-
+  //[<Benchmark>]
+  //member __.Funtom_Linq_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Linq.where (fun v -> v % 2 = 0) |> Linq.select (fun v -> v * 2) do
+  //    acc <- acc + s
+  //  acc
 
 
   // ====================

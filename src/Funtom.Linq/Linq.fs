@@ -12,6 +12,7 @@ open Empty
 open Basis
 open Select
 open AppendPrepend
+open Chunk
 open Funtom.Linq.Common.Interfaces
 
 module Linq =
@@ -175,9 +176,9 @@ module Linq =
     | :? IEnumerable< ^T> as src -> src
     | _ -> CastIterator< ^T> source
 
-  // TODO
+  // TODO: Performance tuning
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.chunk?view=net-6.0
-  let inline chunk (size: int) (src: seq< ^T>) = src.Chunk size
+  let inline chunk (size: int) (src: seq< ^T>) = chunkIterator(src, size)
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.concat?view=net-6.0
