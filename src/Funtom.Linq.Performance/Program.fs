@@ -30,7 +30,24 @@ type Benchmark () =
     ys <- [|for _ in 1..10000 do fake.Random.Int()|]
     zs <- ResizeArray([|for _ in 1..10000 do fake.Random.Int()|])
     ss <- [|for _ in 1..10000 do fake.Random.Int()|] |> Seq.ofArray
+    
 
+  [<Benchmark>]
+  member __.System_Linq_count_seq() =
+    ss.Count()
+
+  [<Benchmark>]
+  member __.Funtom_Linq_count_seq() =
+    ss |> Linq.count
+    
+
+  //[<Benchmark>]
+  //member __.System_Linq_count_predicate_seq() =
+  //  ss.Count(fun x -> x % 2 = 0)
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_count_predicate_seq() =
+  //  ss |> Linq.count' (fun x -> x % 2 = 0)
 
 
   //[<Benchmark>]

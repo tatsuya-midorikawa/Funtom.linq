@@ -188,15 +188,9 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.contains?view=net-6.0
   let inline contains (target: ^T) (src: seq< ^T>) = src.Contains target
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.count?view=net-6.0
-  let inline count (src: seq< ^T>) =
-    match src with
-    | :? ICollection as xs -> xs.Count
-    | :? ICollection< ^T> as xs -> xs.Count
-    | :? IReadOnlyCollection< ^T> as xs -> xs.Count
-    | _ -> src.Count()
-  let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.Count (src, predicate)
+  let inline count (src: seq< ^T>) = Enumerable.count src
+  let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.count' (src, predicate)
   
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.defaultifempty?view=net-6.0
