@@ -168,7 +168,7 @@ module Linq =
     | _ -> new AppendPrepend1Iterator< ^T>(src, element, true)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.asenumerable?view=net-6.0
-  let inline asEnumerable (src: seq< ^T>) = src.AsEnumerable()
+  let inline asEnumerable (src: seq< ^T>) = src
     
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.cast?view=net-6.0
   let inline cast (source: IEnumerable) : IEnumerable< ^T> = 
