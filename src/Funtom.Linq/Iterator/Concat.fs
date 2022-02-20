@@ -89,6 +89,7 @@ module rec Concat =
       | 1 -> second
       | _ -> defaultof<seq<'T>>
 
+    // System.Linq.Count() を先に実装しないとダメ
     override __.GetCount(onlyIfCheap: bool) =
       let mutable secoundCount = 0
       match first.tryGetNonEnumerateCount() with

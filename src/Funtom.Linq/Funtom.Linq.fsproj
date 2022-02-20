@@ -32,6 +32,7 @@
   <ItemGroup>
     <Compile Include="Common.fs" />
     <Compile Include="Interfaces.fs" />
+    <Compile Include="Count.fs" />
     <Compile Include="Enumerable.fs" />
     <Compile Include="Iterator\Empty.fs" />
     <Compile Include="Iterator\Basis.fs" />
