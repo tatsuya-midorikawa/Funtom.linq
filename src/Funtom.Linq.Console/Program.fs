@@ -9,6 +9,17 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
+
+match box(1,"", 2.0) with
+| :? (int * string * double) -> true
+| _ -> false
+|> printfn "%b"
+
+match (box 1,box "", box 2.0) with
+| (:? int), (:? string), (:? double) -> true
+| _ -> false
+|> printfn "%b"
+
 //let xs = [ 0..10 ]
 //xs
 //|> Linq.append 1
@@ -31,9 +42,9 @@ open System.Diagnostics
 //|> printfn "%A"
 
 
-seq { 0..97 }
-|> Linq.chunk 5
-|> Seq.iter (fun xs -> xs |> Seq.iter (printf "%d, "); printfn "")
+//seq { 0..97 }
+//|> Linq.chunk 5
+//|> Seq.iter (fun xs -> xs |> Seq.iter (printf "%d, "); printfn "")
 
 
 //xs.Prepend(1).Prepend(2).Prepend(3).ToArray()

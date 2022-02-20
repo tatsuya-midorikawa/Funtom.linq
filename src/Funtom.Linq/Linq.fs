@@ -13,7 +13,7 @@ open Basis
 open Select
 open AppendPrepend
 open Chunk
-open Funtom.Linq.Common.Interfaces
+open Funtom.Linq.Interfaces
 
 module Linq =
   // TODO: seq<'T> に対する ToArray() が非常に遅いので、要高速化
@@ -455,7 +455,7 @@ module Linq =
       | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
       | :? ResizeArray<'T> as list -> new SelectListIterator<'T, 'U>(list, selector)
       | _ -> new SelectIListIterator<'T, 'U>(ilist, selector)
-    | :? Funtom.Linq.Common.Interfaces.IPartition<'T> as partition ->
+    | :? Funtom.Linq.Interfaces.IPartition<'T> as partition ->
       match partition with
       | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
       | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)

@@ -404,14 +404,14 @@ module Select =
       new SelectListPartitionIterator<'T, 'U2>(source, combine_selectors selector selector', minIndexInclusive, maxIndexInclusive)
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-    member __.Skip (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
+    member __.Skip (count: int) : Funtom.Linq.Interfaces.IPartition<'U> =
       let minIndex = minIndexInclusive + count
       if uint maxIndexInclusive < uint minIndex
       then EmptyPartition<'U>.Instance
       else new SelectListPartitionIterator<'T, 'U>(source, selector, minIndex, maxIndexInclusive)
 
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-    member __.Take (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
+    member __.Take (count: int) : Funtom.Linq.Interfaces.IPartition<'U> =
       let maxIndex = minIndexInclusive + count - 1
       if uint maxIndexInclusive <= uint maxIndex
       then __
@@ -475,12 +475,12 @@ module Select =
           selector source[i] |> ignore
       count
 
-    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+    interface Funtom.Linq.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
-    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+    interface Funtom.Linq.Interfaces.IPartition<'U> with
       member __.Skip(count: int) = __.Skip(count)
       member __.Take(count: int) = __.Take(count)
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
@@ -535,7 +535,7 @@ module Select =
           count <- Checked.(+) count 1
         count
 
-    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+    interface Funtom.Linq.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
@@ -590,13 +590,13 @@ module Select =
       source.Length
       
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-    member __.Skip (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
+    member __.Skip (count: int) : Funtom.Linq.Interfaces.IPartition<'U> =
       if count >= source.Length
       then EmptyPartition<'U>.Instance
       else new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue)
       
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-    member __.Take (count: int) : Funtom.Linq.Common.Interfaces.IPartition<'U> =
+    member __.Take (count: int) : Funtom.Linq.Interfaces.IPartition<'U> =
       if count >= source.Length 
       then __
       else new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
@@ -617,12 +617,12 @@ module Select =
       found <- true
       selector(source[source.Length - 1])
 
-    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+    interface Funtom.Linq.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
-    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+    interface Funtom.Linq.Interfaces.IPartition<'U> with
       member __.Skip(count: int) = __.Skip(count)
       member __.Take(count: int) = __.Take(count)
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
@@ -701,12 +701,12 @@ module Select =
       then found <- true; selector(source[count - 1])
       else found <- false; Unchecked.defaultof<'U>
 
-    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+    interface Funtom.Linq.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
-    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+    interface Funtom.Linq.Interfaces.IPartition<'U> with
       member __.Skip(count: int) = __.Skip(count)
       member __.Take(count: int) = __.Take(count)
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
@@ -792,12 +792,12 @@ module Select =
       then found <- true; selector(source[count - 1])
       else found <- false; Unchecked.defaultof<'U>
 
-    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+    interface Funtom.Linq.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
-    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+    interface Funtom.Linq.Interfaces.IPartition<'U> with
       member __.Skip(count: int) = __.Skip(count)
       member __.Take(count: int) = __.Take(count)
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
@@ -806,7 +806,7 @@ module Select =
 
   // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L494
   [<Sealed>]
-  type SelectIPartitionIterator<'T, 'U>(source: Funtom.Linq.Common.Interfaces.IPartition<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+  type SelectIPartitionIterator<'T, 'U>(source: Funtom.Linq.Interfaces.IPartition<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
     inherit Iterator<'U>()
     let mutable enumerator = source.GetEnumerator()
 
@@ -894,12 +894,12 @@ module Select =
       found <- srcFound
       if srcFound then selector item else Unchecked.defaultof<'U>
 
-    interface Funtom.Linq.Common.Interfaces.IListProvider<'U> with
+    interface Funtom.Linq.Interfaces.IListProvider<'U> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()
       member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
-    interface Funtom.Linq.Common.Interfaces.IPartition<'U> with
+    interface Funtom.Linq.Interfaces.IPartition<'U> with
       member __.Skip(count: int) = __.Skip(count)
       member __.Take(count: int) = __.Take(count)
       member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
