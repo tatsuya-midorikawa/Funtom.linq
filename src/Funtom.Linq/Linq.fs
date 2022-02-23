@@ -180,9 +180,11 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.chunk?view=net-6.0
   let inline chunk (size: int) (src: seq< ^T>) = chunkIterator(src, size)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.concat?view=net-6.0
-  let inline concat (fst: seq< ^T>) (snd: seq< ^T>) = fst.Concat snd
+  let inline concat (snd: seq< ^T>) (fst: seq< ^T>) = 
+    match fst with
+    | :? Concat.ConcatIterator< ^T> as fst -> fst.Concat(snd)
+    | _ -> new Concat.Concat2Iterator< ^T>(fst, snd)
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.contains?view=net-6.0

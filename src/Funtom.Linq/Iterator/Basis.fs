@@ -326,7 +326,7 @@ module Basis =
     mutable reservedCount: int
   }
   with
-    static member Create() = { builder = LargeArrayBuilder<'T>(System.Int32.MaxValue); markers = ArrayBuilder<Marker>(); reservedCount = 0 }
+    static member Create() = { builder = LargeArrayBuilder<'T>(System.Int32.MaxValue); markers = ArrayBuilder<Marker>(4); reservedCount = 0 }
     member __.Count with get() = __.builder.Count + __.reservedCount
     member __.Add (item: 'T) = __.builder.Add(item)
     member __.AddRange (items: seq<'T>) = __.builder.AddRange(items)

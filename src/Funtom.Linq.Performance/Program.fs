@@ -33,12 +33,76 @@ type Benchmark () =
     
 
   [<Benchmark>]
-  member __.System_Linq_count_seq() =
-    ss.Count()
+  member __.System_Linq_concat_list() =
+    let ls = xs.Concat(xs)
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
 
   [<Benchmark>]
-  member __.Funtom_Linq_count_seq() =
-    ss |> Linq.count
+  member __.Funtom_Linq_concat_list() =
+    let ls = xs |> Linq.concat xs
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_concat_array() =
+    let ls = ys.Concat(ys)
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_concat_array() =
+    let ls = ys |> Linq.concat ys
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_concat_resizablearray() =
+    let ls = zs.Concat(zs)
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_concat_resizablearray() =
+    let ls = zs |> Linq.concat zs
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_concat_seq() =
+    let ls = ss.Concat(ss)
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_concat_seq() =
+    let ls = ss |> Linq.concat ss
+    let mutable acc = 0
+    for l in ls do
+      acc <- acc + l
+    acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_count_seq() =
+  //  ss.Count()
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_count_seq() =
+  //  ss |> Linq.count
     
 
   //[<Benchmark>]

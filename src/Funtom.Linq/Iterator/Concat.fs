@@ -74,6 +74,7 @@ module rec Concat =
   [<Sealed>]
   type Concat2Iterator<'T> (first: seq<'T>, second: seq<'T>) =
     inherit ConcatIterator<'T> ()
+    member __.first = first
     member __.second = second
     override __.Clone() = new Concat2Iterator<'T>(first, second)
     override __.Concat(next: seq<'T>) =
@@ -182,6 +183,10 @@ module rec Concat =
         loop()
         Checked.(+) count (node.tail.GetCount(onlyIfCheap))
 
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs#L99
+    override __.ToArray() = if hasOnlyCollections then __.preallocatingToArray() else __.lazyToArray()
+
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs#L101
     member private __.lazyToArray() =
       let mutable builder = SparseArrayBuilder.Create()
       let mutable deferredCopies = ArrayBuilder<int>(4)
@@ -203,6 +208,7 @@ module rec Concat =
 
       array
 
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs#L140
     member private __.preallocatingToArray() =
       let count = __.GetCount(true)
       if count = 0
@@ -226,10 +232,10 @@ module rec Concat =
           else ()
         loop()
 
-        // todo
         let mutable previous2 = node.tail :?> Concat2Iterator<'T>
         let mutable second = previous2.second :?> ICollection<'T>
         let secondCount = second.Count
-
+        if 0 < secondCount then second.CopyTo(array, Checked.(-) index secondCount)
+        if secondCount < index then (previous2.first :?> ICollection<'T>).CopyTo(array, 0)
         array
         

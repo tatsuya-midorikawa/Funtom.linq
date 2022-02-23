@@ -9,8 +9,28 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
-Checked.(-) 10 1
-|> printfn "%d"
+
+//[ 0..10 ]
+//|> Linq.concat [ 11..20 ]
+//|> Linq.toArray
+//|> printfn "%A"
+
+let a = [| 0..10 |]
+a
+|> Linq.concat a
+|> Linq.toArray
+|> printfn "%A"
+
+//ResizeArray [| 0..10 |]
+//|> Linq.concat (ResizeArray [| 11..20 |])
+//|> Linq.toArray
+//|> printfn "%A"
+
+//seq { 0..10 }
+//|> Linq.concat (seq { 11..20 })
+//|> Linq.toArray
+//|> printfn "%A"
+
 
 //match box(1,"", 2.0) with
 //| :? (int * string * double) -> true
