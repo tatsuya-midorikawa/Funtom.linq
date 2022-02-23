@@ -89,16 +89,32 @@ module rec Concat =
       | 1 -> second
       | _ -> defaultof<seq<'T>>
 
-    // System.Linq.Count() を先に実装しないとダメ
     override __.GetCount(onlyIfCheap: bool) =
-      let mutable secoundCount = 0
-      match tryGetNonEnumeratedCount first with
-      | (true, v) -> v
-      | (false, _) -> if onlyIfCheap then -1 else first |> count
-      let (b, firstCount) = first.tryGetNonEnumeratedCount()
+      let firstCount = 
+        match tryGetNonEnumeratedCount first with
+        | (true, v) -> v
+        | (false, _) -> if onlyIfCheap then -1 else first |> count
 
-      0
+      let secondCount = 
+        match tryGetNonEnumeratedCount second with
+        | (true, v) -> v
+        | (false, _) -> if onlyIfCheap then -1 else second |> count
+
+      match (firstCount, secondCount) with
+      | (-1, _) | (_, -1) -> -1
+      | _ -> Checked.(+) firstCount secondCount
       
+    override __.ToArray() =
+      let mutable builder = SparseArrayBuilder.Create()
+      let reversedFirst = builder.ReserveOrAdd first
+      let reversedSecond = builder.ReserveOrAdd second
+      let array = builder.ToArray()
+      
+      if reversedFirst then
+        let marker = builder.markers.First()
+        Enumerable.copy(first, array, 0, marker.count)
+
+      array
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.cs#L93
   [<Sealed>]

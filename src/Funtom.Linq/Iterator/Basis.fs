@@ -312,7 +312,7 @@ module Basis =
   /// </summary>
   // src: https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/SparseArrayBuilder.cs#L13
   [<Struct; IsReadOnly; DebuggerDisplay("{DebuggerDisplay, nq}")>]
-  type Maker = { count: int; index: int }
+  type Marker = { count: int; index: int }
   with member __.DebuggerDisplay with get() = $"index: {__.index}, count: {__.count}"
 
   /// <summary>
@@ -322,11 +322,11 @@ module Basis =
   [<Struct;NoComparison;NoEquality;>]
   type SparseArrayBuilder<'T> = {
     mutable builder : LargeArrayBuilder<'T>
-    mutable makers: ArrayBuilder<Maker>
+    mutable markers: ArrayBuilder<Marker>
     mutable reservedCount: int
   }
   with
-    static member Create() = { builder = LargeArrayBuilder<'T>(System.Int32.MaxValue); makers = ArrayBuilder<Maker>(); reservedCount = 0 }
+    static member Create() = { builder = LargeArrayBuilder<'T>(System.Int32.MaxValue); markers = ArrayBuilder<Marker>(); reservedCount = 0 }
     member __.Count with get() = __.builder.Count + __.reservedCount
     member __.Add (item: 'T) = __.builder.Add(item)
     member __.AddRange (items: seq<'T>) = __.builder.AddRange(items)
@@ -336,9 +336,9 @@ module Basis =
       let mutable copied = 0
       let mutable position = CopyPosition.Start
 
-      for i = 0 to __.makers.Count - 1 do
-        let maker = __.makers[i]
-        let toCopy = min (maker.index - copied ) count
+      for i = 0 to __.markers.Count - 1 do
+        let marker = __.markers[i]
+        let toCopy = min (marker.index - copied ) count
         if 0 < toCopy then
           position <- __.builder.CopyTo(position, array, arrayIndex, toCopy)
           arrayIndex <- arrayIndex + toCopy
@@ -348,7 +348,7 @@ module Basis =
         if count = 0 then
           ()
         else
-          let reservedCount = min maker.count count
+          let reservedCount = min marker.count count
           arrayIndex <- arrayIndex + reservedCount
           copied <- copied + reservedCount
           count <- count - reservedCount
@@ -357,7 +357,7 @@ module Basis =
         __.builder.CopyTo(position, array, arrayIndex, count) |> ignore
 
     member __.Reserve (count: int) =
-      __.makers.Add { count = count; index = __.Count }
+      __.markers.Add { count = count; index = __.Count }
       __.reservedCount <- Checked.(+) __.reservedCount count
 
     member __.ReserveOrAdd (items: seq<'T>) =
@@ -370,7 +370,7 @@ module Basis =
         false
 
     member __.ToArray() =
-      if __.makers.Count = 0 then
+      if __.markers.Count = 0 then
         __.builder.ToArray()
       else
         let array = Array.zeroCreate __.Count
