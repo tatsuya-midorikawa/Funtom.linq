@@ -74,12 +74,12 @@ module rec Concat =
   [<Sealed>]
   type Concat2Iterator<'T> (first: seq<'T>, second: seq<'T>) =
     inherit ConcatIterator<'T> ()
-
+    member __.second = second
     override __.Clone() = new Concat2Iterator<'T>(first, second)
     override __.Concat(next: seq<'T>) =
       let hasOnlyCollections = 
         match (next, first, second) with
-        | (:? ICollection<'T> | :? IReadOnlyCollection<'T>), (:? ICollection<'T> | :? IReadOnlyCollection<'T>), (:? ICollection<'T> | :? IReadOnlyCollection<'T>) -> true
+        | (:? ICollection<'T>), (:? ICollection<'T>), (:? ICollection<'T>) -> true
         | _ -> false
       new ConcatNIterator<'T>(__, next, 2, hasOnlyCollections) 
 
@@ -136,7 +136,7 @@ module rec Concat =
       then
         new Concat2Iterator<'T>(__, next)
       else
-        let hasOnlyCollections = hasOnlyCollections && (match next with :? ICollection<'T> | :? IReadOnlyCollection<'T> -> true | _ -> false)
+        let hasOnlyCollections = hasOnlyCollections && (match next with :? ICollection<'T> -> true | _ -> false)
         new ConcatNIterator<'T>(__, next, headIndex + 1, hasOnlyCollections)
 
     override __.GetEnumerable (index: int) =
@@ -227,7 +227,9 @@ module rec Concat =
         loop()
 
         // todo
-
+        let mutable previous2 = node.tail :?> Concat2Iterator<'T>
+        let mutable second = previous2.second :?> ICollection<'T>
+        let secondCount = second.Count
 
         array
         
