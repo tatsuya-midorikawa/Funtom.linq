@@ -79,7 +79,7 @@ module rec Concat =
     override __.Concat(next: seq<'T>) =
       let hasOnlyCollections = 
         match (next, first, second) with
-        | (:? ICollection<'T>), (:? ICollection<'T>), (:? ICollection<'T>) -> true
+        | (:? ICollection<'T> | :? IReadOnlyCollection<'T>), (:? ICollection<'T> | :? IReadOnlyCollection<'T>), (:? ICollection<'T> | :? IReadOnlyCollection<'T>) -> true
         | _ -> false
       new ConcatNIterator<'T>(__, next, 2, hasOnlyCollections) 
 
@@ -121,6 +121,113 @@ module rec Concat =
       array
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.cs#L93
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs#L65
   [<Sealed>]
   type ConcatNIterator<'T> (tail: ConcatIterator<'T>, head: seq<'T>, headIndex: int, hasOnlyCollections: bool) =
     inherit ConcatIterator<'T> ()
+    member private __.headIndex = headIndex
+    member private __.tail = tail
+    member private __.head = head
+    member private __.previousN with get() = match tail with :? ConcatNIterator<'T> as n -> n | _ -> defaultof<ConcatNIterator<'T>>
+    override __.Clone() = new ConcatNIterator<'T> (tail, head, headIndex, hasOnlyCollections)
+
+    override __.Concat(next: seq<'T>) =
+      if headIndex = System.Int32.MaxValue - 2
+      then
+        new Concat2Iterator<'T>(__, next)
+      else
+        let hasOnlyCollections = hasOnlyCollections && (match next with :? ICollection<'T> | :? IReadOnlyCollection<'T> -> true | _ -> false)
+        new ConcatNIterator<'T>(__, next, headIndex + 1, hasOnlyCollections)
+
+    override __.GetEnumerable (index: int) =
+      if headIndex < index
+      then 
+        defaultof<seq<'T>>
+      else
+        let mutable node = defaultof<ConcatNIterator<'T>>
+        let mutable previousN = __
+        let rec search() =
+          node <- previousN
+          if index = node.headIndex 
+          then
+            node.head
+          else
+            previousN <- node.previousN
+            if previousN <> defaultof<ConcatNIterator<'T>>
+            then search()
+            else defaultof<seq<'T>>
+        let result = search()
+        if result <> defaultof<seq<'T>>
+        then result
+        else node.tail.GetEnumerable(index)
+
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs#L67
+    override __.GetCount (onlyIfCheap: bool) =
+      if onlyIfCheap && not hasOnlyCollections 
+      then -1
+      else
+        let mutable count = 0        
+        let mutable node = defaultof<ConcatNIterator<'T>>
+        let mutable previousN = __
+        let rec loop() =
+          node <- previousN
+          let src = node.head
+          let srcCount = Enumerable.count src
+          count <- Checked.(+) count srcCount
+
+          previousN <- node.previousN
+          if previousN <> defaultof<ConcatNIterator<'T>>
+          then loop()
+          else ()
+        loop()
+        Checked.(+) count (node.tail.GetCount(onlyIfCheap))
+
+    member private __.lazyToArray() =
+      let mutable builder = SparseArrayBuilder.Create()
+      let mutable deferredCopies = ArrayBuilder<int>(4)
+      let rec loop (i: int) =
+        let source = __.GetEnumerable(i)
+        if source = defaultof<seq<'T>>
+        then ()
+        else
+          if builder.ReserveOrAdd source then deferredCopies.Add(i)
+          loop(i + 1)
+
+      loop 0
+      let array = builder.ToArray()
+      let mutable markers = builder.markers
+      for i = 0 to (markers.Count - 1) do
+        let marker = markers[i]
+        let source = __.GetEnumerable(deferredCopies[i])
+        Enumerable.copy(source, array, marker.index, marker.count)
+
+      array
+
+    member private __.preallocatingToArray() =
+      let count = __.GetCount(true)
+      if count = 0
+      then
+        Array.empty<'T>
+      else
+        let array = Array.zeroCreate<'T> count
+        let mutable index = array.Length
+
+        let mutable node = defaultof<ConcatNIterator<'T>>
+        let mutable previousN = __
+        let rec loop() =
+          node <- previousN
+          let src = node.head :?> ICollection<'T>
+          let srcCount = src.Count
+          if 0 < srcCount then 
+            index <- Checked.(-) index srcCount
+            src.CopyTo(array, index)
+          if previousN <> defaultof<ConcatNIterator<'T>>
+          then loop()
+          else ()
+        loop()
+
+        // todo
+
+
+        array
+        

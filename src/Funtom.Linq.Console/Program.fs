@@ -9,16 +9,18 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
+Checked.(-) 10 1
+|> printfn "%d"
 
-match box(1,"", 2.0) with
-| :? (int * string * double) -> true
-| _ -> false
-|> printfn "%b"
+//match box(1,"", 2.0) with
+//| :? (int * string * double) -> true
+//| _ -> false
+//|> printfn "%b"
 
-match (box 1,box "", box 2.0) with
-| (:? int), (:? string), (:? double) -> true
-| _ -> false
-|> printfn "%b"
+//match (box 1,box "", box 2.0) with
+//| (:? int), (:? string), (:? double) -> true
+//| _ -> false
+//|> printfn "%b"
 
 //let xs = [ 0..10 ]
 //xs

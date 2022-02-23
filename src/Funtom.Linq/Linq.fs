@@ -13,7 +13,6 @@ open Basis
 open Select
 open AppendPrepend
 open Chunk
-open Count
 open Funtom.Linq.Interfaces
 
 module Linq =
