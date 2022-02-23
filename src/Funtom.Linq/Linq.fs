@@ -13,6 +13,7 @@ open Basis
 open Select
 open AppendPrepend
 open Chunk
+open Count
 open Funtom.Linq.Interfaces
 
 module Linq =
@@ -189,8 +190,8 @@ module Linq =
   let inline contains (target: ^T) (src: seq< ^T>) = src.Contains target
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.count?view=net-6.0
-  let inline count (src: seq< ^T>) = Enumerable.count src
-  let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.count' (src, predicate)
+  let inline count (src: seq< ^T>) = src |> Enumerable.count
+  let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.count' predicate src
   
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.defaultifempty?view=net-6.0
@@ -320,15 +321,9 @@ module Linq =
   let inline lastOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.LastOrDefault(defaultValue)
   let inline lastOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault(predicate, defaultValue)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.longcount?view=net-6.0
-  let inline longCount (src: seq< ^T>) : int64 =
-    match src with
-    | :? ICollection as xs -> xs.Count
-    | :? ICollection< ^T> as xs -> xs.Count
-    | :? IReadOnlyCollection< ^T> as xs -> xs.Count
-    | _ -> src.LongCount()
-  let inline longCount' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LongCount predicate
+  let inline longCount (src: seq< ^T>) : int64 = src |> Enumerable.longCount
+  let inline longCount' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src |> Enumerable.longCount' predicate
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.max?view=net-6.0
   let inline max (src: seq< ^T>) =

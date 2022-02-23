@@ -7,7 +7,7 @@ open System.Collections.Generic
 module rec Concat =
   open Basis
   open Interfaces
-  open Count
+  open Enumerable
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.cs#L190
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.SpeedOpt.cs#L195
@@ -92,10 +92,10 @@ module rec Concat =
     // System.Linq.Count() を先に実装しないとダメ
     override __.GetCount(onlyIfCheap: bool) =
       let mutable secoundCount = 0
-      match first.tryGetNonEnumerateCount() with
+      match tryGetNonEnumeratedCount first with
       | (true, v) -> v
-      | (false, _) -> if onlyIfCheap then -1 else first.Count()
-      let (b, firstCount) = first.tryGetNonEnumerateCount()
+      | (false, _) -> if onlyIfCheap then -1 else first |> count
+      let (b, firstCount) = first.tryGetNonEnumeratedCount()
 
       0
       

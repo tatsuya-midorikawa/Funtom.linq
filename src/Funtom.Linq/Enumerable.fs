@@ -86,10 +86,11 @@ module Enumerable =
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Count.cs#L11
   let inline count<'T> (src: seq<'T>) =
     match src with
-    | :? ICollection as xs -> xs.Count
-    | :? ICollection< ^T> as xs -> xs.Count
-    | :? IReadOnlyCollection< ^T> as xs -> xs.Count
-    | _ -> 
+    | :? IReadOnlyCollection<'T> as collection -> collection.Count
+    | :? ICollection<'T> as collection -> collection.Count
+    | :? IListProvider<'T> as prov -> prov.GetCount(false)
+    | :? ICollection as collection -> collection.Count
+    | _ ->
       let mutable count = 0
       use e = src.GetEnumerator()
       while e.MoveNext() do
@@ -97,8 +98,34 @@ module Enumerable =
       count
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Count.cs#L48
-  let inline count'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+  let inline count'<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) =
     let mutable count = 0
     for v in src do
       if predicate v then count <- Checked.(+) count 1
     count
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Count.cs#L128
+  let inline longCount<'T> (src: seq<'T>) =
+    let mutable count = 0L
+    use e = src.GetEnumerator()
+    while e.MoveNext() do
+      count <- Checked.(+) count 1L
+    count
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Count.cs#L150
+  let inline longCount'<'T> ([<InlineIfLambda>]predicate: 'T -> bool) (src: seq<'T>) =
+    let mutable count = 0L
+    for v in src do
+      if predicate v then count <- Checked.(+) count 1L
+    count
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Count.cs#L95
+  let inline tryGetNonEnumeratedCount<'T> (src: seq<'T>) : (bool * int) =
+    match src with
+    | :? IReadOnlyCollection<'T> as collection -> (true, collection.Count)
+    | :? ICollection<'T> as collection -> (true, collection.Count)
+    | :? IListProvider<'T> as prov ->
+      let c = prov.GetCount(false)
+      (0 <= c, c)
+    | :? ICollection as collection -> (true, collection.Count)
+    | _ -> (false, 0)
