@@ -114,6 +114,10 @@ module rec Concat =
         let marker = builder.markers.First()
         Enumerable.copy(first, array, 0, marker.count)
 
+      if reversedSecond then
+        let marker = builder.markers.Last()
+        Enumerable.copy(second, array, marker.index, marker.count)
+
       array
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Concat.cs#L93
