@@ -23,14 +23,15 @@ module Linq =
     | :? IListProvider<'T> as provider -> provider.ToArray()
     | _ -> Enumerable.toArray src
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.todictionary?view=net-6.0
   let inline toDictionary ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = 
-    src.ToDictionary(selector)
-  let inline toDictionary' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = 
-    src.ToDictionary(selector, comparer)
-  let inline toDictionary2 ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = 
+    Enumerable.toDictionary (src, selector)
+  let inline toDictionary'  ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IEqualityComparer< ^Key>) (src: seq< ^T>) = 
+    Enumerable.toDictionary' (src, selector, comparer)
+  // TODO
+  let inline toDictionary2 ([<InlineIfLambda>]keySelector: ^T -> ^Key) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) (src: seq< ^T>) = 
     src.ToDictionary(keySelector, elementSelector)
+  // TODO
   let inline toDictionary2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) =
     src.ToDictionary(keySelector, elementSelector, comparer)
   

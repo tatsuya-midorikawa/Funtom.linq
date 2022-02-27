@@ -49,6 +49,78 @@ module Enumerable =
   /// <summary>
   /// 
   /// </summary>
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L76
+  let inline toDictionaryFromArray (src: 'Src[], [<InlineIfLambda>]selector: 'Src -> 'Key, comparer: IEqualityComparer<'Key>) =
+    let acc = Dictionary<'Key, 'Src>(src.Length, comparer)
+    for i = 0 to src.Length - 1 do
+      acc.Add(selector src[i], src[i])
+    acc
+
+  /// <summary>
+  /// 
+  /// </summary>
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L87
+  let inline toDictionaryFromResizeArray (src: ResizeArray<'Src>, [<InlineIfLambda>]selector: 'Src -> 'Key, comparer: IEqualityComparer<'Key>) =
+    let acc = Dictionary<'Key, 'Src>(src.Count, comparer)
+    for elem in src do
+      acc.Add(selector elem, elem)
+    acc
+
+  /// <summary>
+  /// 
+  /// </summary>
+  let inline toDictionaryFromList (src: list<'Src>, [<InlineIfLambda>]selector: 'Src -> 'Key, comparer: IEqualityComparer<'Key>) =
+    let acc = Dictionary<'Key, 'Src>(src.Length, comparer)
+    let rec loop (xs: list<'Src>) =
+      match xs with
+      | h::tail ->
+        acc.Add(selector h, h)
+        loop(tail)
+      | _ -> ()
+    loop src
+    acc
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L35
+  let inline toDictionary' (src: seq<'Src>, [<InlineIfLambda>]selector: 'Src -> 'Key, comparer: IEqualityComparer<'Key>) =
+    match src with
+    | :? IReadOnlyCollection<'Src> as collection ->
+      if collection.Count = 0
+      then
+        Dictionary<'Key, 'Src>(comparer)
+      else
+        match collection with
+        | :? list<'Src> as ls -> toDictionaryFromList(ls, selector, comparer)
+        | _ ->
+          let acc = Dictionary<'Key, 'Src>(collection.Count, comparer)
+          for elem in src do
+            acc.Add(selector elem, elem)
+          acc
+    | :? ICollection<'Src> as collection-> 
+      if collection.Count = 0
+      then
+        Dictionary<'Key, 'Src>(comparer)
+      else
+        match collection with
+        | :? array<'Src> as ary -> toDictionaryFromArray(ary, selector, comparer)
+        | :? ResizeArray<'Src> as ary -> toDictionaryFromResizeArray(ary, selector, comparer)
+        | _ ->
+          let acc = Dictionary<'Key, 'Src>(collection.Count, comparer)
+          for elem in src do
+            acc.Add(selector elem, elem)
+          acc
+    | _ ->
+      let acc = Dictionary<'Key, 'Src>(4, comparer)
+      for elem in src do
+        acc.Add(selector elem, elem)
+      acc
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L32
+  let inline toDictionary (src: seq<'Src>, [<InlineIfLambda>]selector: 'Src -> 'Key) =
+    toDictionary'(src, selector, null)
+
+  /// <summary>
+  /// 
+  /// </summary>
   /// <see href="https://github.com/JonHanna/corefx/blob/master/src/Common/src/System/Collections/Generic/EnumerableHelpers.Linq.cs#L22">bool TryGetCount<T>(IEnumerable<T> source, out int count)</see>
   let inline tryGetCount<'T> (source: seq<'T>, count: outref<int>) =
     match source with
