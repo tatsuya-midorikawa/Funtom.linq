@@ -12,7 +12,8 @@ open Empty
 open Basis
 open Select
 open AppendPrepend
-open Funtom.Linq.Common.Interfaces
+open Chunk
+open Funtom.Linq.Interfaces
 
 module Linq =
   // TODO: seq<'T> に対する ToArray() が非常に遅いので、要高速化
@@ -22,25 +23,27 @@ module Linq =
     | :? IListProvider<'T> as provider -> provider.ToArray()
     | _ -> Enumerable.toArray src
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.todictionary?view=net-6.0
   let inline toDictionary ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = 
-    src.ToDictionary(selector)
-  let inline toDictionary' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = 
-    src.ToDictionary(selector, comparer)
-  let inline toDictionary2 ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = 
+    Enumerable.toDictionary (src, selector)
+  let inline toDictionary'  ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IEqualityComparer< ^Key>) (src: seq< ^T>) = 
+    Enumerable.toDictionary' (src, selector, comparer)
+  // TODO
+  let inline toDictionary2 ([<InlineIfLambda>]keySelector: ^T -> ^Key) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) (src: seq< ^T>) = 
     src.ToDictionary(keySelector, elementSelector)
+  // TODO
   let inline toDictionary2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) =
     src.ToDictionary(keySelector, elementSelector, comparer)
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tohashset?view=net-6.0
-  let inline toHashSet (src: seq< ^T>) = src.ToHashSet()
-  let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.ToHashSet(comparer)
+  let inline toHashSet (src: seq< ^T>) = HashSet< ^T>(src, null)
+  let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = HashSet< ^T>(src, comparer)
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolist?view=net-6.0
-  let inline toList (src: seq< ^T>) = src.ToList()
+  let inline toList (src: seq< ^T>) = 
+    match src with
+    | :? IListProvider< ^T> as provider -> provider.ToList()
+    | _ -> ResizeArray(src)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__2_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__
   let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
@@ -166,7 +169,7 @@ module Linq =
     | _ -> new AppendPrepend1Iterator< ^T>(src, element, true)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.asenumerable?view=net-6.0
-  let inline asEnumerable (src: seq< ^T>) = src.AsEnumerable()
+  let inline asEnumerable (src: seq< ^T>) = src
     
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.cast?view=net-6.0
   let inline cast (source: IEnumerable) : IEnumerable< ^T> = 
@@ -174,27 +177,23 @@ module Linq =
     | :? IEnumerable< ^T> as src -> src
     | _ -> CastIterator< ^T> source
 
-  // TODO
+  // TODO: Performance tuning
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.chunk?view=net-6.0
-  let inline chunk (size: int) (src: seq< ^T>) = src.Chunk size
+  let inline chunk (size: int) (src: seq< ^T>) = chunkIterator(src, size)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.concat?view=net-6.0
-  let inline concat (fst: seq< ^T>) (snd: seq< ^T>) = fst.Concat snd
+  let inline concat (snd: seq< ^T>) (fst: seq< ^T>) = 
+    match fst with
+    | :? Concat.ConcatIterator< ^T> as fst -> fst.Concat(snd)
+    | _ -> new Concat.Concat2Iterator< ^T>(fst, snd)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.contains?view=net-6.0
-  let inline contains (target: ^T) (src: seq< ^T>) = src.Contains target
+  let inline contains (target: ^T) (src: seq< ^T>) = src |> Enumerable.contains target
+  let inline contains' (target: ^T, comparer: IEqualityComparer<'T>) (src: seq< ^T>) = src |> Enumerable.contains' (target, comparer)
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.count?view=net-6.0
-  let inline count (src: seq< ^T>) =
-    match src with
-    | :? ICollection as xs -> xs.Count
-    | :? ICollection< ^T> as xs -> xs.Count
-    | :? IReadOnlyCollection< ^T> as xs -> xs.Count
-    | _ -> src.Count()
-  let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.Count (src, predicate)
+  let inline count (src: seq< ^T>) = src |> Enumerable.count
+  let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.count' predicate src
   
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.defaultifempty?view=net-6.0
@@ -324,15 +323,9 @@ module Linq =
   let inline lastOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.LastOrDefault(defaultValue)
   let inline lastOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault(predicate, defaultValue)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.longcount?view=net-6.0
-  let inline longCount (src: seq< ^T>) : int64 =
-    match src with
-    | :? ICollection as xs -> xs.Count
-    | :? ICollection< ^T> as xs -> xs.Count
-    | :? IReadOnlyCollection< ^T> as xs -> xs.Count
-    | _ -> src.LongCount()
-  let inline longCount' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LongCount predicate
+  let inline longCount (src: seq< ^T>) : int64 = src |> Enumerable.longCount
+  let inline longCount' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src |> Enumerable.longCount' predicate
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.max?view=net-6.0
   let inline max (src: seq< ^T>) =
@@ -459,7 +452,7 @@ module Linq =
       | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
       | :? ResizeArray<'T> as list -> new SelectListIterator<'T, 'U>(list, selector)
       | _ -> new SelectIListIterator<'T, 'U>(ilist, selector)
-    | :? Funtom.Linq.Common.Interfaces.IPartition<'T> as partition ->
+    | :? Funtom.Linq.Interfaces.IPartition<'T> as partition ->
       match partition with
       | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
       | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)

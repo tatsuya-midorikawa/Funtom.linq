@@ -9,6 +9,47 @@ open System.Runtime.InteropServices
 open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
+
+//[ 0..10 ]
+//|> Linq.concat [ 11..20 ]
+//|> Linq.toArray
+//|> printfn "%A"
+
+let a = [| 0..10 |]
+a
+|> Linq.concat a
+|> Linq.toArray
+|> printfn "%A"
+
+a
+|> Linq.contains 10
+|> printfn "%b"
+
+a
+|> Linq.contains 11
+|> printfn "%b"
+
+//ResizeArray [| 0..10 |]
+//|> Linq.concat (ResizeArray [| 11..20 |])
+//|> Linq.toArray
+//|> printfn "%A"
+
+//seq { 0..10 }
+//|> Linq.concat (seq { 11..20 })
+//|> Linq.toArray
+//|> printfn "%A"
+
+
+//match box(1,"", 2.0) with
+//| :? (int * string * double) -> true
+//| _ -> false
+//|> printfn "%b"
+
+//match (box 1,box "", box 2.0) with
+//| (:? int), (:? string), (:? double) -> true
+//| _ -> false
+//|> printfn "%b"
+
 //let xs = [ 0..10 ]
 //xs
 //|> Linq.append 1
@@ -24,11 +65,17 @@ open System.Diagnostics
 //|> Linq.toArray
 //|> printfn "%A"
 
-seq { 0..10 }
-//|> Linq.select (fun v -> v * 2)
-|> Linq.select (fun v -> v / 2)
-|> Linq.toArray
-|> printfn "%A"
+//seq { 0..10 }
+////|> Linq.select (fun v -> v * 2)
+//|> Linq.select (fun v -> v / 2)
+//|> Linq.toArray
+//|> printfn "%A"
+
+
+//seq { 0..97 }
+//|> Linq.chunk 5
+//|> Seq.iter (fun xs -> xs |> Seq.iter (printf "%d, "); printfn "")
+
 
 //xs.Prepend(1).Prepend(2).Prepend(3).ToArray()
 //|> printfn "%A"
