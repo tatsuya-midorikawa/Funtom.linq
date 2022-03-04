@@ -187,9 +187,9 @@ module Linq =
     | :? Concat.ConcatIterator< ^T> as fst -> fst.Concat(snd)
     | _ -> new Concat.Concat2Iterator< ^T>(fst, snd)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.contains?view=net-6.0
-  let inline contains (target: ^T) (src: seq< ^T>) = src.Contains target
+  let inline contains (target: ^T) (src: seq< ^T>) = src |> Enumerable.contains target
+  let inline contains' (target: ^T, comparer: IEqualityComparer<'T>) (src: seq< ^T>) = src |> Enumerable.contains' (target, comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.count?view=net-6.0
   let inline count (src: seq< ^T>) = src |> Enumerable.count

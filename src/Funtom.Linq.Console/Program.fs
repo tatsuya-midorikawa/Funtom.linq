@@ -21,6 +21,14 @@ a
 |> Linq.toArray
 |> printfn "%A"
 
+a
+|> Linq.contains 10
+|> printfn "%b"
+
+a
+|> Linq.contains 11
+|> printfn "%b"
+
 //ResizeArray [| 0..10 |]
 //|> Linq.concat (ResizeArray [| 11..20 |])
 //|> Linq.toArray

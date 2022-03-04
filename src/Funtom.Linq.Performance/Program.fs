@@ -22,6 +22,11 @@ type Benchmark () =
   let mutable zs = ResizeArray()
   let mutable ss = Seq.empty
   
+  let mutable xs' = List.empty
+  let mutable ys' = Array.empty
+  let mutable zs' = ResizeArray()
+  let mutable ss' = Seq.empty
+  
   
   
   [<GlobalSetup>]
@@ -30,71 +35,107 @@ type Benchmark () =
     ys <- [|for _ in 1..10000 do fake.Random.Int()|]
     zs <- ResizeArray([|for _ in 1..10000 do fake.Random.Int()|])
     ss <- [|for _ in 1..10000 do fake.Random.Int()|] |> Seq.ofArray
+
+    xs' <- [1..10000]
+    ys' <- [|1..10000|]
+    zs' <- ResizeArray([|1..10000|])
+    ss' <- [|1..10000|] |> Seq.ofArray
     
 
-  [<Benchmark>]
-  member __.System_Linq_concat_list() =
-    let ls = xs.Concat(xs)
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+    
+
 
   [<Benchmark>]
-  member __.Funtom_Linq_concat_list() =
-    let ls = xs |> Linq.concat xs
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.System_Linq_contains_list() = xs'.Contains(10000)
 
   [<Benchmark>]
-  member __.System_Linq_concat_array() =
-    let ls = ys.Concat(ys)
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.Funtom_Linq_contains_list() = xs' |> Linq.contains (10000)
 
   [<Benchmark>]
-  member __.Funtom_Linq_concat_array() =
-    let ls = ys |> Linq.concat ys
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.System_Linq_contains_array() = ys'.Contains(10000)
 
   [<Benchmark>]
-  member __.System_Linq_concat_resizablearray() =
-    let ls = zs.Concat(zs)
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.Funtom_Linq_contains_array() = ys' |> Linq.contains (10000)
 
   [<Benchmark>]
-  member __.Funtom_Linq_concat_resizablearray() =
-    let ls = zs |> Linq.concat zs
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.System_Linq_contains_resizablearray() = zs'.Contains(10000)
 
   [<Benchmark>]
-  member __.System_Linq_concat_seq() =
-    let ls = ss.Concat(ss)
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.Funtom_Linq_contains_resizablearray() = zs' |> Linq.contains 10000
 
   [<Benchmark>]
-  member __.Funtom_Linq_concat_seq() =
-    let ls = ss |> Linq.concat ss
-    let mutable acc = 0
-    for l in ls do
-      acc <- acc + l
-    acc
+  member __.System_Linq_contains_seq() = ss'.Contains(10000)
+
+  [<Benchmark>]
+  member __.Funtom_Linq_contains_seq() = ss' |> Linq.contains 10000
+
+
+
+
+
+  //[<Benchmark>]
+  //member __.System_Linq_concat_list() =
+  //  let ls = xs.Concat(xs)
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_concat_list() =
+  //  let ls = xs |> Linq.concat xs
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_concat_array() =
+  //  let ls = ys.Concat(ys)
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_concat_array() =
+  //  let ls = ys |> Linq.concat ys
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_concat_resizablearray() =
+  //  let ls = zs.Concat(zs)
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_concat_resizablearray() =
+  //  let ls = zs |> Linq.concat zs
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_concat_seq() =
+  //  let ls = ss.Concat(ss)
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_concat_seq() =
+  //  let ls = ss |> Linq.concat ss
+  //  let mutable acc = 0
+  //  for l in ls do
+  //    acc <- acc + l
+  //  acc
 
   //[<Benchmark>]
   //member __.System_Linq_count_seq() =

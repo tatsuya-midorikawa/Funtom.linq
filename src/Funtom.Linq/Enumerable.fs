@@ -176,6 +176,35 @@ module Enumerable =
       if predicate v then count <- Checked.(+) count 1
     count
 
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Contains.cs#L14
+  let inline contains'<'T> (value: 'T, comparer: IEqualityComparer<'T>) (src: seq<'T>) =
+    match src with
+    | :? list<'T> as xs ->
+      let rec loop (xs: list<'T>) =
+        match xs with
+        | head::tail ->
+          if comparer.Equals(head, value)
+          then true
+          else loop(tail)
+        | _ -> false
+      loop xs
+    | _ -> 
+      let enumerator = src.GetEnumerator()
+      let mutable isbreak = false
+      let mutable contains = false
+      while not isbreak && enumerator.MoveNext() do
+        if comparer.Equals(enumerator.Current, value)
+        then 
+          contains <- true
+          isbreak <- true
+      contains
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Contains.cs#L10
+  let inline contains<'T> (value: 'T) (src: seq<'T>) =
+    match src with
+    | :? ICollection<'T> as collection -> collection.Contains(value)
+    | _ -> src |> contains' (value, EqualityComparer<'T>.Default)
+
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Count.cs#L128
   let inline longCount<'T> (src: seq<'T>) =
     let mutable count = 0L
