@@ -7,21 +7,19 @@ open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Diagnostics
 open Funtom.Linq.Core
+open Funtom.Linq.Interfaces
 open Funtom.Linq.Iterator
 open Empty
 open Basis
 open Select
 open AppendPrepend
 open Chunk
-open Funtom.Linq.Interfaces
+open DefaultIfEmpty
 
 module Linq =
   // TODO: seq<'T> に対する ToArray() が非常に遅いので、要高速化
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.toarray?view=net-6.0
-  let inline toArray (src: seq<'T>) =
-    match src with
-    | :? IListProvider<'T> as provider -> provider.ToArray()
-    | _ -> Enumerable.toArray src
+  let inline toArray (src: seq<'T>) = Enumerable.toArray src
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.todictionary?view=net-6.0
   let inline toDictionary ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = 
@@ -40,10 +38,7 @@ module Linq =
   let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = HashSet< ^T>(src, comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolist?view=net-6.0
-  let inline toList (src: seq< ^T>) = 
-    match src with
-    | :? IListProvider< ^T> as provider -> provider.ToList()
-    | _ -> ResizeArray(src)
+  let inline toList (src: seq< ^T>) = Enumerable.toList src
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.aggregate?view=net-6.0#System_Linq_Enumerable_Aggregate__2_System_Collections_Generic_IEnumerable___0____1_System_Func___1___0___1__
   let inline aggregate (seed: ^Accumulate) ([<InlineIfLambda>]fx: ^Accumulate -> ^T -> ^Accumulate) (src: seq< ^T>) =
@@ -195,10 +190,9 @@ module Linq =
   let inline count (src: seq< ^T>) = src |> Enumerable.count
   let inline count'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.count' predicate src
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.defaultifempty?view=net-6.0
-  let inline defaultIfEmpty (src: seq< ^T>) = src.DefaultIfEmpty()
-  let inline defaultIfEmpty' (defaultValue: ^T) (src: seq< ^T>) = src.DefaultIfEmpty defaultValue
+  let inline defaultIfEmpty' (defaultValue: ^T) (src: seq< ^T>) = new DefaultIfEmptyIterator<'T> (src, defaultValue)
+  let inline defaultIfEmpty (src: seq< ^T>) = src |> defaultIfEmpty' defaultof<'T>
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinct?view=net-6.0

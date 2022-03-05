@@ -19,6 +19,8 @@ module Enumerable =
   /// <see href="https://github.com/JonHanna/corefx/blob/f0d3761d8e875f6fa17e43ab715b746bbcb68716/src/Common/src/System/Collections/Generic/EnumerableHelpers.cs">EnumerableHelpers.ToArray()</see>
   let inline toArray<'T> (source: seq<'T>) =
     match source with
+    | :? IListProvider<'T> as provider ->
+      provider.ToArray()
     | :? ICollection<'T> as collection ->
       let count = collection.Count
       if count <> 0 then
@@ -45,6 +47,14 @@ module Enumerable =
         acc
       else
         Array.empty<'T>
+
+  /// <summary>
+  /// 
+  /// </summary>
+  let inline toList<'T> (source: seq<'T>) =
+    match source with
+    | :? IListProvider< ^T> as provider -> provider.ToList()
+    | _ -> ResizeArray(source)
 
   /// <summary>
   /// 
