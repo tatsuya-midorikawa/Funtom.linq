@@ -253,3 +253,25 @@ module Enumerable =
     for item in set do
       result.Add item
     result
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/First.cs#L52
+  let inline tryGetFirst<'T> (src: seq<'T>) =
+    match src with
+    | :? IPartition<'T> as partition -> partition.TryGetFirst()
+    | :? list<'T> as list -> match list with h::tail -> (h, true) | _ -> (defaultof<'T>, false)
+    | :? IList<'T> as list -> if 0 < list.Count then (list[0], true) else (defaultof<'T>, false)
+    | :? IReadOnlyList<'T> as list -> if 0 < list.Count then (list[0], true) else (defaultof<'T>, false)
+    | _ ->
+      use e = src.GetEnumerator()
+      if e.MoveNext() then (e.Current, true) else (defaultof<'T>, false)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/First.cs#L52
+  let inline tryGetFirst'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+    use e = src.GetEnumerator()
+    let rec loop() =
+      if e.MoveNext()
+      then
+        let element = e.Current
+        if predicate e.Current then (element, true) else loop()
+      else (defaultof<'T>, false)
+    loop()

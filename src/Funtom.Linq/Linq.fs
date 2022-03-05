@@ -250,14 +250,14 @@ module Linq =
   let inline exceptBy ([<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector)
   let inline exceptBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>)  (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector, comparer)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.first?view=net-6.0
   let inline first (src: seq< ^T>) =
     match src with
     | :? IList< ^T> as xs -> xs[0]
     | :? IReadOnlyList< ^T> as xs -> xs[0]
-    | _ -> src.First()
-  let inline first'< ^T> (predicate: ^T -> bool) (src: seq< ^T>) = src.First predicate
+    | _ ->  match src |> Enumerable.tryGetFirst with (v, true) -> v | _ -> raise (invalidOp "")
+  let inline first'< ^T> (predicate: ^T -> bool) (src: seq< ^T>) = 
+    match (src, predicate) |> Enumerable.tryGetFirst' with (v, true) -> v | _ -> raise (invalidOp "")
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.firstordefault?view=net-6.0
