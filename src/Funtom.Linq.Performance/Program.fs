@@ -49,6 +49,57 @@ type Benchmark () =
     zs'' <- ResizeArray([|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |])
     ss'' <- [|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |] |> Seq.ofArray
 
+    
+    
+  [<Benchmark>]
+  member __.Linq_ElementAt_list() = xs.ElementAt(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAt_list() = xs |> Linq.elementAt 2000
+  
+  [<Benchmark>]
+  member __.Linq_ElementAt_array() = ys.ElementAt(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAt_array() = ys |> Linq.elementAt 2000
+  
+  [<Benchmark>]
+  member __.Linq_ElementAt_resizearray() = zs.ElementAt(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAt_resizearray() = zs |> Linq.elementAt 2000
+  
+  [<Benchmark>]
+  member __.Linq_ElementAt_seq() = ss.ElementAt(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAt_seq() = ss |> Linq.elementAt 2000
+
+    
+  [<Benchmark>]
+  member __.Linq_ElementAtOrDefault_list() = xs.ElementAtOrDefault(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAtOrDefault_list() = xs |> Linq.elementAtOrDefault 2000
+  
+  [<Benchmark>]
+  member __.Linq_ElementAtOrDefault_array() = ys.ElementAtOrDefault(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAtOrDefault_array() = ys |> Linq.elementAtOrDefault 2000
+  
+  [<Benchmark>]
+  member __.Linq_ElementAtOrDefault_resizearray() = zs.ElementAtOrDefault(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAtOrDefault_resizearray() = zs |> Linq.elementAtOrDefault 2000
+  
+  [<Benchmark>]
+  member __.Linq_ElementAtOrDefault_seq() = ss.ElementAtOrDefault(2000)
+
+  [<Benchmark>]
+  member __.Funtom_elementAtOrDefault_seq() = ss |> Linq.elementAtOrDefault 2000
+
   //[<Benchmark>]
   //member __.System_Linq_distinctBy_list() = 
   //  let mutable acc = 0
@@ -100,53 +151,53 @@ type Benchmark () =
 
 
 
-  [<Benchmark>]
-  member __.System_Linq_distinct_list() = 
-    let mutable acc = 0
-    for v in xs.Distinct() do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_distinct_list() = 
+  //  let mutable acc = 0
+  //  for v in xs.Distinct() do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_distinct_list() =
-    let mutable acc = 0
-    for v in xs |> Linq.distinct do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinct_list() =
+  //  let mutable acc = 0
+  //  for v in xs |> Linq.distinct do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_distinct_array() =
-    let mutable acc = 0
-    for v in ys.Distinct() do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_distinct_array() =
+  //  let mutable acc = 0
+  //  for v in ys.Distinct() do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_distinct_array() =
-    let mutable acc = 0
-    for v in ys |> Linq.distinct do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinct_array() =
+  //  let mutable acc = 0
+  //  for v in ys |> Linq.distinct do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_distinct_resizablearray() =
-    let mutable acc = 0
-    for v in zs.Distinct() do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_distinct_resizablearray() =
+  //  let mutable acc = 0
+  //  for v in zs.Distinct() do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_distinct_resizablearray() =
-    let mutable acc = 0
-    for v in zs |> Linq.distinct do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinct_resizablearray() =
+  //  let mutable acc = 0
+  //  for v in zs |> Linq.distinct do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.System_Linq_distinct_seq() =
-    let mutable acc = 0
-    for v in ss.Distinct() do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.System_Linq_distinct_seq() =
+  //  let mutable acc = 0
+  //  for v in ss.Distinct() do acc <- acc + v
+  //  acc
 
-  [<Benchmark>]
-  member __.Funtom_Linq_distinct_seq() =
-    let mutable acc = 0
-    for v in ss |> Linq.distinct do acc <- acc + v
-    acc
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinct_seq() =
+  //  let mutable acc = 0
+  //  for v in ss |> Linq.distinct do acc <- acc + v
+  //  acc
 
     
 
@@ -696,14 +747,6 @@ type Benchmark () =
   //[<Benchmark>]
   //member __.Linq_All() =
   //  xs.All(fun x -> x < 2000)
-
-  //[<Benchmark>]
-  //member __.Funtom_elementAtOrDefault() =
-  //  Linq.elementAtOrDefault 2000 xs
-
-  //[<Benchmark>]
-  //member __.Linq_ElementAtOrDefault() =
-  //  xs.ElementAtOrDefault(2000)
 
   //[<Benchmark>]
   //member __.Funtom_contains() =

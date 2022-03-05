@@ -10,6 +10,24 @@ open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
 
+let xs = [ 1..10000 ]
+let ys = [| 1..10000 |]
+let zs = ResizeArray([| 1..10000 |])
+let ss = [| 1..10000 |] |> Seq.ofArray
+
+xs.ElementAt 200 |> printfn "%d"
+xs |> Linq.elementAt 200 |> printfn "%d"
+printfn ""
+ys.ElementAt 200 |> printfn "%d"
+ys |> Linq.elementAt 200 |> printfn "%d"
+printfn ""
+zs.ElementAt 200 |> printfn "%d"
+zs |> Linq.elementAt 200 |> printfn "%d"
+printfn ""
+ss.ElementAt 200 |> printfn "%d"
+ss |> Linq.elementAt 200 |> printfn "%d"
+
+
 //type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
 //type Planet = { Name: string; Type: Type }
 
@@ -49,16 +67,16 @@ open System.Diagnostics
 
 //let xs = [21; 46; 46; 55; 17; 21; 55; 55;]
 //let xs = [| 21; 46; 46; 55; 17; 21; 55; 55; |]
-let xs = ResizeArray<int>([| 21; 46; 46; 55; 17; 21; 55; 55; |])
+//let xs = ResizeArray<int>([| 21; 46; 46; 55; 17; 21; 55; 55; |])
 
-xs.Distinct()
-|> Seq.iter (printf "%d ")
+//xs.Distinct()
+//|> Seq.iter (printf "%d ")
 
-printfn ""
+//printfn ""
 
-xs
-|> Linq.distinct
-|> Seq.iter (printf "%d ")
+//xs
+//|> Linq.distinct
+//|> Seq.iter (printf "%d ")
 
 
 //let xs : int[] = [||]
