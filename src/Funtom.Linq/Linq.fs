@@ -238,7 +238,7 @@ module Linq =
     | _ -> (src, index) |> tryGetElement |> snd
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.empty?view=net-6.0
-  let inline empty () = Seq.empty< ^T>
+  let inline empty () : seq<'T> = Array.empty<'T>
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
