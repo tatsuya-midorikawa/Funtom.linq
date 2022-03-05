@@ -42,32 +42,81 @@ type Benchmark () =
     ss' <- [|1..10000|] |> Seq.ofArray
     
 
+
+  [<Benchmark>]
+  member __.System_Linq_distinct_list() = 
+    let mutable acc = 0
+    for v in xs.Distinct() do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_distinct_list() =
+    let mutable acc = 0
+    for v in xs |> Linq.distinct do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_distinct_array() =
+    let mutable acc = 0
+    for v in ys.Distinct() do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_distinct_array() =
+    let mutable acc = 0
+    for v in ys |> Linq.distinct do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_distinct_resizablearray() =
+    let mutable acc = 0
+    for v in zs.Distinct() do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_distinct_resizablearray() =
+    let mutable acc = 0
+    for v in zs |> Linq.distinct do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.System_Linq_distinct_seq() =
+    let mutable acc = 0
+    for v in ss.Distinct() do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_distinct_seq() =
+    let mutable acc = 0
+    for v in ss |> Linq.distinct do acc <- acc + v
+    acc
+
     
 
 
-  [<Benchmark>]
-  member __.System_Linq_contains_list() = xs'.Contains(10000)
+  //[<Benchmark>]
+  //member __.System_Linq_contains_list() = xs'.Contains(10000)
 
-  [<Benchmark>]
-  member __.Funtom_Linq_contains_list() = xs' |> Linq.contains (10000)
+  //[<Benchmark>]
+  //member __.Funtom_Linq_contains_list() = xs' |> Linq.contains (10000)
 
-  [<Benchmark>]
-  member __.System_Linq_contains_array() = ys'.Contains(10000)
+  //[<Benchmark>]
+  //member __.System_Linq_contains_array() = ys'.Contains(10000)
 
-  [<Benchmark>]
-  member __.Funtom_Linq_contains_array() = ys' |> Linq.contains (10000)
+  //[<Benchmark>]
+  //member __.Funtom_Linq_contains_array() = ys' |> Linq.contains (10000)
 
-  [<Benchmark>]
-  member __.System_Linq_contains_resizablearray() = zs'.Contains(10000)
+  //[<Benchmark>]
+  //member __.System_Linq_contains_resizablearray() = zs'.Contains(10000)
 
-  [<Benchmark>]
-  member __.Funtom_Linq_contains_resizablearray() = zs' |> Linq.contains 10000
+  //[<Benchmark>]
+  //member __.Funtom_Linq_contains_resizablearray() = zs' |> Linq.contains 10000
 
-  [<Benchmark>]
-  member __.System_Linq_contains_seq() = ss'.Contains(10000)
+  //[<Benchmark>]
+  //member __.System_Linq_contains_seq() = ss'.Contains(10000)
 
-  [<Benchmark>]
-  member __.Funtom_Linq_contains_seq() = ss' |> Linq.contains 10000
+  //[<Benchmark>]
+  //member __.Funtom_Linq_contains_seq() = ss' |> Linq.contains 10000
 
 
 

@@ -15,6 +15,7 @@ open Select
 open AppendPrepend
 open Chunk
 open DefaultIfEmpty
+open Distinct
 
 module Linq =
   // TODO: seq<'T> に対する ToArray() が非常に遅いので、要高速化
@@ -194,10 +195,12 @@ module Linq =
   let inline defaultIfEmpty' (defaultValue: ^T) (src: seq< ^T>) = new DefaultIfEmptyIterator<'T> (src, defaultValue)
   let inline defaultIfEmpty (src: seq< ^T>) = src |> defaultIfEmpty' defaultof<'T>
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinct?view=net-6.0
-  let inline distinct (src: seq< ^T>) = src.Distinct()
-  let inline distinct' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = src.Distinct comparer
+  let inline distinct' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) : seq< ^T> = 
+    match src with
+    | :? list<'T> as xs -> new DistinctListIterator< ^T>(xs, comparer)
+    | _ -> new DistinctIterator< ^T>(src, comparer)
+  let inline distinct (src: seq< ^T>) = src |> distinct' null
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinctby?view=net-6.0

@@ -10,24 +10,48 @@ open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
 
+
+let xs = [21; 46; 46; 55; 17; 21; 55; 55;]
+//let xs = ResizeArray<int>([| 21; 46; 46; 55; 17; 21; 55; 55; |])
+
+
+xs.Distinct()
+|> Seq.iter (printf "%d ")
+
+printfn ""
+
+xs
+|> Linq.distinct
+|> Seq.iter (printf "%d ")
+
+
+//let xs : int[] = [||]
+
+//xs.DefaultIfEmpty(10)
+//|> printfn "%A"
+
+//xs
+//|> Linq.defaultIfEmpty' 10
+//|> printfn "%A"
+
 //[ 0..10 ]
 //|> Linq.concat [ 11..20 ]
 //|> Linq.toArray
 //|> printfn "%A"
 
-let a = [| 0..10 |]
-a
-|> Linq.concat a
-|> Linq.toArray
-|> printfn "%A"
+//let a = [| 0..10 |]
+//a
+//|> Linq.concat a
+//|> Linq.toArray
+//|> printfn "%A"
 
-a
-|> Linq.contains 10
-|> printfn "%b"
+//a
+//|> Linq.contains 10
+//|> printfn "%b"
 
-a
-|> Linq.contains 11
-|> printfn "%b"
+//a
+//|> Linq.contains 11
+//|> printfn "%b"
 
 //ResizeArray [| 0..10 |]
 //|> Linq.concat (ResizeArray [| 11..20 |])

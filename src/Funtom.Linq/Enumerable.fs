@@ -240,3 +240,16 @@ module Enumerable =
       (0 <= c, c)
     | :? ICollection as collection -> (true, collection.Count)
     | _ -> (false, 0)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L186
+  let inline hashseToArray<'T> (set: HashSet<'T>) =
+    let result = Array.zeroCreate<'T> set.Count
+    set.CopyTo result
+    result
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L193
+  let inline hashseToList<'T> (set: HashSet<'T>) =
+    let result = ResizeArray<'T> set.Count
+    for item in set do
+      result.Add item
+    result
