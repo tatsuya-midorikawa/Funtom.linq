@@ -258,13 +258,21 @@ module Linq =
     | _ ->  match src |> Enumerable.tryGetFirst with (v, true) -> v | _ -> raise (invalidOp "")
   let inline first'< ^T> (predicate: ^T -> bool) (src: seq< ^T>) = 
     match (src, predicate) |> Enumerable.tryGetFirst' with (v, true) -> v | _ -> raise (invalidOp "")
-
-  // TODO
+  
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.firstordefault?view=net-6.0
-  let inline firstOrDefault (src: seq< ^T>) = src.FirstOrDefault()
-  let inline firstOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.FirstOrDefault predicate
-  let inline firstOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.FirstOrDefault(defaultValue)
-  let inline firstOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.FirstOrDefault(predicate, defaultValue)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/First.cs#L33
+  let inline firstOrDefault (src: seq< ^T>) = 
+    let (element, _) = src |> Enumerable.tryGetFirst
+    element
+  let inline firstOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = 
+    let (element, _) = (src, predicate) |> Enumerable.tryGetFirst'
+    element
+  let inline firstOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) =
+    let (element, found) = src |> Enumerable.tryGetFirst
+    if found then element else defaultValue
+  let inline firstOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) =
+    let (element, found) = (src, predicate) |> Enumerable.tryGetFirst'
+    if found then element else defaultValue
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupby?view=net-6.0
