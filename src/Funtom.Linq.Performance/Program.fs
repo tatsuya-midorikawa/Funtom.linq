@@ -8,14 +8,14 @@ open Bogus
 
 let fake = Faker()
 
+type Sample = { Num1: int; Num2: int }
+
 [<PlainExporter; MemoryDiagnoser>]
 type Benchmark () =
 //  let xs = [ 0..10000 ]
 //  let ys = [| 0..10000 |]
 //  let zs = ResizeArray [| 0..10000 |]
 //  let ss = seq { 0..10000 }
-  
-  
   
   let mutable xs = List.empty
   let mutable ys = Array.empty
@@ -27,7 +27,10 @@ type Benchmark () =
   let mutable zs' = ResizeArray()
   let mutable ss' = Seq.empty
   
-  
+  let mutable xs'' : list<Sample> = List.empty
+  let mutable ys'' : array<Sample> = Array.empty
+  let mutable zs'' : ResizeArray<Sample> = ResizeArray()
+  let mutable ss'' : seq<Sample> = Seq.empty
   
   [<GlobalSetup>]
   member this.Setup() =
@@ -41,6 +44,60 @@ type Benchmark () =
     zs' <- ResizeArray([|1..10000|])
     ss' <- [|1..10000|] |> Seq.ofArray
     
+    xs'' <- [for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } ]
+    ys'' <- [|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |]
+    zs'' <- ResizeArray([|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |])
+    ss'' <- [|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |] |> Seq.ofArray
+
+  //[<Benchmark>]
+  //member __.System_Linq_distinctBy_list() = 
+  //  let mutable acc = 0
+  //  for v in xs''.DistinctBy(fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinctBy_list() =
+  //  let mutable acc = 0
+  //  for v in xs'' |> Linq.distinctBy (fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_distinctBy_array() =
+  //  let mutable acc = 0
+  //  for v in ys''.DistinctBy(fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinctBy_array() =
+  //  let mutable acc = 0
+  //  for v in ys'' |> Linq.distinctBy (fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_distinctBy_resizablearray() =
+  //  let mutable acc = 0
+  //  for v in zs''.DistinctBy(fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinctBy_resizablearray() =
+  //  let mutable acc = 0
+  //  for v in zs'' |> Linq.distinctBy (fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.System_Linq_distinctBy_seq() =
+  //  let mutable acc = 0
+  //  for v in ss''.DistinctBy(fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_Linq_distinctBy_seq() =
+  //  let mutable acc = 0
+  //  for v in ss'' |> Linq.distinctBy (fun v -> v.Num1) do acc <- acc + v.Num2
+  //  acc
+
+
 
 
   [<Benchmark>]

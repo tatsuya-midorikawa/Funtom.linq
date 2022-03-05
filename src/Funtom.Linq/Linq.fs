@@ -198,14 +198,21 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinct?view=net-6.0
   let inline distinct' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) : seq< ^T> = 
     match src with
-    | :? list<'T> as xs -> new DistinctListIterator< ^T>(xs, comparer)
+    | :? list< ^T> as xs -> new DistinctListIterator< ^T>(xs, comparer)
+    | :? array< ^T> as xs -> new DistinctArrayIterator< ^T>(xs, comparer)
+    | :? ResizeArray< ^T> as xs -> new DistinctResizeArrayIterator< ^T>(xs, comparer)
     | _ -> new DistinctIterator< ^T>(src, comparer)
   let inline distinct (src: seq< ^T>) = src |> distinct' null
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinctby?view=net-6.0
-  let inline distinctBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src.DistinctBy selector
-  let inline distinctBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>) (src: seq< ^T>) = src.DistinctBy(selector, comparer)
+  let inline distinctBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>) (src: seq< ^T>) : seq< ^T> =
+    match src with
+    | :? list< ^T> as xs -> new DistinctByListIterator< ^T, ^U>(xs, selector, comparer)
+    | :? array< ^T> as xs -> new DistinctByArrayIterator< ^T, ^U>(xs, selector, comparer)
+    | :? ResizeArray< ^T> as xs -> new DistinctByResizeArrayIterator< ^T, ^U>(xs, selector, comparer)
+    | _ -> new DistinctByIterator< ^T, ^U>(src, selector, comparer)
+  let inline distinctBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src |> distinctBy' selector null
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.elementat?view=net-6.0
   let inline elementAt (index: int) (src: seq< ^T>) =

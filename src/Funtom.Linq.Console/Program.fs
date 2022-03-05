@@ -10,10 +10,46 @@ open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
 
+//type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
+//type Planet = { Name: string; Type: Type }
 
-let xs = [21; 46; 46; 55; 17; 21; 55; 55;]
-//let xs = ResizeArray<int>([| 21; 46; 46; 55; 17; 21; 55; 55; |])
+//let xs = ResizeArray<Planet>([|
+//  { Name = "Mercury"; Type = Type.Rock }
+//  { Name = "Venus"; Type = Type.Rock }
+//  { Name = "Mars"; Type = Type.Rock }
+//  { Name = "Earth"; Type = Type.Rock }
+//  { Name = "Jupiter"; Type = Type.Gas }
+//  { Name = "Saturn"; Type = Type.Gas }
+//  { Name = "Uranus"; Type = Type.Liquid }
+//  { Name = "Pluto"; Type = Type.Ice }
+//|])
 
+//xs.DistinctBy (fun x -> x.Type)
+//|> Seq.iter (printfn "%A")
+
+//printfn ""
+
+//xs
+//|> Linq.distinctBy (fun x -> x.Type)
+//|> Seq.iter (printfn "%A ")
+
+//printfn "---"
+
+//xs.DistinctBy(fun x -> x.Type).ToArray()
+//|> Seq.iter (printfn "%A")
+
+//printfn ""
+
+//xs
+//|> Linq.distinctBy (fun x -> x.Type)
+//|> Linq.toArray
+//|> Seq.iter (printfn "%A ")
+
+
+
+//let xs = [21; 46; 46; 55; 17; 21; 55; 55;]
+//let xs = [| 21; 46; 46; 55; 17; 21; 55; 55; |]
+let xs = ResizeArray<int>([| 21; 46; 46; 55; 17; 21; 55; 55; |])
 
 xs.Distinct()
 |> Seq.iter (printf "%d ")
