@@ -217,6 +217,9 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.elementat?view=net-6.0
   let inline elementAt (index: int) (src: seq< ^T>) =
     match src with
+    | :? list< ^T> as xs -> xs[index]
+    | :? array< ^T> as xs -> xs[index]
+    | :? ResizeArray< ^T> as xs -> xs[index]
     | :? IList< ^T> as xs -> xs[index]
     | :? IReadOnlyList< ^T> as xs -> xs[index]
     | _ -> 
@@ -227,6 +230,9 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.elementatordefault?view=net-6.0
   let inline elementAtOrDefault (index: int) (src: seq< ^T>) =
     match src with
+    | :? list< ^T> as xs -> (xs, index) |> tryGetElement |> snd
+    | :? array< ^T> as xs -> if index < 0 || xs.Length <= index then defaultof< ^T> else xs[index]
+    | :? ResizeArray< ^T> as xs -> if index < 0 || xs.Count <= index then defaultof< ^T> else xs[index]
     | :? IList< ^T> as xs -> if index < 0 || xs.Count <= index then defaultof< ^T> else xs[index]
     | :? IReadOnlyList< ^T> as xs -> if index < 0 || xs.Count <= index then defaultof< ^T> else xs[index]
     | _ -> (src, index) |> tryGetElement |> snd

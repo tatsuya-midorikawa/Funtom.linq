@@ -15,13 +15,13 @@ module ElementAt =
     if 0 <= index
     then
       use e = source.GetEnumerator()
-      let rec loop (i: int) =
+      let mutable i = index
+      let rec loop () =
         if e.MoveNext()
         then
-          if i = 0 then out <- e.Current; true else loop(i - 1) 
+          if i <> 0 then i <- i - 1; loop() else out <- e.Current; true
         else
           false
-      let r = loop (index)
-      (r, out)
+      (loop (), out)
     else
       (false, out)
