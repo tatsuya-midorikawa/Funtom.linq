@@ -231,9 +231,8 @@ module Linq =
     | :? IReadOnlyList< ^T> as xs -> if index < 0 || xs.Count <= index then defaultof< ^T> else xs[index]
     | _ -> (src, index) |> tryGetElement |> snd
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.empty?view=net-6.0
-  let inline empty () = Enumerable.Empty< ^T>()
+  let inline empty () = Seq.empty< ^T>
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
