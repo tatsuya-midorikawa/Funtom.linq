@@ -40,6 +40,7 @@
     <Compile Include="Iterator\Concat.fs" />
     <Compile Include="Iterator\DefaultIfEmpty.fs" />
     <Compile Include="Iterator\Distinct.fs" />
+    <Compile Include="Iterator\ElementAt.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />

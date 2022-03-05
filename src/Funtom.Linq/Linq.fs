@@ -16,6 +16,7 @@ open AppendPrepend
 open Chunk
 open DefaultIfEmpty
 open Distinct
+open ElementAt
 
 module Linq =
   // TODO: seq<'T> に対する ToArray() が非常に遅いので、要高速化
@@ -204,7 +205,6 @@ module Linq =
     | _ -> new DistinctIterator< ^T>(src, comparer)
   let inline distinct (src: seq< ^T>) = src |> distinct' null
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.distinctby?view=net-6.0
   let inline distinctBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>) (src: seq< ^T>) : seq< ^T> =
     match src with
@@ -219,16 +219,17 @@ module Linq =
     match src with
     | :? IList< ^T> as xs -> xs[index]
     | :? IReadOnlyList< ^T> as xs -> xs[index]
-    // TODO
-    | _ -> src.ElementAt index
+    | _ -> 
+      match (src, index) |> tryGetElement with
+      | (true, element) -> element
+      | _ -> raise(IndexOutOfRangeException "args: index")
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.elementatordefault?view=net-6.0
   let inline elementAtOrDefault (index: int) (src: seq< ^T>) =
     match src with
-    | :? IList< ^T> as xs -> if index < 0 || xs.Count <= index then Unchecked.defaultof< ^T> else xs[index]
-    | :? IReadOnlyList< ^T> as xs -> if index < 0 || xs.Count <= index then Unchecked.defaultof< ^T> else xs[index]
-    // TODO
-    | _ -> src.ElementAtOrDefault index
+    | :? IList< ^T> as xs -> if index < 0 || xs.Count <= index then defaultof< ^T> else xs[index]
+    | :? IReadOnlyList< ^T> as xs -> if index < 0 || xs.Count <= index then defaultof< ^T> else xs[index]
+    | _ -> (src, index) |> tryGetElement |> snd
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.empty?view=net-6.0
