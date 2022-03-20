@@ -302,19 +302,17 @@ module Linq =
   let inline groupJoin2' ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersect?view=net-6.0
-  let inline intersect (second: seq< ^Source>) (first: seq< ^Source>)  = first.Intersect second
-  let inline intersect' (second: seq< ^Source>) (first: seq< ^Source>) (comparer: IEqualityComparer< ^Source>) = first.Intersect (second, comparer)
-  let inline intersect2 (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect second
-  let inline intersect2' (comparer: IEqualityComparer< ^Source>) (first: seq< ^Source>, second: seq< ^Source>) = first.Intersect (second, comparer)
+  let inline intersect' (snd: seq< ^T>, comparer: IEqualityComparer< ^T>) (fst: seq< ^T>) = 
+    let set = HashSet< ^T>(snd, comparer)
+    seq { for element in fst do if set.Remove element then yield element }
+  let inline intersect (second: seq< ^Source>) (first: seq< ^Source>)  = first |> intersect' (second, null)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersectby?view=net-6.0
-  let inline intersectBy (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>)  = first.IntersectBy (second, keySelector)
-  let inline intersectBy' (second: seq< ^Key>) ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>) = first.IntersectBy (second, keySelector, comparer)
-  let inline intersectBy2 ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (first: seq< ^Source>, second: seq< ^Key>)  = first.IntersectBy (second, keySelector)
-  let inline intersectBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) (comparer: IEqualityComparer< ^Key>) (first: seq< ^Source>, second: seq< ^Key>) = first.IntersectBy (second, keySelector, comparer)
+  let inline intersectBy' (snd: seq< ^U>, [<InlineIfLambda>]selector: ^T -> ^U, comparer: IEqualityComparer< ^U>) (fst: seq< ^T>) =
+    let set = HashSet< ^U>(snd, comparer)
+    seq { for element in fst do if set.Remove (selector element) then yield element }
+  let inline intersectBy (snd: seq< ^U>, [<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) = fst |> intersectBy' (snd, selector, null)
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.join?view=net-6.0

@@ -35,13 +35,23 @@ let ss = [| 1..10000 |] |> Seq.ofArray
 //[0..10].Except([5]).ToArray()
 //|> printfn "%A"
 
-[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |]
-|> Linq.exceptBy ([| 0..10 |], fun x -> x.Age)
+//[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |]
+//|> Linq.exceptBy ([| 0..10 |], fun x -> x.Age)
+//|> Linq.toArray
+//|> printfn "%A"
+
+//[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |].ExceptBy([| 0..10 |], fun x -> x.Age).ToArray()
+//|> printfn "%A"
+
+[0..10]
+|> Linq.intersect [5]
 |> Linq.toArray
 |> printfn "%A"
 
-[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |].ExceptBy([| 0..10 |], fun x -> x.Age).ToArray()
+[0..10].intersect([5]).ToArray()
 |> printfn "%A"
+
+
 
 //type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
 //type Planet = { Name: string; Type: Type }
