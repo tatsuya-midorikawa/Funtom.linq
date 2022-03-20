@@ -49,54 +49,105 @@ type Benchmark () =
     zs'' <- ResizeArray([|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |])
     ss'' <- [|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |] |> Seq.ofArray
 
-      
+  
   [<Benchmark>]
-  member __.Linq_Except_list() = 
+  member __.Linq_Reverse_list() = 
     let mutable acc = 0
-    for v in xs.Except(ys) do acc <- acc + v
+    for v in xs.Reverse() do acc <- acc + v
     acc
 
   [<Benchmark>]
-  member __.Funtom_except_list() =
+  member __.Funtom_reverse_list() =
     let mutable acc = 0
-    for v in xs |> Linq.except(ys) do acc <- acc + v
+    for v in xs |> Linq.reverse do acc <- acc + v
     acc
   
   [<Benchmark>]
-  member __.Linq_Except_array() =
+  member __.Linq_Reverse_array() =
     let mutable acc = 0
-    for v in ys.Except(zs) do acc <- acc + v
+    for v in ys.Reverse() do acc <- acc + v
     acc
 
   [<Benchmark>]
-  member __.Funtom_except_array() =
+  member __.Funtom_reverse_array() =
     let mutable acc = 0
-    for v in ys |> Linq.except(zs) do acc <- acc + v
+    for v in ys |> Linq.reverse do acc <- acc + v
     acc
   
   [<Benchmark>]
-  member __.Linq_Except_resizearray() =
+  member __.Linq_Reverse_resizearray() =
     let mutable acc = 0
-    for v in zs.Except(ss) do acc <- acc + v
+    for v in (zs :> seq<int>).Reverse() do 
+      acc <- acc + v
     acc
 
   [<Benchmark>]
-  member __.Funtom_except_resizearray() =
+  member __.Funtom_reverse_resizearray() =
     let mutable acc = 0
-    for v in zs |> Linq.except(ss) do acc <- acc + v
+    for v in zs |> Linq.reverse do acc <- acc + v
     acc
   
   [<Benchmark>]
-  member __.Linq_Except_seq() =
+  member __.Linq_Reverse_seq() =
     let mutable acc = 0
-    for v in ss.Except(xs) do acc <- acc + v
+    for v in ss.Reverse() do acc <- acc + v
     acc
 
   [<Benchmark>]
-  member __.Funtom_except_seq() =
+  member __.Funtom_reverse_seq() =
     let mutable acc = 0
-    for v in ss |> Linq.except(xs) do acc <- acc + v
+    for v in ss |> Linq.reverse do acc <- acc + v
     acc
+
+
+
+  //[<Benchmark>]
+  //member __.Linq_Except_list() = 
+  //  let mutable acc = 0
+  //  for v in xs.Except(ys) do acc <- acc + v
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_except_list() =
+  //  let mutable acc = 0
+  //  for v in xs |> Linq.except(ys) do acc <- acc + v
+  //  acc
+  
+  //[<Benchmark>]
+  //member __.Linq_Except_array() =
+  //  let mutable acc = 0
+  //  for v in ys.Except(zs) do acc <- acc + v
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_except_array() =
+  //  let mutable acc = 0
+  //  for v in ys |> Linq.except(zs) do acc <- acc + v
+  //  acc
+  
+  //[<Benchmark>]
+  //member __.Linq_Except_resizearray() =
+  //  let mutable acc = 0
+  //  for v in zs.Except(ss) do acc <- acc + v
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_except_resizearray() =
+  //  let mutable acc = 0
+  //  for v in zs |> Linq.except(ss) do acc <- acc + v
+  //  acc
+  
+  //[<Benchmark>]
+  //member __.Linq_Except_seq() =
+  //  let mutable acc = 0
+  //  for v in ss.Except(xs) do acc <- acc + v
+  //  acc
+
+  //[<Benchmark>]
+  //member __.Funtom_except_seq() =
+  //  let mutable acc = 0
+  //  for v in ss |> Linq.except(xs) do acc <- acc + v
+  //  acc
 
 
 

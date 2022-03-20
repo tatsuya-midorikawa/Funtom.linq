@@ -55,6 +55,7 @@ module Reverse =
         | _ -> -1
       else
         Enumerable.count src
+
     interface IListProvider<'T> with
       member __.ToArray() = __.ToArray()
       member __.ToList() = __.ToList()

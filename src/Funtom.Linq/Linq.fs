@@ -480,9 +480,8 @@ module Linq =
     | :? AppendPrependIterator< ^T> as appendable -> appendable.Prepend(element)
     | _ -> new AppendPrepend1Iterator< ^T>(src, element, false)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.reverse?view=net-6.0
-  let inline reverse (src: seq< ^T>) = src.Reverse()
+  let inline reverse (src: seq< ^T>) = new Reverse.ReverseIterator< ^T>(src)
   
   // src: https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/System.Linq/src/System/Linq/Select.cs#L13
   let inline select<'T, 'U> ([<InlineIfLambda>] selector: 'T -> 'U) (source: seq< 'T>) : seq< 'U> =

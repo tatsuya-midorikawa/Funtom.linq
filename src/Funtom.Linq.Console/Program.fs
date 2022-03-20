@@ -44,12 +44,21 @@ let ss = [| 1..10000 |] |> Seq.ofArray
 //[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |].ExceptBy([| 0..10 |], fun x -> x.Age).ToArray()
 //|> printfn "%A"
 
+//[0..10]
+//|> Linq.intersect [5]
+//|> Linq.toArray
+//|> printfn "%A"
+
+//[0..10].intersect([5]).ToArray()
+//|> printfn "%A"
+
+
 [0..10]
-|> Linq.intersect [5]
+|> Linq.reverse
 |> Linq.toArray
 |> printfn "%A"
 
-[0..10].intersect([5]).ToArray()
+[0..10].Reverse().ToArray()
 |> printfn "%A"
 
 
