@@ -349,7 +349,7 @@ module Linq =
         | _ -> v
       match ls with
       | h::tail -> max' (tail, h)
-      | _ -> Unchecked.defaultof< ^T>
+      | _ -> defaultof< ^T>
     | :? array< ^T> as ary -> 
       if 0 < ary.Length then
         let mutable v = ary[0]
@@ -358,7 +358,7 @@ module Linq =
           if v < current then v <- current
         v
       else
-        Unchecked.defaultof< ^T>
+        defaultof< ^T>
     | :? ResizeArray< ^T> as ls -> 
       if 0 < ls.Count then
         let mutable v = ls[0]
@@ -367,7 +367,7 @@ module Linq =
           if v < current then v <- current
         v
       else
-        Unchecked.defaultof< ^T>
+        defaultof< ^T>
     | _ ->
       use iter = src.GetEnumerator()
       if iter.MoveNext() then
@@ -377,7 +377,7 @@ module Linq =
           if v < c then v <- c
         v
       else
-        Unchecked.defaultof< ^T>
+        defaultof< ^T>
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.maxby?view=net-6.0
