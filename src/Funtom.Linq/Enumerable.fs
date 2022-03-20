@@ -331,6 +331,44 @@ module Enumerable =
         if predicate e.Current then loop (e.Current, true) else loop (e.Current, false)
       else (defaultof<'T>, false)
 
+  let inline tryGetSingle<'T> (src: seq<'T>) =
+    match src with
+    | :? IReadOnlyList<'T> as xs ->
+      match xs.Count with
+      | 0 -> (false, defaultof<'T>)
+      | 1 -> (true, xs[0])
+      | _ -> raise (invalidArg "src" "more than one element")
+    | :? IList<'T> as xs ->
+      match xs.Count with
+      | 0 -> (false, defaultof<'T>)
+      | 1 -> (true, xs[0])
+      | _ -> raise (invalidArg "src" "more than one element")
+    | _ -> 
+      use e = src.GetEnumerator()
+      if e.MoveNext() |> not
+      then (false, defaultof<'T>)
+      else
+        let result = e.Current
+        if e.MoveNext() |> not
+        then (true, result)
+        else raise (invalidArg "src" "more than one element")
+
+  let inline tryGetSingle'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+    use e = src.GetEnumerator()
+    let rec loop () =
+      if e.MoveNext() 
+      then
+        let result = e.Current
+        if predicate result
+        then
+          while e.MoveNext() do
+            if predicate e.Current then raise (invalidArg "src" "more than one element")
+          (true, result)
+        else
+          loop()
+      else
+        (false, defaultof<'T>)
+    loop()
 
 type Buffer<'T> = { items: 'T[]; count: int }
 module public Buffer =
