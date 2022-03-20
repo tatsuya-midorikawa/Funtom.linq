@@ -263,12 +263,8 @@ module Linq =
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.firstordefault?view=net-6.0
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/First.cs#L33
-  let inline firstOrDefault (src: seq< ^T>) = 
-    let (element, _) = src |> Enumerable.tryGetFirst
-    element
-  let inline firstOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = 
-    let (element, _) = (src, predicate) |> Enumerable.tryGetFirst'
-    element
+  let inline firstOrDefault (src: seq< ^T>) = src |> Enumerable.tryGetFirst |> fst
+  let inline firstOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = (src, predicate) |> Enumerable.tryGetFirst' |> fst
   let inline firstOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) =
     let (element, found) = src |> Enumerable.tryGetFirst
     if found then element else defaultValue
@@ -329,12 +325,15 @@ module Linq =
   let inline last (src: seq< ^T>) = src |> Enumerable.tryGetLast
   let inline last'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.tryGetLast' (src, predicate)
   
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.lastordefault?view=net-6.0
-  let inline lastOrDefault (src: seq< ^T>) = src.LastOrDefault()
-  let inline lastOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault predicate
-  let inline lastOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.LastOrDefault(defaultValue)
-  let inline lastOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.LastOrDefault(predicate, defaultValue)
+  let inline lastOrDefault (src: seq< ^T>) = src |> Enumerable.tryGetLast |> fst
+  let inline lastOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = (src, predicate) |> Enumerable.tryGetLast' |> fst
+  let inline lastOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = 
+    let (element, found) = src |> Enumerable.tryGetLast
+    if found then element else defaultValue
+  let inline lastOrDefaultWith' ([<InlineIfLambda>]predicate: ^T -> bool, defaultValue: ^T) (src: seq< ^T>) =
+    let (element, found) = (src, predicate) |> Enumerable.tryGetLast'
+    if found then element else defaultValue
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.longcount?view=net-6.0
   let inline longCount (src: seq< ^T>) : int64 = src |> Enumerable.longCount
