@@ -381,8 +381,8 @@ module Linq =
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.maxby?view=net-6.0
-  let inline maxBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.MaxBy(selector)
-  let inline maxBy' ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IComparer< ^Key>) (src: seq< ^T>) = src.MaxBy(selector, comparer)
+  let inline maxBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src.MaxBy(selector)
+  let inline maxBy' ([<InlineIfLambda>]selector: ^T -> ^U, comparer: IComparer< ^U>) (src: seq< ^T>) = src.MaxBy(selector, comparer)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.min?view=net-6.0
   let inline min (src: seq< ^T>) =
