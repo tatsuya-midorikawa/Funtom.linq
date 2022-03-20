@@ -520,17 +520,23 @@ module Linq =
   let inline sequenceEqual (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd)
   let inline sequenceEqual' (comparer: IEqualityComparer< ^T>) (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd, comparer)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.single?view=net-6.0
-  let inline single (src: seq< ^T>) = src.Single()
-  let inline single' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Single(predicate)
+  let inline single (src: seq< ^T>) =
+    let (found, value) = src |> Enumerable.tryGetSingle
+    if found then value else raise (invalidOp "no elements")
+  let inline single' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) =
+    let (found, value) = (src, predicate) |> Enumerable.tryGetSingle'
+    if found then value else raise (invalidOp "no elements")
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.singleordefault?view=net-6.0
-  let inline singleOrDefault (src: seq< ^T>) = src.SingleOrDefault()
-  let inline singleOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.SingleOrDefault(predicate)
-  let inline singleOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) = src.SingleOrDefault(defaultValue)
-  let inline singleOrDefaultWith' (defaultValue: ^T) ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.SingleOrDefault(predicate, defaultValue)
+  let inline singleOrDefault (src: seq< ^T>) = src |> Enumerable.tryGetSingle |> snd
+  let inline singleOrDefault' ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = (src, predicate) |> Enumerable.tryGetSingle' |> snd
+  let inline singleOrDefaultWith (defaultValue: ^T) (src: seq< ^T>) =
+    let (found, value) = src |> Enumerable.tryGetSingle
+    if found then value else defaultValue
+  let inline singleOrDefaultWith' ([<InlineIfLambda>]predicate: ^T -> bool, defaultValue: ^T) (src: seq< ^T>) =
+    let (found, value) = (src, predicate) |> Enumerable.tryGetSingle'
+    if found then value else defaultValue
 
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skip?view=net-6.0
