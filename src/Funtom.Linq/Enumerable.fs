@@ -330,3 +330,15 @@ module Enumerable =
           else (v, found)
         if predicate e.Current then loop (e.Current, true) else loop (e.Current, false)
       else (defaultof<'T>, false)
+
+
+type Buffer<'T> = { items: 'T[]; count: int }
+module public Buffer =
+  let bind (items: seq<'T>) =
+    match items with
+    | :? IListProvider<'T> as xs -> 
+      let array = xs.ToArray()
+      { items = array; count = array.Length }
+    | _ ->
+      let array = Enumerable.toArray items
+      { items = array; count = array.Length }

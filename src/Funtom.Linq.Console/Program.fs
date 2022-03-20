@@ -15,6 +15,7 @@ let ys = [| 1..10000 |]
 let zs = ResizeArray([| 1..10000 |])
 let ss = [| 1..10000 |] |> Seq.ofArray
 
+
 //xs.ElementAt 200 |> printfn "%d"
 //xs |> Linq.elementAt 200 |> printfn "%d"
 //printfn ""

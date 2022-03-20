@@ -499,19 +499,6 @@ module Linq =
       | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)
     | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
 
-  //// https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.select?view=net-6.0
-  //let inline select ([<InlineIfLambda>] selector: ^T -> ^Result) (source: seq< ^T>) : seq< ^Result> =
-  //  match source with
-  //  | :? array< ^T> as ary -> SelectArrayIterator (ary, selector)
-  //  | :? ResizeArray< ^T> as ls -> SelectListIterator.create selector ls
-  //  | :? list< ^T> as ls -> SelectFsListIterator.create selector ls
-  //  | _ -> source.Select selector //SelectEnumerableIterator.create selector source
-    //match source with
-    //| :? array< ^T> as ary -> ary.Select selector //SelectArrayIterator.create selector ary
-    //| :? ResizeArray< ^T> as ls -> ls.Select selector // SelectListIterator.create selector ls
-    //| :? list< ^T> as ls -> SelectFsListIterator.create selector ls
-    //| _ -> source.Select selector //SelectEnumerableIterator.create selector source
-
   // TODO
   //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
   let inline select' ([<InlineIfLambda>]selector: ^T -> int -> ^Result) (src: seq< ^T>): seq< ^Result> =
