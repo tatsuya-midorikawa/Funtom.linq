@@ -439,10 +439,24 @@ module Linq =
       else
         Unchecked.defaultof< ^T>
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.minby?view=net-6.0
-  let inline minBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.MinBy(selector)
-  let inline minBy' ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IComparer< ^Key>) (src: seq< ^T>) = src.MinBy(selector, comparer)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Min.cs#L474
+  let inline minBy' ([<InlineIfLambda>]selector: ^T -> ^U, comparer: IComparer< ^U>) (src: seq< ^T>) =
+    use e = src.GetEnumerator()
+    if e.MoveNext() |> not
+    then 
+      if defaultof< ^T> = null then defaultof< ^T> else raise (invalidOp "no elements")
+    else
+      let mutable value = e.Current
+      let mutable key = selector value
+      while e.MoveNext() do
+        let next_value = e.Current
+        let next_key = selector next_value
+        if comparer.Compare(next_key, key) < 0 then
+          key <- next_key
+          value <- next_value
+      value
+  let inline minBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src |> minBy'(selector, Comparer< ^U>.Default)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.oftype?view=net-6.0
   let inline ofType< ^T> (src: IEnumerable) = OfTypeIterator< ^T> src
