@@ -379,10 +379,25 @@ module Linq =
       else
         defaultof< ^T>
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.maxby?view=net-6.0
-  let inline maxBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src.MaxBy(selector)
-  let inline maxBy' ([<InlineIfLambda>]selector: ^T -> ^U, comparer: IComparer< ^U>) (src: seq< ^T>) = src.MaxBy(selector, comparer)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Max.cs#L516
+  let inline maxBy' ([<InlineIfLambda>]selector: ^T -> ^U, comparer: IComparer< ^U>) (src: seq< ^T>) = 
+    use e = src.GetEnumerator()
+    if e.MoveNext() |> not
+    then 
+      if defaultof< ^T> = null then defaultof< ^T> else raise (invalidOp "no elements")
+    else
+      let mutable value = e.Current
+      let mutable key = selector value
+      while e.MoveNext() do
+        let next_value = e.Current
+        let next_key = selector next_value
+        if 0 < comparer.Compare(next_key, key) then
+          key <- next_key
+          value <- next_value
+      value
+
+  let inline maxBy ([<InlineIfLambda>]selector: ^T -> ^U) (src: seq< ^T>) = src |> maxBy' (selector, Comparer< ^U>.Default)
   
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.min?view=net-6.0
   let inline min (src: seq< ^T>) =
