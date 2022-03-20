@@ -275,3 +275,58 @@ module Enumerable =
         if predicate e.Current then (element, true) else loop()
       else (defaultof<'T>, false)
     loop()
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Last.cs#L52
+  let inline tryGetLast<'T> (src: seq<'T>) =
+    match src with
+    | :? IPartition<'T> as partition -> partition.TryGetLast()
+    | :? IList<'T> as xs -> if 0 < xs.Count then (xs[xs.Count - 1], true) else (defaultof<'T>, false)
+    | :? IReadOnlyList<'T> as xs -> if 0 < xs.Count then (xs[xs.Count - 1], true) else (defaultof<'T>, false)
+    | _ ->
+      use e = src.GetEnumerator()
+      if e.MoveNext() 
+      then 
+        let rec loop (v) =
+          if e.MoveNext() 
+          then loop(e.Current)
+          else v
+        let last = loop (e.Current)
+        (last, true)
+      else (defaultof<'T>, false)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Last.cs#L96
+  let inline tryGetLast'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+    match src with
+    | :? IList<'T> as xs -> 
+      if 0 < xs.Count 
+      then 
+        let rec loop i =
+          if i < 0
+          then (defaultof<'T>, false)
+          else if predicate xs[i] then (xs[i], true) else loop (i - 1)
+        loop (xs.Count)
+      else 
+        (defaultof<'T>, false)
+    | :? IReadOnlyList<'T> as xs -> 
+      if 0 < xs.Count 
+      then 
+        let rec loop i =
+          if i < 0
+          then (defaultof<'T>, false)
+          else if predicate xs[i] then (xs[i], true) else loop (i - 1)
+        loop (xs.Count)
+      else 
+        (defaultof<'T>, false)
+    | _ ->
+      use e = src.GetEnumerator()
+      if e.MoveNext() 
+      then 
+        let rec loop (v, found) =
+          if e.MoveNext() 
+          then 
+            if predicate e.Current
+            then loop(e.Current, true)
+            else loop(v, found)
+          else (v, found)
+        if predicate e.Current then loop (e.Current, true) else loop (e.Current, false)
+      else (defaultof<'T>, false)

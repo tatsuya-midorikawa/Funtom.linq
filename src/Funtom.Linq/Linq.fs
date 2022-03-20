@@ -325,14 +325,9 @@ module Linq =
   let inline join2' ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
 
-  // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.last?view=net-6.0
-  let inline last (src: seq< ^T>) =
-    match src with
-    | :? IList< ^T> as xs -> xs[xs.Count - 1]
-    | :? IReadOnlyList< ^T> as xs -> xs[xs.Count - 1]
-    | _ -> src.Last()
-  let inline last'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.Last predicate
+  let inline last (src: seq< ^T>) = src |> Enumerable.tryGetLast
+  let inline last'< ^T> ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = Enumerable.tryGetLast' (src, predicate)
   
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.lastordefault?view=net-6.0
