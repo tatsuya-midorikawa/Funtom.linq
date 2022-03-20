@@ -50,6 +50,56 @@ type Benchmark () =
     ss'' <- [|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |] |> Seq.ofArray
 
       
+  [<Benchmark>]
+  member __.Linq_Except_list() = 
+    let mutable acc = 0
+    for v in xs.Except(ys) do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_except_list() =
+    let mutable acc = 0
+    for v in xs |> Linq.except(ys) do acc <- acc + v
+    acc
+  
+  [<Benchmark>]
+  member __.Linq_Except_array() =
+    let mutable acc = 0
+    for v in ys.Except(zs) do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_except_array() =
+    let mutable acc = 0
+    for v in ys |> Linq.except(zs) do acc <- acc + v
+    acc
+  
+  [<Benchmark>]
+  member __.Linq_Except_resizearray() =
+    let mutable acc = 0
+    for v in zs.Except(ss) do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_except_resizearray() =
+    let mutable acc = 0
+    for v in zs |> Linq.except(ss) do acc <- acc + v
+    acc
+  
+  [<Benchmark>]
+  member __.Linq_Except_seq() =
+    let mutable acc = 0
+    for v in ss.Except(xs) do acc <- acc + v
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_except_seq() =
+    let mutable acc = 0
+    for v in ss |> Linq.except(xs) do acc <- acc + v
+    acc
+
+
+
   //[<Benchmark>]
   //member __.Linq_ElementAt_list() = xs.ElementAt(2000)
 
@@ -68,11 +118,11 @@ type Benchmark () =
   //[<Benchmark>]
   //member __.Funtom_elementAt_resizearray() = zs |> Linq.elementAt 2000
   
-  [<Benchmark>]
-  member __.Linq_ElementAt_seq() = ss.ElementAt(2000)
+  //[<Benchmark>]
+  //member __.Linq_ElementAt_seq() = ss.ElementAt(2000)
 
-  [<Benchmark>]
-  member __.Funtom_elementAt_seq() = ss |> Linq.elementAt 2000
+  //[<Benchmark>]
+  //member __.Funtom_elementAt_seq() = ss |> Linq.elementAt 2000
 
 
     

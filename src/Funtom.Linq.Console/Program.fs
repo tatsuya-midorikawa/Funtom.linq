@@ -15,18 +15,33 @@ let ys = [| 1..10000 |]
 let zs = ResizeArray([| 1..10000 |])
 let ss = [| 1..10000 |] |> Seq.ofArray
 
-xs.ElementAt 200 |> printfn "%d"
-xs |> Linq.elementAt 200 |> printfn "%d"
-printfn ""
-ys.ElementAt 200 |> printfn "%d"
-ys |> Linq.elementAt 200 |> printfn "%d"
-printfn ""
-zs.ElementAt 200 |> printfn "%d"
-zs |> Linq.elementAt 200 |> printfn "%d"
-printfn ""
-ss.ElementAt 200 |> printfn "%d"
-ss |> Linq.elementAt 200 |> printfn "%d"
+//xs.ElementAt 200 |> printfn "%d"
+//xs |> Linq.elementAt 200 |> printfn "%d"
+//printfn ""
+//ys.ElementAt 200 |> printfn "%d"
+//ys |> Linq.elementAt 200 |> printfn "%d"
+//printfn ""
+//zs.ElementAt 200 |> printfn "%d"
+//zs |> Linq.elementAt 200 |> printfn "%d"
+//printfn ""
+//ss.ElementAt 200 |> printfn "%d"
+//ss |> Linq.elementAt 200 |> printfn "%d"
 
+//[0..10]
+//|> Linq.except [5]
+//|> Linq.toArray
+//|> printfn "%A"
+
+//[0..10].Except([5]).ToArray()
+//|> printfn "%A"
+
+[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |]
+|> Linq.exceptBy ([| 0..10 |], fun x -> x.Age)
+|> Linq.toArray
+|> printfn "%A"
+
+[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |].ExceptBy([| 0..10 |], fun x -> x.Age).ToArray()
+|> printfn "%A"
 
 //type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
 //type Planet = { Name: string; Type: Type }

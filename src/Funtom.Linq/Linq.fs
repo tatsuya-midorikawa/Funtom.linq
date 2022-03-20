@@ -240,16 +240,18 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.empty?view=net-6.0
   let inline empty () : seq<'T> = Array.empty<'T>
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
-  let inline except (fst: seq< ^T>) (snd: seq< ^T>) = fst.Except snd
-  let inline except' (comparer: IEqualityComparer< ^T>) (fst: seq< ^T>) (snd: seq< ^T>) = fst.Except (snd, comparer)
-  
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
-  let inline exceptBy ([<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector)
-  let inline exceptBy' ([<InlineIfLambda>]selector: ^T -> ^U) (comparer: IEqualityComparer< ^U>)  (fst: seq< ^T>) (snd: seq< ^U>) = fst.ExceptBy(snd, selector, comparer)
+  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0fst.Except snd
+  let inline except' (snd: seq< ^T>, comparer: IEqualityComparer< ^T>) (fst: seq< ^T>) =
+    let set = HashSet< ^T>(snd, comparer)
+    seq { for element in fst do if set.Add element then yield element }
+  let inline except (snd: seq< ^T>) (fst: seq< ^T>) = except' (snd, null) fst
 
+  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.except?view=net-6.0
+  let inline exceptBy' (snd: seq< ^U>, [<InlineIfLambda>]selector: ^T -> ^U, comparer: IEqualityComparer< ^U>) (fst: seq< ^T>) =
+    let set = HashSet< ^U>(snd, comparer)
+    seq { for element in fst do if set.Add (selector element) then yield element }
+  let inline exceptBy (snd: seq< ^U>, [<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) = fst |> exceptBy' (snd, selector, null)
+  
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.first?view=net-6.0
   let inline first (src: seq< ^T>) =
     match src with
