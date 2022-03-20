@@ -62,7 +62,6 @@ let ss = [| 1..10000 |] |> Seq.ofArray
 |> printfn "%A"
 
 
-
 //type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
 //type Planet = { Name: string; Type: Type }
 
