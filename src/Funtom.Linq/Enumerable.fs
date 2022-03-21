@@ -19,6 +19,8 @@ module Enumerable =
   /// <see href="https://github.com/JonHanna/corefx/blob/f0d3761d8e875f6fa17e43ab715b746bbcb68716/src/Common/src/System/Collections/Generic/EnumerableHelpers.cs">EnumerableHelpers.ToArray()</see>
   let inline toArray<'T> (source: seq<'T>) =
     match source with
+    | :? IListProvider<'T> as provider ->
+      provider.ToArray()
     | :? ICollection<'T> as collection ->
       let count = collection.Count
       if count <> 0 then
@@ -45,6 +47,14 @@ module Enumerable =
         acc
       else
         Array.empty<'T>
+
+  /// <summary>
+  /// 
+  /// </summary>
+  let inline toList<'T> (source: seq<'T>) =
+    match source with
+    | :? IListProvider< ^T> as provider -> provider.ToList()
+    | _ -> ResizeArray(source)
 
   /// <summary>
   /// 
@@ -230,3 +240,143 @@ module Enumerable =
       (0 <= c, c)
     | :? ICollection as collection -> (true, collection.Count)
     | _ -> (false, 0)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L186
+  let inline hashseToArray<'T> (set: HashSet<'T>) =
+    let result = Array.zeroCreate<'T> set.Count
+    set.CopyTo result
+    result
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L193
+  let inline hashseToList<'T> (set: HashSet<'T>) =
+    let result = ResizeArray<'T> set.Count
+    for item in set do
+      result.Add item
+    result
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/First.cs#L52
+  let inline tryGetFirst<'T> (src: seq<'T>) =
+    match src with
+    | :? IPartition<'T> as partition -> partition.TryGetFirst()
+    | :? list<'T> as list -> match list with h::tail -> (h, true) | _ -> (defaultof<'T>, false)
+    | :? IList<'T> as list -> if 0 < list.Count then (list[0], true) else (defaultof<'T>, false)
+    | :? IReadOnlyList<'T> as list -> if 0 < list.Count then (list[0], true) else (defaultof<'T>, false)
+    | _ ->
+      use e = src.GetEnumerator()
+      if e.MoveNext() then (e.Current, true) else (defaultof<'T>, false)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/First.cs#L52
+  let inline tryGetFirst'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+    use e = src.GetEnumerator()
+    let rec loop() =
+      if e.MoveNext()
+      then
+        let element = e.Current
+        if predicate e.Current then (element, true) else loop()
+      else (defaultof<'T>, false)
+    loop()
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Last.cs#L52
+  let inline tryGetLast<'T> (src: seq<'T>) =
+    match src with
+    | :? IPartition<'T> as partition -> partition.TryGetLast()
+    | :? IList<'T> as xs -> if 0 < xs.Count then (xs[xs.Count - 1], true) else (defaultof<'T>, false)
+    | :? IReadOnlyList<'T> as xs -> if 0 < xs.Count then (xs[xs.Count - 1], true) else (defaultof<'T>, false)
+    | _ ->
+      use e = src.GetEnumerator()
+      if e.MoveNext() 
+      then 
+        let rec loop (v) =
+          if e.MoveNext() 
+          then loop(e.Current)
+          else v
+        let last = loop (e.Current)
+        (last, true)
+      else (defaultof<'T>, false)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Last.cs#L96
+  let inline tryGetLast'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+    match src with
+    | :? IList<'T> as xs -> 
+      if 0 < xs.Count 
+      then 
+        let rec loop i =
+          if i < 0
+          then (defaultof<'T>, false)
+          else if predicate xs[i] then (xs[i], true) else loop (i - 1)
+        loop (xs.Count)
+      else 
+        (defaultof<'T>, false)
+    | :? IReadOnlyList<'T> as xs -> 
+      if 0 < xs.Count 
+      then 
+        let rec loop i =
+          if i < 0
+          then (defaultof<'T>, false)
+          else if predicate xs[i] then (xs[i], true) else loop (i - 1)
+        loop (xs.Count)
+      else 
+        (defaultof<'T>, false)
+    | _ ->
+      use e = src.GetEnumerator()
+      if e.MoveNext() 
+      then 
+        let rec loop (v, found) =
+          if e.MoveNext() 
+          then 
+            if predicate e.Current
+            then loop(e.Current, true)
+            else loop(v, found)
+          else (v, found)
+        if predicate e.Current then loop (e.Current, true) else loop (e.Current, false)
+      else (defaultof<'T>, false)
+
+  let inline tryGetSingle<'T> (src: seq<'T>) =
+    match src with
+    | :? IReadOnlyList<'T> as xs ->
+      match xs.Count with
+      | 0 -> (false, defaultof<'T>)
+      | 1 -> (true, xs[0])
+      | _ -> raise (invalidArg "src" "more than one element")
+    | :? IList<'T> as xs ->
+      match xs.Count with
+      | 0 -> (false, defaultof<'T>)
+      | 1 -> (true, xs[0])
+      | _ -> raise (invalidArg "src" "more than one element")
+    | _ -> 
+      use e = src.GetEnumerator()
+      if e.MoveNext() |> not
+      then (false, defaultof<'T>)
+      else
+        let result = e.Current
+        if e.MoveNext() |> not
+        then (true, result)
+        else raise (invalidArg "src" "more than one element")
+
+  let inline tryGetSingle'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
+    use e = src.GetEnumerator()
+    let rec loop () =
+      if e.MoveNext() 
+      then
+        let result = e.Current
+        if predicate result
+        then
+          while e.MoveNext() do
+            if predicate e.Current then raise (invalidArg "src" "more than one element")
+          (true, result)
+        else
+          loop()
+      else
+        (false, defaultof<'T>)
+    loop()
+
+type Buffer<'T> = { items: 'T[]; count: int }
+module public Buffer =
+  let bind (items: seq<'T>) =
+    match items with
+    | :? IListProvider<'T> as xs -> 
+      let array = xs.ToArray()
+      { items = array; count = array.Length }
+    | _ ->
+      let array = Enumerable.toArray items
+      { items = array; count = array.Length }

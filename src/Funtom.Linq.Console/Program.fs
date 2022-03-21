@@ -10,24 +10,136 @@ open FSharp.Linq.RuntimeHelpers
 open System.Diagnostics
 
 
+let xs = [ 1..10000 ]
+let ys = [| 1..10000 |]
+let zs = ResizeArray([| 1..10000 |])
+let ss = [| 1..10000 |] |> Seq.ofArray
+
+
+//xs.ElementAt 200 |> printfn "%d"
+//xs |> Linq.elementAt 200 |> printfn "%d"
+//printfn ""
+//ys.ElementAt 200 |> printfn "%d"
+//ys |> Linq.elementAt 200 |> printfn "%d"
+//printfn ""
+//zs.ElementAt 200 |> printfn "%d"
+//zs |> Linq.elementAt 200 |> printfn "%d"
+//printfn ""
+//ss.ElementAt 200 |> printfn "%d"
+//ss |> Linq.elementAt 200 |> printfn "%d"
+
+//[0..10]
+//|> Linq.except [5]
+//|> Linq.toArray
+//|> printfn "%A"
+
+//[0..10].Except([5]).ToArray()
+//|> printfn "%A"
+
+//[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |]
+//|> Linq.exceptBy ([| 0..10 |], fun x -> x.Age)
+//|> Linq.toArray
+//|> printfn "%A"
+
+//[| {| Name="aaa"; Age=10 |}; {| Name="bbb"; Age=10 |}; {| Name="ccc"; Age=20 |} |].ExceptBy([| 0..10 |], fun x -> x.Age).ToArray()
+//|> printfn "%A"
+
+//[0..10]
+//|> Linq.intersect [5]
+//|> Linq.toArray
+//|> printfn "%A"
+
+//[0..10].intersect([5]).ToArray()
+//|> printfn "%A"
+
+
+[0..10]
+|> Linq.reverse
+|> Linq.toArray
+|> printfn "%A"
+
+[0..10].Reverse().ToArray()
+|> printfn "%A"
+
+
+//type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
+//type Planet = { Name: string; Type: Type }
+
+//let xs = ResizeArray<Planet>([|
+//  { Name = "Mercury"; Type = Type.Rock }
+//  { Name = "Venus"; Type = Type.Rock }
+//  { Name = "Mars"; Type = Type.Rock }
+//  { Name = "Earth"; Type = Type.Rock }
+//  { Name = "Jupiter"; Type = Type.Gas }
+//  { Name = "Saturn"; Type = Type.Gas }
+//  { Name = "Uranus"; Type = Type.Liquid }
+//  { Name = "Pluto"; Type = Type.Ice }
+//|])
+
+//xs.DistinctBy (fun x -> x.Type)
+//|> Seq.iter (printfn "%A")
+
+//printfn ""
+
+//xs
+//|> Linq.distinctBy (fun x -> x.Type)
+//|> Seq.iter (printfn "%A ")
+
+//printfn "---"
+
+//xs.DistinctBy(fun x -> x.Type).ToArray()
+//|> Seq.iter (printfn "%A")
+
+//printfn ""
+
+//xs
+//|> Linq.distinctBy (fun x -> x.Type)
+//|> Linq.toArray
+//|> Seq.iter (printfn "%A ")
+
+
+
+//let xs = [21; 46; 46; 55; 17; 21; 55; 55;]
+//let xs = [| 21; 46; 46; 55; 17; 21; 55; 55; |]
+//let xs = ResizeArray<int>([| 21; 46; 46; 55; 17; 21; 55; 55; |])
+
+//xs.Distinct()
+//|> Seq.iter (printf "%d ")
+
+//printfn ""
+
+//xs
+//|> Linq.distinct
+//|> Seq.iter (printf "%d ")
+
+
+//let xs : int[] = [||]
+
+//xs.DefaultIfEmpty(10)
+//|> printfn "%A"
+
+//xs
+//|> Linq.defaultIfEmpty' 10
+//|> printfn "%A"
+
 //[ 0..10 ]
 //|> Linq.concat [ 11..20 ]
 //|> Linq.toArray
 //|> printfn "%A"
 
-let a = [| 0..10 |]
-a
-|> Linq.concat a
-|> Linq.toArray
-|> printfn "%A"
+//let a = [| 0..10 |]
+//a
+//|> Linq.concat a
+//|> Linq.toArray
+//|> printfn "%A"
 
-a
-|> Linq.contains 10
-|> printfn "%b"
+//a
+//|> Linq.contains 10
+//|> printfn "%b"
 
-a
-|> Linq.contains 11
-|> printfn "%b"
+//a
+//|> Linq.contains 11
+//|> printfn "%b"
 
 //ResizeArray [| 0..10 |]
 //|> Linq.concat (ResizeArray [| 11..20 |])

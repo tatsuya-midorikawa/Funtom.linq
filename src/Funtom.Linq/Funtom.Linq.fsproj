@@ -5,7 +5,7 @@
 		<LangVersion>6.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.0.7</Version>
+		<Version>0.0.8</Version>
 		<Authors>midoliy</Authors>
 		<Company>midoliy</Company>
 		<Copyright>© 2021-2022 Tatsuya Midorikawa. All rights rserved</Copyright>
@@ -38,6 +38,10 @@
     <Compile Include="Iterator\AppendPrepend.fs" />
     <Compile Include="Iterator\Chunk.fs" />
     <Compile Include="Iterator\Concat.fs" />
+    <Compile Include="Iterator\DefaultIfEmpty.fs" />
+    <Compile Include="Iterator\Distinct.fs" />
+    <Compile Include="Iterator\ElementAt.fs" />
+    <Compile Include="Iterator\Reverse.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />
