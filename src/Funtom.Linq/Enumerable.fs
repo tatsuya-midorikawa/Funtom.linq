@@ -128,6 +128,42 @@ module Enumerable =
   let inline toDictionary (src: seq<'Src>, [<InlineIfLambda>]selector: 'Src -> 'Key) =
     toDictionary'(src, selector, null)
 
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L147
+  let inline toDictionary2FromArray (src: array<'Src>, [<InlineIfLambda>]keySelector: 'Src -> 'Key, [<InlineIfLambda>]elementSelector: 'Src -> 'Element, comparer: IEqualityComparer<'Key>) =
+    let dict = Dictionary<'Key, 'Element>(src.Length, comparer)
+    for i = 0 to src.Length - 1 do
+      dict.Add(keySelector src[i], elementSelector src[i])
+    dict
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L158
+  let inline toDictionary2FromResizeArray (src: ResizeArray<'Src>, [<InlineIfLambda>]keySelector: 'Src -> 'Key, [<InlineIfLambda>]elementSelector: 'Src -> 'Element, comparer: IEqualityComparer<'Key>) =
+    let dict = Dictionary<'Key, 'Element>(src.Count, comparer)
+    for v in src do
+      dict.Add(keySelector v, elementSelector v)
+    dict
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L101
+  let inline toDictionary2' (src: seq<'Src>, [<InlineIfLambda>]keySelector: 'Src -> 'Key, [<InlineIfLambda>]elementSelector: 'Src -> 'Element, comparer: IEqualityComparer<'Key>) =
+    let inline to_dict (capacity: int) =
+      let acc = Dictionary<'Key, 'Element>(capacity, comparer)
+      for e in src do acc.Add(keySelector e, elementSelector e)
+      acc
+    
+    match src with
+    | :? ICollection as collection ->
+      if collection.Count = 0
+      then Dictionary<'Key, 'Element>(comparer)
+      else
+        match collection with
+        | :? array<'Src> as array -> toDictionary2FromArray(array, keySelector, elementSelector, comparer)
+        | :? ResizeArray<'Src> as array -> toDictionary2FromResizeArray(array, keySelector, elementSelector, comparer)
+        | _ -> to_dict(collection.Count)
+    | _ -> to_dict(4)
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/ToCollection.cs#L98
+  let inline toDictionary2 (src: seq<'Src>, [<InlineIfLambda>]keySelector: 'Src -> 'Key, [<InlineIfLambda>]elementSelector: 'Src -> 'Element) =
+    toDictionary2'(src, keySelector, elementSelector, EqualityComparer<'Key>.Default)
+  
   /// <summary>
   /// 
   /// </summary>

@@ -28,13 +28,11 @@ module Linq =
     Enumerable.toDictionary (src, selector)
   let inline toDictionary'  ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IEqualityComparer< ^Key>) (src: seq< ^T>) = 
     Enumerable.toDictionary' (src, selector, comparer)
-  // TODO
   let inline toDictionary2 ([<InlineIfLambda>]keySelector: ^T -> ^Key) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) (src: seq< ^T>) = 
-    src.ToDictionary(keySelector, elementSelector)
-  // TODO
-  let inline toDictionary2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) =
-    src.ToDictionary(keySelector, elementSelector, comparer)
-  
+    Enumerable.toDictionary2 (src, keySelector, elementSelector)
+  let inline toDictionary2' ([<InlineIfLambda>]elementSelector: ^T -> ^Element) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (comparer: IEqualityComparer< ^Key>) (src: seq< ^T>) =
+    Enumerable.toDictionary2' (src, keySelector, elementSelector, comparer)
+    
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tohashset?view=net-6.0
   let inline toHashSet (src: seq< ^T>) = HashSet< ^T>(src, null)
   let inline toHashSet' (comparer: IEqualityComparer< ^T>) (src: seq< ^T>) = HashSet< ^T>(src, comparer)
