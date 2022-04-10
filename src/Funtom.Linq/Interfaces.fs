@@ -24,3 +24,8 @@ module Interfaces =
     abstract member TryGetElementAt : int * outref<bool> -> 'T
     abstract member TryGetFirst : outref<bool> -> 'T
     abstract member TryGetLast : outref<bool> -> 'T
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L37
+  type IGrouping<'Key, 'Element> =
+    inherit IEnumerable<'Element>
+    abstract member Key : 'Key with get

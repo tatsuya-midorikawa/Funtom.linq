@@ -42,6 +42,7 @@
     <Compile Include="Iterator\Distinct.fs" />
     <Compile Include="Iterator\ElementAt.fs" />
     <Compile Include="Iterator\Reverse.fs" />
+    <Compile Include="Iterator\Grouping.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />
