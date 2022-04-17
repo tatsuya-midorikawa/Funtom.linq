@@ -9,3 +9,17 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
   let mutable hashNext = defaultof<Grouping<'Key, 'Element>>
   let mutable next = defaultof<Grouping<'Key, 'Element>>
   let mutable count = 0
+
+  member __.Add (element: 'Element) =
+    if elements.Length = count then
+      System.Array.Resize(&elements, check (*) count 2)
+    elements[count] <- element
+    count <- count + 1
+
+  member __.Trim () =
+    if elements.Length <> count then
+      System.Array.Resize(&elements, count)
+
+  // TODO
+  member __.GetEnumerator() =
+    ()
