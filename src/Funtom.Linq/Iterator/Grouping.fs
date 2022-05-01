@@ -1,5 +1,7 @@
 ﻿namespace Funtom.Linq.Iterator
 
+open System.Collections
+open System.Collections.Generic
 open Funtom.Linq
 open Funtom.Linq.Interfaces
 
@@ -20,6 +22,18 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     if elements.Length <> count then
       System.Array.Resize(&elements, count)
 
+  member __.GetEnumerator() : IEnumerator<'Element> =
+    seq { for i in 0..(count - 1) -> elements[i] }
+    |> (fun xs -> xs.GetEnumerator())
+    
+  abstract member Key : 'Key with get
+  default __.Key with get() = key
+
+  member __.Count with get() = count
+
+  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'Element> with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IGrouping<'Key, 'Element> with member __.Key with get() = __.Key
   // TODO
-  member __.GetEnumerator() =
-    ()
+  interface ICollection<'Element> with 
+    member __.Count with get() = __.Count
