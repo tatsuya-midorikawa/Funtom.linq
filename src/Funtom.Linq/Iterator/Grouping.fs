@@ -30,10 +30,24 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
   default __.Key with get() = key
 
   member __.Count with get() = count
+  member __.IsReadOnly with get() = true
 
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
   interface IEnumerable<'Element> with member __.GetEnumerator () = __.GetEnumerator ()
   interface IGrouping<'Key, 'Element> with member __.Key with get() = __.Key
-  // TODO
   interface ICollection<'Element> with 
     member __.Count with get() = __.Count
+    member __.IsReadOnly with get() = __.IsReadOnly
+    member __.Add(item) = raise (System.NotSupportedException "")
+    member __.Clear() = raise (System.NotSupportedException "")
+    member __.Contains(item) = 0 <= System.Array.IndexOf(elements, item, 0, count)
+    member __.CopyTo(array, index) = System.Array.Copy(elements, 0, array, index, count)
+    member __.Remove(item) = raise (System.NotSupportedException "")
+  interface IList<'Element> with
+    member __.IndexOf(item) = System.Array.IndexOf(elements, item, 0, count)
+    member __.Insert(index, item) = raise (System.NotSupportedException "")
+    member __.RemoveAt(index) = raise (System.NotSupportedException "")
+    member __.Item 
+      with get index = if index < 0 || count <= index then raise (System.ArgumentOutOfRangeException "") else elements[index]
+      and set index value = raise (System.NotSupportedException "")
+    
