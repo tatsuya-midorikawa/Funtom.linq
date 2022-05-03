@@ -1,4 +1,4 @@
-﻿namespace Funtom.Linq.Iterator
+﻿namespace rec Funtom.Linq.Iterator
 
 open System.Collections
 open System.Collections.Generic
@@ -49,4 +49,19 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     member __.Item 
       with get index = if index < 0 || count <= index then raise (System.ArgumentOutOfRangeException "") else elements[index]
       and set index value = raise (System.NotSupportedException "")
+    
+// https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L65
+type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
+  let mutable groupings = Array.zeroCreate<Grouping<'Key, 'Element>>(7)
+  let mutable lastGrouping = defaultof<Grouping<'Key, 'Element>>
+  let mutable count = 0
+
+  abstract member Key : 'Key with get
+  default __.Key with get() = key
+  member __.Count with get() = count
+  member __.IsReadOnly with get() = true
+
+  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'Element> with member __.GetEnumerator () = __.GetEnumerator ()
+  interface ILookup<'Key, 'Element> with
     
