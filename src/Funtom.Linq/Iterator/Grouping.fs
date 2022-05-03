@@ -28,7 +28,6 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     
   abstract member Key : 'Key with get
   default __.Key with get() = key
-
   member __.Count with get() = count
   member __.IsReadOnly with get() = true
 
