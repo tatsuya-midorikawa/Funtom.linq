@@ -56,6 +56,16 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
   let mutable lastGrouping = defaultof<Grouping<'Key, 'Element>>
   let mutable count = 0
 
+  // WIP : https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L196
+  member __.GetGrouping (key: 'Key, create: bool) =
+    let getHashCode key = comparer.GetHashCode(key) &&& 0x7FFFFFFF;
+    let hashcode = getHashCode key
+    null
+
+  // WIP : https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L124
+  member __.Item with get (key: 'Key) = 
+
+
   abstract member Key : 'Key with get
   default __.Key with get() = key
   member __.Count with get() = count
