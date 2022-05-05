@@ -14,6 +14,7 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
 
   member internal __.HashNext with get () = hashNext and set v = hashNext <- v
   member internal __.HashCode with get () = hashCode
+  member internal __.Next with get () = next
 
   member __.Add (element: 'Element) =
     if elements.Length = count then
@@ -63,6 +64,21 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
   member __.GetGrouping (key: 'Key, create: bool) =
     let inline getHashCode key = comparer.GetHashCode(key) &&& 0x7FFFFFFF;
     let hashcode = getHashCode key
+    let inline resize () =
+      let newsize = Checked.(+) (count * 2) 1
+      let newgroupings = Array.zeroCreate<Grouping<'Key, 'Element>>(newsize)
+      let mutable g = lastGrouping
+      let rec loop () =
+        g <- g.Next
+        let index = hashcode % groupings.Length
+        g.HashNext <- newgroupings[index]
+        newgroupings[index] <- g
+        if g <> lastGrouping
+        then loop()
+        else ()
+      loop()
+      groupings <- newgroupings
+
     let def = defaultof<Grouping<'Key, 'Element>>
     let rec loop (g: Grouping<'Key, 'Element>) =
       if g <> def
@@ -78,6 +94,7 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
     else 
       if create
       then
+        if count = groupings.Length then resize()
         // WIP
         def
       else def
