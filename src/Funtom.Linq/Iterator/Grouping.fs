@@ -12,6 +12,9 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
   let mutable next = defaultof<Grouping<'Key, 'Element>>
   let mutable count = 0
 
+  member internal __.HashNext with get () = hashNext and set v = hashNext <- v
+  member internal __.HashCode with get () = hashCode
+
   member __.Add (element: 'Element) =
     if elements.Length = count then
       System.Array.Resize(&elements, check (*) count 2)
@@ -58,9 +61,26 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
 
   // WIP : https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L196
   member __.GetGrouping (key: 'Key, create: bool) =
-    let getHashCode key = comparer.GetHashCode(key) &&& 0x7FFFFFFF;
+    let inline getHashCode key = comparer.GetHashCode(key) &&& 0x7FFFFFFF;
     let hashcode = getHashCode key
-    null
+    let def = defaultof<Grouping<'Key, 'Element>>
+    let rec loop (g: Grouping<'Key, 'Element>) =
+      if g <> def
+      then
+        if g.HashCode = hashcode && comparer.Equals(g.Key, key)
+        then g
+        else loop(g.HashNext)
+      else def
+    let g = loop (groupings[hashcode % groupings.Length])
+
+    if g <> def 
+    then g
+    else 
+      if create
+      then
+        // WIP
+        def
+      else def
 
   // WIP : https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L124
   member __.Item with get (key: 'Key) = 
