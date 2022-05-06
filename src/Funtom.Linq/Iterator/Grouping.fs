@@ -14,7 +14,7 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
 
   member internal __.HashNext with get () = hashNext and set v = hashNext <- v
   member internal __.HashCode with get () = hashCode
-  member internal __.Next with get () = next
+  member internal __.Next with get () = next and set v = next <- v
 
   member __.Add (element: 'Element) =
     if elements.Length = count then
@@ -60,7 +60,7 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
   let mutable lastGrouping = defaultof<Grouping<'Key, 'Element>>
   let mutable count = 0
 
-  // WIP : https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L196
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L196
   member __.GetGrouping (key: 'Key, create: bool) =
     let inline getHashCode key = comparer.GetHashCode(key) &&& 0x7FFFFFFF;
     let hashcode = getHashCode key
@@ -95,20 +95,45 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
       if create
       then
         if count = groupings.Length then resize()
-        // WIP
-        def
+        let index = hashcode % groupings.Length
+        g.HashNext <- groupings[index]
+        groupings[index] <- g
+        if lastGrouping = def
+        then g.Next <- g
+        else g.Next <- lastGrouping.Next; lastGrouping.Next <- g
+        lastGrouping <- g
+        count <- count + 1
+        g
       else def
 
-  // WIP : https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L124
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L124
   member __.Item with get (key: 'Key) = 
+    let grouping = __.GetGrouping(key, create = false)
+    if grouping = defaultof<Grouping<'Key, 'Element>>
+    then Array.empty<'Element> :> IEnumerable<'Element> 
+    else grouping
 
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L133
+  member __.Contains(key: 'Key) = 
+    __.GetGrouping(key, create =  false) <> defaultof<Grouping<'Key, 'Element>>
 
-  abstract member Key : 'Key with get
-  default __.Key with get() = key
+  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L135
+  member __.GetEnumerator() = 
+    raise (System.NotImplementedException "")
+
+  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L151
+  member internal __.ToList<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 
+    raise (System.NotImplementedException "")
+
+  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L171
+  member __.ApplyResultSelector<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 
+    raise (System.NotImplementedException "")
+
   member __.Count with get() = count
-  member __.IsReadOnly with get() = true
 
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
-  interface IEnumerable<'Element> with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<IGrouping<'Key, 'Element>> with member __.GetEnumerator () = __.GetEnumerator ()
   interface ILookup<'Key, 'Element> with
-    
+    member __.Count with get () = __.Count
+    member __.Item with get (key) = __.Item(key)
+    member __.Contains (key) = __.Contains(key)
