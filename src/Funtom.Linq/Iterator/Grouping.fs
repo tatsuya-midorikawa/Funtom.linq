@@ -42,6 +42,8 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     member __.HashNext with get () = hashNext and set v = hashNext <- v
     member __.HashCode with get () = hashCode
     member __.Next with get () = next and set v = next <- v
+    member __.Elements with get () = elements
+    member __.Trim () = __.Trim()
   interface ICollection<'Element> with 
     member __.Count with get() = __.Count
     member __.IsReadOnly with get() = __.IsReadOnly
@@ -137,10 +139,19 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
         Array.empty<_>
     x.GetEnumerator()
 
-
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L151
-  member internal __.ToList<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 
-    raise (System.NotImplementedException "")
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L151
+  member internal __.ToList<'Result>(selector: 'Key -> seq<'Element> -> 'Result) =
+    let acc = ResizeArray<'Result>(count)
+    let mutable g = lastGrouping
+    if g <> defaultof<_> then
+      g <- g.Next
+      g.Trim()
+      acc.Add(selector g.Key g.Elements)
+      while g <> defaultof<_> do
+        g <- g.Next
+        g.Trim()
+        acc.Add(selector g.Key g.Elements)
+    acc
 
   // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L171
   member __.ApplyResultSelector<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 
@@ -148,8 +159,10 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
 
   member __.Count with get() = count
 
-  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
-  interface IEnumerable<IGrouping<'Key, 'Element>> with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable with
+    member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<IGrouping<'Key, 'Element>> with
+    member __.GetEnumerator () = __.GetEnumerator ()
   interface ILookup<'Key, 'Element> with
     member __.Count with get () = __.Count
     member __.Item with get (key) = __.Item(key)

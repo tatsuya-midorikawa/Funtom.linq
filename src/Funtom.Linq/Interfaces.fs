@@ -32,6 +32,8 @@ module Interfaces =
     abstract member HashNext : IGrouping<'Key, 'Element> with get, set
     abstract member HashCode : int with get
     abstract member Next : IGrouping<'Key, 'Element> with get, set
+    abstract member Elements : 'Element[] with get
+    abstract member Trim : unit -> unit
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L54
   type ILookup<'Key, 'Element>=
