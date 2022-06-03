@@ -172,6 +172,48 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
 
   member __.Count with get() = count
 
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.SpeedOpt.cs#L11
+  member __.ToArray() =
+    let acc = Array.zeroCreate<IGrouping<'Key, 'Element>>(count)
+    let mutable i = 0
+    let mutable g = lastGrouping
+    if g <> defaultof<_> then
+      g <- g.Next
+      acc[i] <- g
+      i <- i + 1
+      while g <> defaultof<_> do
+        g <- g.Next
+        acc[i] <- g
+        i <- i + 1
+    acc
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.SpeedOpt.cs#L32
+  member __.ToArray(selector) =
+    let acc = Array.zeroCreate<IGrouping<'Key, 'Element>>(count)
+    let mutable i = 0
+    let mutable g = lastGrouping
+    if g <> defaultof<_> then
+      g <- g.Next
+      acc[i] <- selector g.Key g.Elements
+      i <- i + 1
+      while g <> defaultof<_> do
+        g <- g.Next
+        acc[i] <- g
+        i <- i + 1
+    acc
+    
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.SpeedOpt.cs#L54
+  member __.ToList() =
+    let acc = ResizeArray<'Result>(count)
+    let mutable g = lastGrouping
+    if g <> defaultof<_> then
+      g <- g.Next
+      acc.Add(g)
+      while g <> defaultof<_> do
+        g <- g.Next
+        acc.Add(g)
+    acc
+
   interface IEnumerable with
     member __.GetEnumerator () = __.GetEnumerator ()
   interface IEnumerable<IGrouping<'Key, 'Element>> with
@@ -180,8 +222,7 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
     member __.Count with get () = __.Count
     member __.Item with get (key) = __.Item(key)
     member __.Contains (key) = __.Contains(key)
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.SpeedOpt.cs#L9
   interface IListProvider<IGrouping<'Key, 'Element>> with
-    member __.ToArray() = raise (System.NotImplementedException "")
-    member __.ToList() = raise (System.NotImplementedException "")
-    member __.GetCount (onlyIfCheap: bool) = raise (System.NotImplementedException "")
+    member __.ToArray() = __.ToArray()
+    member __.ToList() = __.ToList()
+    member __.GetCount (_: bool) = count
