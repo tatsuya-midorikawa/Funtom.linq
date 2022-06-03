@@ -153,9 +153,22 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
         acc.Add(selector g.Key g.Elements)
     acc
 
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L171
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L171
   member __.ApplyResultSelector<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 
-    raise (System.NotImplementedException "")
+    let mutable g = lastGrouping
+    if g <> defaultof<_> then
+      seq {
+        g <- g.Next
+        g.Trim()
+        yield (selector g.Key g.Elements)
+
+        while g <> defaultof<_> do
+          g <- g.Next
+          g.Trim()
+          yield (selector g.Key g.Elements)
+      }
+    else
+      Array.empty<_>
 
   member __.Count with get() = count
 
@@ -167,3 +180,8 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
     member __.Count with get () = __.Count
     member __.Item with get (key) = __.Item(key)
     member __.Contains (key) = __.Contains(key)
+  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.SpeedOpt.cs#L9
+  interface IListProvider<IGrouping<'Key, 'Element>> with
+    member __.ToArray() = raise (System.NotImplementedException "")
+    member __.ToList() = raise (System.NotImplementedException "")
+    member __.GetCount (onlyIfCheap: bool) = raise (System.NotImplementedException "")
