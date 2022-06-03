@@ -117,9 +117,19 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
   member __.Contains(key: 'Key) = 
     __.GetGrouping(key, create =  false) <> defaultof<Grouping<'Key, 'Element>>
 
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L135
-  member __.GetEnumerator() = 
-    raise (System.NotImplementedException "")
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L135
+  member __.GetEnumerator() =
+    let mutable g = lastGrouping      
+    if g <> defaultof<_> then
+      seq {
+        g <- g.Next
+        yield g
+        while g <> defaultof<_> do
+          g <- g.Next
+          yield g
+      }
+    else
+      Array.empty<_>
 
   // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L151
   member internal __.ToList<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 

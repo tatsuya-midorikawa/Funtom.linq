@@ -15,6 +15,19 @@ let ys = [| 1..10000 |]
 let zs = ResizeArray([| 1..10000 |])
 let ss = [| 1..10000 |] |> Seq.ofArray
 
+let mutable n = 0
+let f () =
+  seq {
+    n <- n + 1
+    yield n
+    while n < 10 do
+      n <- n + 1
+      yield n      
+  }
+
+f()
+|> Seq.toArray
+|> printfn "%A"
 
 //xs.ElementAt 200 |> printfn "%d"
 //xs |> Linq.elementAt 200 |> printfn "%d"
@@ -53,13 +66,13 @@ let ss = [| 1..10000 |] |> Seq.ofArray
 //|> printfn "%A"
 
 
-[0..10]
-|> Linq.reverse
-|> Linq.toArray
-|> printfn "%A"
+//[0..10]
+//|> Linq.reverse
+//|> Linq.toArray
+//|> printfn "%A"
 
-[0..10].Reverse().ToArray()
-|> printfn "%A"
+//[0..10].Reverse().ToArray()
+//|> printfn "%A"
 
 
 //type Type = Rock = 0 | Gas = 1 | Liquid = 2 | Ice = 3
