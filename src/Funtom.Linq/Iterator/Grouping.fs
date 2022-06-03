@@ -8,8 +8,8 @@ open Funtom.Linq.Interfaces
 // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L50
 type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
   let mutable elements = Array.zeroCreate<'Element>(1)
-  let mutable hashNext = defaultof<Grouping<'Key, 'Element>>
-  let mutable next = defaultof<Grouping<'Key, 'Element>>
+  let mutable hashNext = defaultof<IGrouping<'Key, 'Element>>
+  let mutable next = defaultof<IGrouping<'Key, 'Element>>
   let mutable count = 0
 
   member internal __.HashNext with get () = hashNext and set v = hashNext <- v
@@ -37,7 +37,11 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
 
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
   interface IEnumerable<'Element> with member __.GetEnumerator () = __.GetEnumerator ()
-  interface IGrouping<'Key, 'Element> with member __.Key with get() = __.Key
+  interface IGrouping<'Key, 'Element> with 
+    member __.Key with get() = __.Key
+    member __.HashNext with get () = hashNext and set v = hashNext <- v
+    member __.HashCode with get () = hashCode
+    member __.Next with get () = next and set v = next <- v
   interface ICollection<'Element> with 
     member __.Count with get() = __.Count
     member __.IsReadOnly with get() = __.IsReadOnly
@@ -56,8 +60,8 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     
 // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L65
 type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
-  let mutable groupings = Array.zeroCreate<Grouping<'Key, 'Element>>(7)
-  let mutable lastGrouping = defaultof<Grouping<'Key, 'Element>>
+  let mutable groupings = Array.zeroCreate<IGrouping<'Key, 'Element>>(7)
+  let mutable lastGrouping = defaultof<IGrouping<'Key, 'Element>>
   let mutable count = 0
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L196
@@ -66,8 +70,8 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
     let hashcode = getHashCode key
     let inline resize () =
       let newsize = Checked.(+) (count * 2) 1
-      let newgroupings = Array.zeroCreate<Grouping<'Key, 'Element>>(newsize)
-      let mutable g = lastGrouping
+      let newgroupings = Array.zeroCreate<IGrouping<'Key, 'Element>>(newsize)
+      let mutable g = lastGrouping :> IGrouping<'Key, 'Element>
       let rec loop () =
         g <- g.Next
         let index = hashcode % groupings.Length
@@ -79,8 +83,8 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
       loop()
       groupings <- newgroupings
 
-    let def = defaultof<Grouping<'Key, 'Element>>
-    let rec loop (g: Grouping<'Key, 'Element>) =
+    let def = defaultof<IGrouping<'Key, 'Element>>
+    let rec loop (g: IGrouping<'Key, 'Element>) =
       if g <> def
       then
         if g.HashCode = hashcode && comparer.Equals(g.Key, key)
@@ -109,27 +113,30 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L124
   member __.Item with get (key: 'Key) = 
     let grouping = __.GetGrouping(key, create = false)
-    if grouping = defaultof<Grouping<'Key, 'Element>>
+    if grouping = defaultof<IGrouping<'Key, 'Element>>
     then Array.empty<'Element> :> IEnumerable<'Element> 
     else grouping
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L133
   member __.Contains(key: 'Key) = 
-    __.GetGrouping(key, create =  false) <> defaultof<Grouping<'Key, 'Element>>
+    __.GetGrouping(key, create =  false) <> defaultof<IGrouping<'Key, 'Element>>
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L135
   member __.GetEnumerator() =
-    let mutable g = lastGrouping      
-    if g <> defaultof<_> then
-      seq {
-        g <- g.Next
-        yield g
-        while g <> defaultof<_> do
+    let mutable g = lastGrouping :> IGrouping<'Key, 'Element>
+    let x = 
+      if g <> defaultof<_> then
+        seq {
           g <- g.Next
           yield g
-      }
-    else
-      Array.empty<_>
+          while g <> defaultof<_> do
+            g <- g.Next
+            yield g
+        }
+      else
+        Array.empty<_>
+    x.GetEnumerator()
+
 
   // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L151
   member internal __.ToList<'Result>(selector: 'Key -> seq<'Element> -> 'Result) = 
