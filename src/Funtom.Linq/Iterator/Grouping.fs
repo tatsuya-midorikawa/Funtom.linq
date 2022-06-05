@@ -320,7 +320,7 @@ type GroupedResultEnumerable<'src, 'key, 'elem, 'result> (src: seq<'src>, keysel
 // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.SpeedOpt.cs#L20
 type GroupedResultEnumerable<'src, 'key, 'result> (src: seq<'src>, keyselector: 'src -> 'key, resultselector: 'key -> seq<'src> -> 'result, comparer: IEqualityComparer<'key>) =
   member __.GetEnumerator() =
-     let lookup = Lookup<'key, 'elem>.Create(src, keyselector, comparer)
+     let lookup = Lookup<'key, 'src>.Create(src, keyselector, comparer)
      lookup.ApplyResultSelector(resultselector).GetEnumerator()
   
   member __.ToArray() =
