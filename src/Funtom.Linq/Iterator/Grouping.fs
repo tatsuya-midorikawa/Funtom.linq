@@ -43,6 +43,7 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     member __.HashCode with get () = hashCode
     member __.Next with get () = next and set v = next <- v
     member __.Elements with get () = elements
+    member __.Add (e) = __.Add (e)
     member __.Trim () = __.Trim()
   interface ICollection<'Element> with 
     member __.Count with get() = __.Count
@@ -226,3 +227,59 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
     member __.ToArray() = __.ToArray()
     member __.ToList() = __.ToList()
     member __.GetCount (_: bool) = count
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L72
+  static member Create<'Source>(src: seq<'Source>, keyselector: 'Source -> 'Key, elemselector: 'Source -> 'Element, comparer: IEqualityComparer<'Key>) =
+    let lookup = Lookup<'Key, 'Element>(comparer)
+    for item in src do
+      lookup.GetGrouping(keyselector item, create= true).Add(elemselector item)
+    lookup
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L87
+  static member Create<'Source>(src: seq<'Source>, keyselector: 'Source -> 'Key, comparer: IEqualityComparer<'Key>) =
+    let lookup = Lookup<'Key, 'Source>(comparer)
+    for item in src do
+      lookup.GetGrouping(keyselector item, create= true).Add(item)
+    lookup
+
+
+// https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L223
+// https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.SpeedOpt.cs#L32
+type GroupedEnumerable<'Source, 'Key, 'Element> (source: seq<'Source>, keyselector: 'Source -> 'Key, elemselector: 'Source -> 'Element, comaprer: IEqualityComparer<'Key>) =
+  member __.GetEnumerator() =
+    Lookup<'Key, 'Element>.Create(source, keyselector, elemselector, comaprer).GetEnumerator()
+  
+  member __.ToArray() =
+    let lookup : IListProvider<_> = Lookup<'Key, 'Element>.Create(source, keyselector, elemselector, comaprer)
+    lookup.ToArray()
+  member __.ToList() =
+    let lookup : IListProvider<_> = Lookup<'Key, 'Element>.Create(source, keyselector, elemselector, comaprer)
+    lookup.ToList()
+  member __.GetCount(onlyIfCheap: bool) =
+    if onlyIfCheap then -1 else Lookup<'Key, 'Element>.Create(source, keyselector, elemselector, comaprer).Count
+
+  interface IEnumerable with
+    member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<IGrouping<'Key, 'Element>> with
+    member __.GetEnumerator () = __.GetEnumerator ()
+
+
+// https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L257
+// https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.SpeedOpt.cs#L50
+type GroupedEnumerable<'Source, 'Key> (source: seq<'Source>, selector: 'Source -> 'Key, comaprer: IEqualityComparer<'Key>) =
+  member __.GetEnumerator() =
+    Lookup<'Key, 'Source>.Create(source, selector, comaprer).GetEnumerator()
+  
+  member __.ToArray() =
+    let lookup : IListProvider<_> = Lookup<'Key, 'Source>.Create(source, selector, comaprer)
+    lookup.ToArray()
+  member __.ToList() =
+    let lookup : IListProvider<_> = Lookup<'Key, 'Source>.Create(source, selector, comaprer)
+    lookup.ToList()
+  member __.GetCount(onlyIfCheap: bool) =
+    if onlyIfCheap then -1 else Lookup<'Key, 'Source>.Create(source, selector, comaprer).Count
+
+  interface IEnumerable with
+    member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<IGrouping<'Key, 'Source>> with
+    member __.GetEnumerator () = __.GetEnumerator ()
