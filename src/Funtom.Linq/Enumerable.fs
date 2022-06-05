@@ -367,6 +367,7 @@ module Enumerable =
         if predicate e.Current then loop (e.Current, true) else loop (e.Current, false)
       else (defaultof<'T>, false)
 
+  // 
   let inline tryGetSingle<'T> (src: seq<'T>) =
     match src with
     | :? IReadOnlyList<'T> as xs ->
@@ -389,6 +390,7 @@ module Enumerable =
         then (true, result)
         else raise (invalidArg "src" "more than one element")
 
+  // 
   let inline tryGetSingle'<'T> (src: seq<'T>, [<InlineIfLambda>]predicate: 'T -> bool) =
     use e = src.GetEnumerator()
     let rec loop () =
@@ -416,3 +418,4 @@ module public Buffer =
     | _ ->
       let array = Enumerable.toArray items
       { items = array; count = array.Length }
+
