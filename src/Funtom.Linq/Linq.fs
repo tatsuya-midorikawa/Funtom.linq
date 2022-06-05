@@ -295,19 +295,6 @@ module Linq =
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L30
   let inline groupByR2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'src -> 'elem, [<InlineIfLambda>]resultselector: 'key -> seq<'elem> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
     GroupedResultEnumerable<'src, 'key, 'elem, 'result>(source, keyselector, elemselector, resultselector, comparer)
-
-  //let inline groubBy ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
-  //  source.GroupBy(keySelector, resultSelector)
-  //let inline groubBy' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
-  //  source.GroupBy(keySelector, resultSelector, comparer)
-  //let inline groubByElement ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (source: seq< ^Source>) =
-  //  source.GroupBy(keySelector, elementSelector)
-  //let inline groubByElement' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
-  //  source.GroupBy(keySelector, elementSelector, comparer)
-  //let inline groubBy2 ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (source: seq< ^Source>) =
-  //  source.GroupBy(keySelector, elementSelector, resultSelector)
-  //let inline groubBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
-  //  source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
     
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
