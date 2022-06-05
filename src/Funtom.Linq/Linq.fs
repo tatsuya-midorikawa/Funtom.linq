@@ -297,18 +297,18 @@ module Linq =
   let inline groupByR2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'key -> seq<'elem> -> 'result, [<InlineIfLambda>]resultselector: 'key -> seq<'src> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
     raise (NotImplementedException "")
 
-  let inline groubBy ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
-    source.GroupBy(keySelector, resultSelector)
-  let inline groubBy' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
-    source.GroupBy(keySelector, resultSelector, comparer)
-  let inline groubByElement ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (source: seq< ^Source>) =
-    source.GroupBy(keySelector, elementSelector)
-  let inline groubByElement' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
-    source.GroupBy(keySelector, elementSelector, comparer)
-  let inline groubBy2 ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (source: seq< ^Source>) =
-    source.GroupBy(keySelector, elementSelector, resultSelector)
-  let inline groubBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
-    source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
+  //let inline groubBy ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
+  //  source.GroupBy(keySelector, resultSelector)
+  //let inline groubBy' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+  //  source.GroupBy(keySelector, resultSelector, comparer)
+  //let inline groubByElement ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (source: seq< ^Source>) =
+  //  source.GroupBy(keySelector, elementSelector)
+  //let inline groubByElement' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+  //  source.GroupBy(keySelector, elementSelector, comparer)
+  //let inline groubBy2 ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (source: seq< ^Source>) =
+  //  source.GroupBy(keySelector, elementSelector, resultSelector)
+  //let inline groubBy2' ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]elementSelector: ^Source -> ^Element) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Element> -> ^Result) (comparer: IEqualityComparer< ^Key>) (source: seq< ^Source>) =
+  //  source.GroupBy(keySelector, elementSelector, resultSelector, comparer)
     
   // TODO
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
