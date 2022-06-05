@@ -316,7 +316,7 @@ module Linq =
     seq { for element in fst do if set.Remove (selector element) then yield element }
   let inline intersectBy (snd: seq< ^U>, [<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) = fst |> intersectBy' (snd, selector, null)
 
-  // TODO
+  // TODO / WIP
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.join?view=net-6.0
   let inline join (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
