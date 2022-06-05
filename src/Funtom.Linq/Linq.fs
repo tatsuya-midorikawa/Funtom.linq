@@ -296,16 +296,13 @@ module Linq =
   let inline groupByR2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'src -> 'elem, [<InlineIfLambda>]resultselector: 'key -> seq<'elem> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
     GroupedResultEnumerable<'src, 'key, 'elem, 'result>(source, keyselector, elemselector, resultselector, comparer)
     
-  // WIP: 次はこれを実装し始める
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
-  let inline groupJoin (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>) =
-    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline groupJoin' (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
-    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
-  let inline groupJoin2 ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
-    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline groupJoin2' ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
-    outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/GroupJoin.cs#L10
+  let inline groupJoin (inner: seq<'inner>, [<InlineIfLambda>]outerkeyselector: 'outer -> 'key, [<InlineIfLambda>]innerkeyselector: 'inner -> 'key, [<InlineIfLambda>]resultselector: 'outer -> seq<'inner> -> 'result) (outer: seq<'outer>) =
+    groupJoinIterator(outer, inner, outerkeyselector, innerkeyselector, resultselector, EqualityComparer<'key>.Default)
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/GroupJoin.cs#L10
+  let inline groupJoin' (inner: seq<'inner>, [<InlineIfLambda>]outerkeyselector: 'outer -> 'key, [<InlineIfLambda>]innerkeyselector: 'inner -> 'key, [<InlineIfLambda>]resultselector: 'outer -> seq<'inner> -> 'result, comparer: IEqualityComparer<'key>) (outer: seq<'outer>) =
+    groupJoinIterator(outer, inner, outerkeyselector, innerkeyselector, resultselector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.intersect?view=net-6.0
   let inline intersect' (snd: seq< ^T>, comparer: IEqualityComparer< ^T>) (fst: seq< ^T>) = 

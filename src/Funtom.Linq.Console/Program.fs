@@ -15,19 +15,19 @@ let ys = [| 1..10000 |]
 let zs = ResizeArray([| 1..10000 |])
 let ss = [| 1..10000 |] |> Seq.ofArray
 
-let mutable n = 0
-let f () =
-  seq {
-    n <- n + 1
-    yield n
-    while n < 10 do
-      n <- n + 1
-      yield n      
-  }
+//let mutable n = 0
+//let f () =
+//  seq {
+//    n <- n + 1
+//    yield n
+//    while n < 10 do
+//      n <- n + 1
+//      yield n      
+//  }
 
-f()
-|> Seq.toArray
-|> printfn "%A"
+//f()
+//|> Seq.toArray
+//|> printfn "%A"
 
 //xs.ElementAt 200 |> printfn "%d"
 //xs |> Linq.elementAt 200 |> printfn "%d"

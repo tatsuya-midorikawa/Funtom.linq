@@ -242,6 +242,13 @@ type Lookup<'Key, 'Element> private (comparer: IEqualityComparer<'Key>) =
       lookup.GetGrouping(keyselector item, create= true).Add(item)
     lookup
 
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L101
+  static member CreateForJoin(src: seq<'Element>, keyselector: 'Element -> 'Key, comparer: IEqualityComparer<'Key>) =
+    let lookup = Lookup<'Key, 'Element>(comparer)
+    for item in src do
+      let key = keyselector item
+      lookup.GetGrouping(key, create= true).Add(item)
+    lookup
 
 // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L223
 // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.SpeedOpt.cs#L32
@@ -338,3 +345,21 @@ type GroupedResultEnumerable<'src, 'key, 'result> (src: seq<'src>, keyselector: 
     member __.ToArray() = __.ToArray()
     member __.ToList() = __.ToList()
     member __.GetCount (onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+
+[<AutoOpen>]
+module GroupJoinIterator =
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/GroupJoin.cs#L70
+  let inline groupJoinIterator<'outer, 'inner, 'key, 'result> (
+    outer: seq<'outer>, inner: seq<'inner>,
+    outerkeyselector: 'outer -> 'key, innerkeyselector: 'inner -> 'key, resultselector: 'outer -> seq<'inner> -> 'result,
+    comparer: IEqualityComparer<'key>) =
+    use e = outer.GetEnumerator()
+    seq {
+      if e.MoveNext() then
+        let lookup = Lookup<'key, 'inner>.CreateForJoin (inner, innerkeyselector, comparer)
+        let item = e.Current
+        yield (resultselector item lookup[outerkeyselector item])
+        while e.MoveNext() do
+          let item = e.Current
+          yield (resultselector item lookup[outerkeyselector item])          
+    }
