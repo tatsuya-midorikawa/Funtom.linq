@@ -318,6 +318,7 @@ module Linq =
 
   // TODO / WIP
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.join?view=net-6.0
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Join.cs
   let inline join (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>) =
     outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
   let inline join' (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
