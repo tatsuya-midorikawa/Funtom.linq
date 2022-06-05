@@ -296,7 +296,7 @@ module Linq =
   let inline groupByR2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'src -> 'elem, [<InlineIfLambda>]resultselector: 'key -> seq<'elem> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
     GroupedResultEnumerable<'src, 'key, 'elem, 'result>(source, keyselector, elemselector, resultselector, comparer)
     
-  // TODO
+  // WIP: 次はこれを実装し始める
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupjoin?view=net-6.0
   let inline groupJoin (inner: seq< ^Inner>)  ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> seq< ^Inner> -> ^Result) (outer: seq< ^Outer>) =
     outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector)
