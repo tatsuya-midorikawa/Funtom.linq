@@ -270,7 +270,6 @@ module Linq =
     let (element, found) = (src, predicate) |> Enumerable.tryGetFirst'
     if found then element else defaultValue
 
-  // WIP
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.groupby?view=net-6.0
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L12
   let inline groupBy ([<InlineIfLambda>]selector: 'src -> 'key) (source: seq<'src>) =
@@ -284,18 +283,18 @@ module Linq =
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L21
   let inline groupBy2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'src -> 'elem, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
     GroupedEnumerable<'src, 'key, 'elem>(source, keyselector, elemselector, comparer)
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L24
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L24
   let inline groupByR ([<InlineIfLambda>]keyselector: 'src -> 'key, resultselector: 'key -> seq<'src> -> 'result) (source: seq<'src>) =
-    raise (NotImplementedException "")
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L30
+    GroupedResultEnumerable<'src, 'key, 'result>(source, keyselector, resultselector, EqualityComparer<'key>.Default)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L30
   let inline groupByR' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]resultselector: 'key -> seq<'src> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
-    raise (NotImplementedException "")
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L27
-  let inline groupByR2 ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'key -> seq<'elem> -> 'result, [<InlineIfLambda>]resultselector: 'key -> seq<'src> -> 'result) (source: seq<'src>) =
-    raise (NotImplementedException "")
-  // WIP: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L30
-  let inline groupByR2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'key -> seq<'elem> -> 'result, [<InlineIfLambda>]resultselector: 'key -> seq<'src> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
-    raise (NotImplementedException "")
+    GroupedResultEnumerable<'src, 'key, 'result>(source, keyselector, resultselector, comparer)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L27
+  let inline groupByR2 ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'src -> 'elem, [<InlineIfLambda>]resultselector: 'key -> seq<'elem> -> 'result) (source: seq<'src>) =
+    GroupedResultEnumerable<'src, 'key, 'elem, 'result>(source, keyselector, elemselector, resultselector, EqualityComparer<'key>.Default)
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L30
+  let inline groupByR2' ([<InlineIfLambda>]keyselector: 'src -> 'key, [<InlineIfLambda>]elemselector: 'src -> 'elem, [<InlineIfLambda>]resultselector: 'key -> seq<'elem> -> 'result, comparer: IEqualityComparer<'key>) (source: seq<'src>) =
+    GroupedResultEnumerable<'src, 'key, 'elem, 'result>(source, keyselector, elemselector, resultselector, comparer)
 
   //let inline groubBy ([<InlineIfLambda>]keySelector: ^Source -> ^Key) ([<InlineIfLambda>]resultSelector: ^Key -> seq< ^Source> -> ^Result) (source: seq< ^Source>) =
   //  source.GroupBy(keySelector, resultSelector)
