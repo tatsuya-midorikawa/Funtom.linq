@@ -32,7 +32,7 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     
   abstract member Key : 'Key with get
   default __.Key with get() = key
-  member __.Count with get() = count
+  member __.Count with get() : int = count
   member __.IsReadOnly with get() = true
 
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
@@ -41,6 +41,7 @@ type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =
     member __.Key with get() = __.Key
     member __.HashNext with get () = hashNext and set v = hashNext <- v
     member __.HashCode with get () = hashCode
+    member __.Count with get() = __.Count
     member __.Next with get () = next and set v = next <- v
     member __.Elements with get () = elements
     member __.Add (e) = __.Add (e)

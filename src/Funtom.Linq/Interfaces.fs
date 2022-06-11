@@ -31,6 +31,7 @@ module Interfaces =
     abstract member Key : 'Key with get
     abstract member HashNext : IGrouping<'Key, 'Element> with get, set
     abstract member HashCode : int with get
+    abstract member Count : int with get
     abstract member Next : IGrouping<'Key, 'Element> with get, set
     abstract member Elements : 'Element[] with get
     abstract member Add : 'Element -> unit
