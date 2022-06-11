@@ -316,17 +316,12 @@ module Linq =
     seq { for element in fst do if set.Remove (selector element) then yield element }
   let inline intersectBy (snd: seq< ^U>, [<InlineIfLambda>]selector: ^T -> ^U) (fst: seq< ^T>) = fst |> intersectBy' (snd, selector, null)
 
-  // TODO / WIP
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.join?view=net-6.0
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Join.cs
-  let inline join (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>) =
-    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline join' (inner: seq< ^Inner>) ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>) =
-    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
-  let inline join2 ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
-    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector)
-  let inline join2' ([<InlineIfLambda>]outerKeySelector: ^Outer -> ^Key) ([<InlineIfLambda>]innerKeySelector: ^Inner -> ^Key) ([<InlineIfLambda>]resultSelector: ^Outer -> ^Inner -> ^Result) (comparer: IEqualityComparer< ^Key>) (outer: seq< ^Outer>, inner: seq< ^Inner>) =
-    outer.Join (inner, outerKeySelector, innerKeySelector, resultSelector, comparer)
+  let inline join (inner: seq< ^inner>, [<InlineIfLambda>]outerkeyselector: ^outer -> ^key, [<InlineIfLambda>]innerkeyselector: ^inner -> ^key, [<InlineIfLambda>]resultselector: ^outer -> ^inner -> ^result) (outer: seq< ^outer>) =
+    joinIterator(outer, inner, outerkeyselector, innerkeyselector, resultselector, EqualityComparer< ^key>.Default)
+  let inline join' (inner: seq< ^inner>, [<InlineIfLambda>]outerkeyselector: ^outer -> ^key, [<InlineIfLambda>]innerkeyselector: ^inner -> ^key, [<InlineIfLambda>]resultselector: ^outer -> ^inner -> ^result, comparer: IEqualityComparer< ^key>) (outer: seq< ^outer>) =
+    joinIterator(outer, inner, outerkeyselector, innerkeyselector, resultselector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.last?view=net-6.0
   let inline last (src: seq< ^T>) = src |> Enumerable.tryGetLast
