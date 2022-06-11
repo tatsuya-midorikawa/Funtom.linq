@@ -463,8 +463,9 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.oftype?view=net-6.0
   let inline ofType< ^T> (src: IEnumerable) = OfTypeIterator< ^T> src
   
-  // TODO
+  // TODO / WIP
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.orderby?view=net-6.0
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderBy.cs
   let inline orderBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.OrderBy(selector)
   let inline orderBy' ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IComparer< ^Key>) (src: seq< ^T>) = src.OrderBy(selector, comparer)
 
