@@ -38,8 +38,14 @@ module Interfaces =
     abstract member Trim : unit -> unit
 
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Lookup.cs#L54
-  type ILookup<'Key, 'Element>=
+  type ILookup<'Key, 'Element> =
      inherit IEnumerable<IGrouping<'Key, 'Element>>
      abstract member Count : int with get
      abstract member Item : 'Key -> IEnumerable<'Element> with get
      abstract member Contains : 'Key -> bool
+
+  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderBy.cs#L63
+  type IOrderedEnumerable<'element> =
+    inherit IEnumerable<'element>
+    abstract member CreateOrderedEnumerable<'key> : ('element -> 'key * IComparer<'key> * bool) -> IOrderedEnumerable<'element>
+    
