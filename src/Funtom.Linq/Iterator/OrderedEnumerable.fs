@@ -13,9 +13,14 @@ module OrderedEnumerable =
     abstract member ComputeKeys : ('element[] * int) -> unit
     // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L244
     abstract member CompareAnyKeys : (int * int) -> int
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L246
-    member __.ComputeMap (elemetns: 'element[], count: int) : int[] =
-      raise (System.NotImplementedException "")
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L246
+    member private __.ComputeMap (elements: 'element[], count: int) : int[] =
+      __.ComputeKeys(elements, count)
+      let map = Array.zeroCreate<int>(count)
+      for i = 0 to map.Length - 1 do
+        map[i] <- i
+      map
+    // WIP : 実装中
     // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L258
     member __.Sort (elemetns: 'element[], count: int) : int[] =
       raise (System.NotImplementedException "")
