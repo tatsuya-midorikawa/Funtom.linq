@@ -9,9 +9,9 @@ module OrderedEnumerable =
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L240
   [<AbstractClass>]
   type EnumerableSorter<'element> () =
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L242
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L242
     abstract member ComputeKeys : ('element[] * int) -> unit
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L244
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L244
     abstract member CompareAnyKeys : (int * int) -> int
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L246
     member private __.ComputeMap (elements: 'element[], count: int) : int[] =
@@ -20,10 +20,12 @@ module OrderedEnumerable =
       for i = 0 to map.Length - 1 do
         map[i] <- i
       map
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L258
+    member __.Sort (elements: 'element[], count: int) : int[] =
+      let map = __.ComputeMap(elements, count)
+      __.QuickSort(map, 0, count - 1)
+      map
     // WIP : 実装中
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L258
-    member __.Sort (elemetns: 'element[], count: int) : int[] =
-      raise (System.NotImplementedException "")
     // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L265
     member __.Sort (elemetns: 'element[], count: int, min: int, max: int) : int[] =
       raise (System.NotImplementedException "")
