@@ -46,8 +46,9 @@ module OrderedEnumerable =
 
   // WIP: 実装中
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L293
-  type EnumerableSorter<'element, 'key> (keySelector: 'element -> 'key, comparer: IComparer<'key>, descending: bool, ?next: EnumerableSorter<'element>) =
+  type EnumerableSorter<'element, 'key> (keySelector: 'element -> 'key, comparer: IComparer<'key>, descending: bool, next: EnumerableSorter<'element>) =
     inherit EnumerableSorter<'element> ()
+    let mutable keys: 'key[] = defaultof<'key[]>
 
 
   // WIP
