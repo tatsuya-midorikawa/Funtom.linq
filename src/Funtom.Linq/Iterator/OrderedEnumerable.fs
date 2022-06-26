@@ -5,7 +5,6 @@ open Funtom.Linq
 
 [<AutoOpen>]
 module OrderedEnumerable =
-  // WIP
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L240
   [<AbstractClass>]
   type EnumerableSorter<'element> () =
@@ -25,20 +24,24 @@ module OrderedEnumerable =
       let map = __.ComputeMap(elements, count)
       __.QuickSort(map, 0, count - 1)
       map
-    // WIP : 実装中
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L265
-    member __.Sort (elemetns: 'element[], count: int, min: int, max: int) : int[] =
-      raise (System.NotImplementedException "")
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L272
-    member __.ElementAt (elemetns: 'element[], count: int, idx: int) : 'element =
-      raise (System.NotImplementedException "")
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L280
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L265
+    member __.Sort (elements: 'element[], count: int, min: int, max: int) : int[] =
+      let map = __.ComputeMap(elements, count)
+      __.PartialQuickSort(map, 0, count - 1, min, max)
+      map
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L272
+    member __.ElementAt (elements: 'element[], count: int, idx: int) : 'element =
+      let map = __.ComputeMap(elements, count)
+      if idx = 0
+      then elements[__.Min(map, count)]
+      else elements[__.QuickSelect(map, count - 1, idx)]
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L280
     abstract member QuickSort : (int[] * int * int) -> unit
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L284
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L284
     abstract member PartialQuickSort : (int[] * int * int * int * int) -> unit
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L288
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L288
     abstract member QuickSelect : (int[] * int * int) -> int
-    // TODO: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L290
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L290
     abstract member Min : (int[] * int) -> int
 
   // WIP
