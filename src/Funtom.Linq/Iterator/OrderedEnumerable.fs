@@ -73,7 +73,12 @@ module OrderedEnumerable =
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L343
     override __.QuickSort (keys: int[], lo: int, hi: int) =
       Span<int>(keys, lo, hi - lo + 1).Sort(fun i j -> __.CompareAnyKeys(i, j))
-    
+
+    // wip
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L348
+    override __.PartialQuickSort (map: int[], left: int, right: int, min'idx: int, max'idx: int) =
+
+      ()
 
   // WIP
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L11
