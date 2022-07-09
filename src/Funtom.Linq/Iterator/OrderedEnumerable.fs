@@ -1,5 +1,6 @@
 ﻿namespace rec Funtom.Linq.Iterator
 
+open System
 open System.Collections.Generic
 open Funtom.Linq
 
@@ -9,7 +10,7 @@ module OrderedEnumerable =
   [<AbstractClass>]
   type EnumerableSorter<'element> () =
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L242
-    abstract member ComputeKeys : array<'element> * int -> unit
+    abstract member ComputeKeys : 'element[] * int -> unit
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L244
     abstract member CompareAnyKeys : int * int -> int
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L246
@@ -52,7 +53,7 @@ module OrderedEnumerable =
 
 
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L309
-    override __.ComputeKeys (elements: array<'element>, count: int) : unit =
+    override __.ComputeKeys (elements: 'element[], count: int) : unit =
       keys <- Array.zeroCreate count
       for i = 0 to (keys.Length - 1) do
         keys[i] <- keySelector(elements[i])
@@ -68,6 +69,11 @@ module OrderedEnumerable =
 
     // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L341
     member private __.CompareKeys (i: int, j: int) = if i = j then 0 else __.CompareAnyKeys(i, j)
+
+    // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L343
+    override __.QuickSort (keys: int[], lo: int, hi: int) =
+      Span<int>(keys, lo, hi - lo + 1).Sort(fun i j -> __.CompareAnyKeys(i, j))
+    
 
   // WIP
   // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderedEnumerable.cs#L11
