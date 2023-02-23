@@ -1,4 +1,4 @@
-﻿namespace Funtom.Linq
+﻿namespace Funtom.linq
 
 open System.Collections
 open System.Collections.Generic
@@ -6,7 +6,7 @@ open System
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
-open Funtom.Linq.Iterator
+open Funtom.linq.Iterator
 open Basis
 
 module rec Core =

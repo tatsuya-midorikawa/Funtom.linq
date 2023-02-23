@@ -1,10 +1,10 @@
-﻿namespace Funtom.Linq.Iterator
+﻿namespace Funtom.linq.Iterator
 
 open System
 open System.Collections
 open System.Collections.Generic
-open Funtom.Linq
-open Funtom.Linq.Common
+open Funtom.linq
+open Funtom.linq.Common
 open Basis
 open Interfaces
 open System.Runtime.CompilerServices

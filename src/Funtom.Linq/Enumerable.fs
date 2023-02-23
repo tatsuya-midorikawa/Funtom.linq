@@ -1,9 +1,9 @@
-﻿namespace Funtom.Linq
+﻿namespace Funtom.linq
 
 open System
 open System.Collections
 open System.Collections.Generic
-open Funtom.Linq.Interfaces
+open Funtom.linq.Interfaces
 
 module Enumerable =
 

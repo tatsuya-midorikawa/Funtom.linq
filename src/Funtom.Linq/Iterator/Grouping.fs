@@ -1,9 +1,9 @@
-﻿namespace rec Funtom.Linq.Iterator
+﻿namespace rec Funtom.linq.Iterator
 
 open System.Collections
 open System.Collections.Generic
-open Funtom.Linq
-open Funtom.Linq.Interfaces
+open Funtom.linq
+open Funtom.linq.Interfaces
 
 // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Grouping.cs#L50
 type Grouping<'Key, 'Element> (key: 'Key, hashCode: int) =

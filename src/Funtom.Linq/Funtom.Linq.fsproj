@@ -11,10 +11,10 @@
 		<Copyright>© 2021-2022 Tatsuya Midorikawa. All rights rserved</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>midoliy,Linq,fsharp,Funtom</PackageTags>
-		<PackageProjectUrl>https://github.com/tatsuya-midorikawa/Funtom.Linq</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/tatsuya-midorikawa/Funtom.Linq</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/tatsuya-midorikawa/Funtom.linq</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/tatsuya-midorikawa/Funtom.linq</RepositoryUrl>
 		<Description>
-			Funtom.Linq is a library for F# that is compatible with System.Linq.
+			Funtom.linq is a library for F# that is compatible with System.Linq.
 			This library makes it easier to use pipeline operators and optimizes for FSharp.Core.List and more.
 		</Description>
 		<PackageIcon>phantom.png</PackageIcon>

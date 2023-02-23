@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.Linq", "Funtom.Linq\Funtom.Linq.fsproj", "{F1EBC51E-D5CB-4A89-BDB2-01501AD4934C}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.linq", "Funtom.linq\Funtom.linq.fsproj", "{F1EBC51E-D5CB-4A89-BDB2-01501AD4934C}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.Linq.Console", "Funtom.Linq.Console\Funtom.Linq.Console.fsproj", "{BAF54D50-3F53-4BA0-A7A7-5D4BFFC5FA15}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.linq.console", "Funtom.linq.console\Funtom.linq.console.fsproj", "{BAF54D50-3F53-4BA0-A7A7-5D4BFFC5FA15}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.Linq.Performance", "Funtom.Linq.Performance\Funtom.Linq.Performance.fsproj", "{85FDAC14-4E24-492E-AFD7-EAC5F79BDD7D}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Funtom.linq.performance", "Funtom.linq.performance\Funtom.linq.performance.fsproj", "{85FDAC14-4E24-492E-AFD7-EAC5F79BDD7D}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Funtom.PropertyTests", "Funtom.PropertyTests\Funtom.PropertyTests.fsproj", "{500AD71C-D18B-4DE2-9F89-6A2A36014A89}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Funtom.property-tests", "Funtom.property-tests\Funtom.property-tests.fsproj", "{500AD71C-D18B-4DE2-9F89-6A2A36014A89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

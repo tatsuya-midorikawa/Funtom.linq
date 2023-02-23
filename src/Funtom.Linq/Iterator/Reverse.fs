@@ -1,9 +1,9 @@
-﻿namespace Funtom.Linq.Iterator
+﻿namespace Funtom.linq.Iterator
 
 open System
 open System.Collections
 open System.Collections.Generic
-open Funtom.Linq
+open Funtom.linq
 
 module Reverse =
   open Basis

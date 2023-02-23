@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Funtom.Linq\Funtom.Linq.fsproj" />
+        <ProjectReference Include="..\Funtom.linq\Funtom.linq.fsproj" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0"/>
         <PackageReference Include="xunit" Version="2.4.1"/>
         <PackageReference Include="FsCheck" Version="2.16.4" />

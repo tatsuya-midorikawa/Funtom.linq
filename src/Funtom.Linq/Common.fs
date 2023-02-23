@@ -1,4 +1,4 @@
-﻿namespace Funtom.Linq
+﻿namespace Funtom.linq
 
 [<AutoOpen>]
 module internal Common = 

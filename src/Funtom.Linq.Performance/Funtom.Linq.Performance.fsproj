@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Funtom.Linq\Funtom.Linq.fsproj" />
+    <ProjectReference Include="..\Funtom.linq\Funtom.linq.fsproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
-﻿namespace rec Funtom.Linq.Iterator
+﻿namespace rec Funtom.linq.Iterator
 
 open System.Collections.Generic
-open Funtom.Linq
+open Funtom.linq
 
 [<AutoOpen>]
 module JoinIterator =

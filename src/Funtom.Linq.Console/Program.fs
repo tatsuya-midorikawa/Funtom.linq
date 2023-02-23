@@ -1,8 +1,8 @@
-﻿open Funtom.Linq
+﻿open Funtom.linq
 open System.Linq
 open System.Collections
 open System.Collections.Generic
-open Funtom.Linq.Core
+open Funtom.linq.Core
 open System.Runtime.CompilerServices
 open System
 open System.Runtime.InteropServices

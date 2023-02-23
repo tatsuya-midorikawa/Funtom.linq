@@ -1,6 +1,6 @@
 ﻿open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Running
-open Funtom.Linq
+open Funtom.linq
 open System.Linq
 open System
 open System.Collections

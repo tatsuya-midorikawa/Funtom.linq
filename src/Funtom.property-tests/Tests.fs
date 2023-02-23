@@ -2,7 +2,7 @@ module Tests
 
 open System
 open FsCheck.Xunit
-open Funtom.Linq
+open Funtom.linq
 
 module Common =
     let inline filterPredicate x = x % 2 = 0
