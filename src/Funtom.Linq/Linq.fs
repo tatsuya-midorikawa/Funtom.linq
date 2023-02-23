@@ -1,11 +1,10 @@
 ﻿namespace Funtom.Linq
 
 open System
-open System.Linq
 open System.Collections
 open System.Collections.Generic
-open System.Runtime.CompilerServices
-open System.Diagnostics
+// open System.Runtime.CompilerServices
+// open System.Diagnostics
 open Funtom.Linq.Core
 open Funtom.Linq.Interfaces
 open Funtom.Linq.Iterator
@@ -463,16 +462,16 @@ module Linq =
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.oftype?view=net-6.0
   let inline ofType< ^T> (src: IEnumerable) = OfTypeIterator< ^T> src
   
-  // TODO / WIP
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.orderby?view=net-6.0
-  // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderBy.cs
-  let inline orderBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.OrderBy(selector)
-  let inline orderBy' ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IComparer< ^Key>) (src: seq< ^T>) = src.OrderBy(selector, comparer)
+  // // [NOT IMPLEMENTED] / WIP
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.orderby?view=net-6.0
+  // // https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/OrderBy.cs
+  // let inline orderBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.OrderBy(selector)
+  // let inline orderBy' ([<InlineIfLambda>]selector: ^T -> ^Key) (comparer: IComparer< ^Key>) (src: seq< ^T>) = src.OrderBy(selector, comparer)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.orderbydescending?view=net-6.0
-  let inline orderByDescending ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.OrderByDescending(selector)
-  let inline orderByDescending' ([<InlineIfLambda>]selector: 'source -> 'key) (comparer: IComparer<'key>) (src: seq<'source>) = src.OrderByDescending(selector, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.orderbydescending?view=net-6.0
+  // let inline orderByDescending ([<InlineIfLambda>]selector: 'source -> 'key) (src: seq<'source>) = src.OrderByDescending(selector)
+  // let inline orderByDescending' ([<InlineIfLambda>]selector: 'source -> 'key) (comparer: IComparer<'key>) (src: seq<'source>) = src.OrderByDescending(selector, comparer)
 
   // TODO: It is a very slow function compared to System.Linq,
   //       so performance tuning should be done.
@@ -511,17 +510,17 @@ module Linq =
         yield (selector v i)
     }
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.selectmany?view=net-6.0
-  let inline selectMany ([<InlineIfLambda>]selector: ^T -> seq< ^Result>) (src: seq< ^T>) = src.SelectMany(selector)
-  let inline selectMany' ([<InlineIfLambda>]selector: ^T -> int -> seq< ^Result>) (src: seq< ^T>) = src.SelectMany(selector)
-  let inline selectMany2 ([<InlineIfLambda>]resultSelector: ^T -> ^Collection -> ^Result) ([<InlineIfLambda>]collectionSelector: ^T -> seq< ^Collection>) (src: seq< ^T>) = src.SelectMany(collectionSelector, resultSelector)
-  let inline selectMany2' ([<InlineIfLambda>]resultSelector: ^T -> ^Collection -> ^Result) ([<InlineIfLambda>]collectionSelector: ^T -> int -> seq< ^Collection>) (src: seq< ^T>) = src.SelectMany(collectionSelector, resultSelector)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.selectmany?view=net-6.0
+  // let inline selectMany ([<InlineIfLambda>]selector: ^T -> seq< ^Result>) (src: seq< ^T>) = src.SelectMany(selector)
+  // let inline selectMany' ([<InlineIfLambda>]selector: ^T -> int -> seq< ^Result>) (src: seq< ^T>) = src.SelectMany(selector)
+  // let inline selectMany2 ([<InlineIfLambda>]resultSelector: ^T -> ^Collection -> ^Result) ([<InlineIfLambda>]collectionSelector: ^T -> seq< ^Collection>) (src: seq< ^T>) = src.SelectMany(collectionSelector, resultSelector)
+  // let inline selectMany2' ([<InlineIfLambda>]resultSelector: ^T -> ^Collection -> ^Result) ([<InlineIfLambda>]collectionSelector: ^T -> int -> seq< ^Collection>) (src: seq< ^T>) = src.SelectMany(collectionSelector, resultSelector)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sequenceequal?view=net-6.0
-  let inline sequenceEqual (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd)
-  let inline sequenceEqual' (comparer: IEqualityComparer< ^T>) (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sequenceequal?view=net-6.0
+  // let inline sequenceEqual (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd)
+  // let inline sequenceEqual' (comparer: IEqualityComparer< ^T>) (snd: seq< ^T>) (fst: seq< ^T>) = fst.SequenceEqual(snd, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.single?view=net-6.0
   let inline single (src: seq< ^T>) =
@@ -541,18 +540,18 @@ module Linq =
     let (found, value) = (src, predicate) |> Enumerable.tryGetSingle'
     if found then value else defaultValue
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skip?view=net-6.0
-  let inline skip (count: int) (src: seq< ^T>) = src.Skip(count)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skip?view=net-6.0
+  // let inline skip (count: int) (src: seq< ^T>) = src.Skip(count)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skiplast?view=net-6.0
-  let inline skipLast (count: int) (src: seq< ^T>) = src.SkipLast(count)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skiplast?view=net-6.0
+  // let inline skipLast (count: int) (src: seq< ^T>) = src.SkipLast(count)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skipwhile?view=net-6.0
-  let inline skipWhile ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.SkipWhile(predicate)
-  let inline skipWhile' ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) = src.SkipWhile(predicate)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.skipwhile?view=net-6.0
+  // let inline skipWhile ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.SkipWhile(predicate)
+  // let inline skipWhile' ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) = src.SkipWhile(predicate)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.sum?view=net-6.0
   let inline sum (src: seq< ^T>) =
@@ -589,50 +588,50 @@ module Linq =
       else
         Unchecked.defaultof< ^T>
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.take?view=net-6.0
-  let inline take (count: int) (src: seq< ^T>) = src.Take(count)
-  let inline take' (range: System.Range) (src: seq< ^T>) = src.Take(range)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.take?view=net-6.0
+  // let inline take (count: int) (src: seq< ^T>) = src.Take(count)
+  // let inline take' (range: System.Range) (src: seq< ^T>) = src.Take(range)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.takelast?view=net-6.0
-  let inline takeLast (count: int) (src: seq< ^T>) = src.TakeLast(count)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.takelast?view=net-6.0
+  // let inline takeLast (count: int) (src: seq< ^T>) = src.TakeLast(count)
   
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.takewhile?view=net-6.0
-  let inline takeWhile ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.TakeWhile(predicate)
-  let inline takeWhile' ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) = src.TakeWhile(predicate)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.takewhile?view=net-6.0
+  // let inline takeWhile ([<InlineIfLambda>]predicate: ^T -> bool) (src: seq< ^T>) = src.TakeWhile(predicate)
+  // let inline takeWhile' ([<InlineIfLambda>]predicate: ^T -> int -> bool) (src: seq< ^T>) = src.TakeWhile(predicate)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.thenby?view=net-6.0
-  let inline thenBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenBy(selector)
-  let inline thenBy' (comparer: IComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenBy(selector, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.thenby?view=net-6.0
+  // let inline thenBy ([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenBy(selector)
+  // let inline thenBy' (comparer: IComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenBy(selector, comparer)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.thenbydescending?view=net-6.0
-  let inline thenByDescending([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenByDescending (selector)
-  let inline thenByDescending' (comparer: IComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenByDescending (selector, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.thenbydescending?view=net-6.0
+  // let inline thenByDescending([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenByDescending (selector)
+  // let inline thenByDescending' (comparer: IComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: IOrderedEnumerable< ^T>) = src.ThenByDescending (selector, comparer)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolookup?view=net-6.0
-  let inline toLookup ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(selector)
-  let inline toLookup' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(selector, comparer)
-  let inline toLookup2 ([<InlineIfLambda>]elementSelector: ^T -> ^Key) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(keySelector, elementSelector)
-  let inline toLookup2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Key) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(keySelector, elementSelector, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.tolookup?view=net-6.0
+  // let inline toLookup ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(selector)
+  // let inline toLookup' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(selector, comparer)
+  // let inline toLookup2 ([<InlineIfLambda>]elementSelector: ^T -> ^Key) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(keySelector, elementSelector)
+  // let inline toLookup2' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]elementSelector: ^T -> ^Key) ([<InlineIfLambda>]keySelector: ^T -> ^Key) (src: seq< ^T>) = src.ToLookup(keySelector, elementSelector, comparer)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.trygetnonenumeratedcount?view=net-6.0
-  let inline tryGetNonEnumeratedCount (count: outref<int>) (src: seq< ^T>) = src.TryGetNonEnumeratedCount(&count)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.trygetnonenumeratedcount?view=net-6.0
+  // let inline tryGetNonEnumeratedCount (count: outref<int>) (src: seq< ^T>) = src.TryGetNonEnumeratedCount(&count)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.union?view=net-6.0
-  let inline union (snd: seq< ^T>) (fst: seq< ^T>) = fst.Union snd
-  let inline union' (comparer: IEqualityComparer< ^T>) (snd: seq< ^T>) (fst: seq< ^T>) = fst.Union(snd, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.union?view=net-6.0
+  // let inline union (snd: seq< ^T>) (fst: seq< ^T>) = fst.Union snd
+  // let inline union' (comparer: IEqualityComparer< ^T>) (snd: seq< ^T>) (fst: seq< ^T>) = fst.Union(snd, comparer)
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.unionby?view=net-6.0
-  let inline unionBy ([<InlineIfLambda>]selector: ^T -> ^Key) (snd: seq< ^T>) (fst: seq< ^T>) = fst.UnionBy (snd, selector)
-  let inline unionBy' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (snd: seq< ^T>) (fst: seq< ^T>) = fst.UnionBy (snd, selector, comparer)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.unionby?view=net-6.0
+  // let inline unionBy ([<InlineIfLambda>]selector: ^T -> ^Key) (snd: seq< ^T>) (fst: seq< ^T>) = fst.UnionBy (snd, selector)
+  // let inline unionBy' (comparer: IEqualityComparer< ^Key>) ([<InlineIfLambda>]selector: ^T -> ^Key) (snd: seq< ^T>) (fst: seq< ^T>) = fst.UnionBy (snd, selector, comparer)
 
   // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.where?view=net-6.0
   let inline where ([<InlineIfLambda>] predicate: ^T -> bool) (source: seq< ^T>) : seq< ^T> =
@@ -658,8 +657,8 @@ module Linq =
           yield v
     }
 
-  // TODO
-  // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.zip?view=net-6.0
-  let inline zip (snd: seq< ^Fst>) (fst: seq< ^Snd>) = fst.Zip(snd)
-  let inline zip' (snd: seq< ^Snd>) ([<InlineIfLambda>]selector: ^Fst -> ^Snd -> ^Result) (fst: seq< ^Fst>) = fst.Zip(snd, selector)
-  let inline zip3 (snd: seq< ^Snd>) (thd: seq< ^Thd>) (fst: seq< ^Fst>) = fst.Zip(snd, thd)
+  // // [NOT IMPLEMENTED]
+  // // https://docs.microsoft.com/ja-jp/dotnet/api/system.linq.enumerable.zip?view=net-6.0
+  // let inline zip (snd: seq< ^Fst>) (fst: seq< ^Snd>) = fst.Zip(snd)
+  // let inline zip' (snd: seq< ^Snd>) ([<InlineIfLambda>]selector: ^Fst -> ^Snd -> ^Result) (fst: seq< ^Fst>) = fst.Zip(snd, selector)
+  // let inline zip3 (snd: seq< ^Snd>) (thd: seq< ^Thd>) (fst: seq< ^Fst>) = fst.Zip(snd, thd)
