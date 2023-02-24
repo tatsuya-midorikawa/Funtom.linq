@@ -7,7 +7,7 @@ open System.Collections.Generic
 // open System.Diagnostics
 open Funtom.linq.Core
 open Funtom.linq.Interfaces
-open Funtom.linq.Iterator
+open Funtom.linq.iterator
 open Empty
 open Basis
 open Select

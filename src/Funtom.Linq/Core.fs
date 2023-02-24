@@ -6,7 +6,7 @@ open System
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
-open Funtom.linq.Iterator
+open Funtom.linq.iterator
 open Basis
 
 module rec Core =

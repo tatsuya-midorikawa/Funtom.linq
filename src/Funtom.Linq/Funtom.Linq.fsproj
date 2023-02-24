@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-		<LangVersion>6.0</LangVersion>
+		<LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Version>0.0.8</Version>
@@ -45,6 +45,7 @@
     <Compile Include="Iterator\Grouping.fs" />
     <Compile Include="Iterator\Join.fs" />
     <Compile Include="Iterator\OrderedEnumerable.fs" />
+    <Compile Include="core\select\Select.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
     <Compile Include="Linq.fs" />

@@ -1,4 +1,4 @@
-﻿namespace Funtom.linq.Iterator
+﻿namespace Funtom.linq.iterator
 
 open System.Collections
 open System.Collections.Generic
