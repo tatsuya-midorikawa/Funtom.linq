@@ -22,7 +22,6 @@ type SelectEnumerator<'T, 'U> (iter: IEnumerator<'T>, [<InlineIfLambda>] selecto
   member __.Dispose() = ()
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.MoveNext() = move_next ()
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.Current with get(): 'U = current
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.Reset() = ()
@@ -34,13 +33,11 @@ type SelectEnumerator<'T, 'U> (iter: IEnumerator<'T>, [<InlineIfLambda>] selecto
   interface IEnumerator with
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.MoveNext () = move_next ()
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Current with get() = __.Current
     [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Reset () = __.Reset()
     
   interface IEnumerator<'U> with
-    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Current with get() = __.Current
 
 /// <summary>
@@ -80,12 +77,16 @@ type SelectArrayEnumerator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector:
   member __.Current with get() : 'U = current ()
   member __.Reset() = reset ()
   
-  interface IDisposable with member __.Dispose () = dispose ()
+  interface IDisposable with
+    member __.Dispose () = dispose ()
+
   interface IEnumerator with
     member __.MoveNext () = move_next ()
     member __.Current with get() = current ()
     member __.Reset () = reset ()
-  interface IEnumerator<'U> with member __.Current with get() = current ()
+
+  interface IEnumerator<'U> with
+    member __.Current with get() = current ()
 
 /// <summary>
 /// 
@@ -93,9 +94,14 @@ type SelectArrayEnumerator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector:
 [<NoComparison;NoEquality;>]
 type SelectArrayIterator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
   let get_enumerator () = new SelectArrayEnumerator<'T, 'U> (src, selector)
-  interface IEnumerable with member __.GetEnumerator () = get_enumerator ()
-  interface IEnumerable<'U> with member __.GetEnumerator () = get_enumerator ()
   member __.select<'V> (selector': 'U -> 'V) = SelectArrayIterator<'T, 'V>(src, (combine_selectors selector selector'))
+
+  interface IEnumerable with
+    member __.GetEnumerator () = get_enumerator ()
+
+  interface IEnumerable<'U> with
+    member __.GetEnumerator () = get_enumerator ()
+    
 
 /// <summary>
 /// 
@@ -134,14 +140,22 @@ type SelectListIterator<'src, 'res> =
     mutable current : 'res
     mutable idx : int
   }
-  interface IDisposable with member __.Dispose () = ()
+  interface IDisposable with
+    member __.Dispose () = ()
+
   interface IEnumerator with
     member __.MoveNext () : bool = SelectListIterator.move_next __
     member __.Current with get() = __.current :> obj
     member __.Reset () = raise(NotSupportedException "not supported")
-  interface IEnumerator<'res> with member __.Current with get() = __.current 
-  interface IEnumerable with member __.GetEnumerator () = SelectListIterator.get_enumerator __
-  interface IEnumerable<'res> with member __.GetEnumerator () = SelectListIterator.get_enumerator __
+
+  interface IEnumerator<'res> with
+    member __.Current with get() = __.current
+
+  interface IEnumerable with
+    member __.GetEnumerator () = SelectListIterator.get_enumerator __
+
+  interface IEnumerable<'res> with
+    member __.GetEnumerator () = SelectListIterator.get_enumerator __
 
 /// <summary>
 /// 
@@ -177,11 +191,19 @@ type SelectFsListIterator<'T, 'R> =
     mutable current : 'R
     mutable cache : list<'T>
   }
-  interface IDisposable with member __.Dispose () = ()
+  interface IDisposable with
+    member __.Dispose () = ()
+
   interface IEnumerator with
     member __.MoveNext () : bool = SelectFsListIterator.move_next __
     member __.Current with get() = __.current :> obj
     member __.Reset () = raise(NotSupportedException "not supported")
-  interface IEnumerator<'R> with member __.Current with get() = __.current 
-  interface IEnumerable with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
-  interface IEnumerable<'R> with member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
+
+  interface IEnumerator<'R> with
+    member __.Current with get() = __.current
+
+  interface IEnumerable with
+    member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
+
+  interface IEnumerable<'R> with
+    member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
