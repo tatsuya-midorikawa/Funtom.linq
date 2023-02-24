@@ -9,7 +9,7 @@ open Funtom.linq
 /// <summary>
 /// 
 /// </summary>
-[<NoComparison;NoEquality;>]
+[<NoComparison;NoEquality;Sealed;>]
 type SelectEnumerator<'T, 'U> (iter: IEnumerator<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
   let mutable current : 'U = defaultof<'U>
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -43,7 +43,7 @@ type SelectEnumerator<'T, 'U> (iter: IEnumerator<'T>, [<InlineIfLambda>] selecto
 /// <summary>
 /// 
 /// </summary>
-[<NoComparison;NoEquality;>]
+[<NoComparison;NoEquality;Sealed;>]
 type SelectIterator<'T, 'U> (src: seq<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
   let get_enumerator () = new SelectEnumerator<'T, 'U> (src.GetEnumerator(), selector)
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -60,7 +60,7 @@ type SelectIterator<'T, 'U> (src: seq<'T>, [<InlineIfLambda>] selector: 'T -> 'U
 /// <summary>
 /// 
 /// </summary>
-[<NoComparison;NoEquality;>]
+[<NoComparison;NoEquality;Sealed;>]
 type SelectArrayEnumerator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
   let mutable current : 'U = defaultof<'U>
   let mutable i : int = 0
@@ -72,17 +72,23 @@ type SelectArrayEnumerator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector:
   let current (): 'U = current
   let reset () = ()
 
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.Dispose() = dispose ()
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.MoveNext() = move_next ()
   member __.Current with get() : 'U = current ()
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.Reset() = reset ()
   
   interface IDisposable with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Dispose () = dispose ()
 
   interface IEnumerator with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.MoveNext () = move_next ()
     member __.Current with get() = current ()
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Reset () = reset ()
 
   interface IEnumerator<'U> with
@@ -91,15 +97,17 @@ type SelectArrayEnumerator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector:
 /// <summary>
 /// 
 /// </summary>
-[<NoComparison;NoEquality;>]
+[<NoComparison;NoEquality;Sealed;>]
 type SelectArrayIterator<'T, 'U> (src: array<'T>, [<InlineIfLambda>] selector: 'T -> 'U) =
   let get_enumerator () = new SelectArrayEnumerator<'T, 'U> (src, selector)
   member __.select<'V> (selector': 'U -> 'V) = SelectArrayIterator<'T, 'V>(src, (combine_selectors selector selector'))
 
   interface IEnumerable with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetEnumerator () = get_enumerator ()
 
   interface IEnumerable<'U> with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetEnumerator () = get_enumerator ()
     
 
@@ -141,20 +149,25 @@ type SelectListIterator<'src, 'res> =
     mutable idx : int
   }
   interface IDisposable with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Dispose () = ()
 
   interface IEnumerator with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.MoveNext () : bool = SelectListIterator.move_next __
     member __.Current with get() = __.current :> obj
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Reset () = raise(NotSupportedException "not supported")
 
   interface IEnumerator<'res> with
     member __.Current with get() = __.current
 
   interface IEnumerable with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetEnumerator () = SelectListIterator.get_enumerator __
 
   interface IEnumerable<'res> with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetEnumerator () = SelectListIterator.get_enumerator __
 
 /// <summary>
@@ -192,18 +205,23 @@ type SelectFsListIterator<'T, 'R> =
     mutable cache : list<'T>
   }
   interface IDisposable with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Dispose () = ()
 
   interface IEnumerator with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.MoveNext () : bool = SelectFsListIterator.move_next __
     member __.Current with get() = __.current :> obj
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.Reset () = raise(NotSupportedException "not supported")
 
   interface IEnumerator<'R> with
     member __.Current with get() = __.current
 
   interface IEnumerable with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
 
   interface IEnumerable<'R> with
+    [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
     member __.GetEnumerator () = SelectFsListIterator.get_enumerator __
