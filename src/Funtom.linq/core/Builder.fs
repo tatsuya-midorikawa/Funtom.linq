@@ -44,6 +44,7 @@ type ArrayBuilder<'T> =
     { array' = if 0 < capacity then Array.zeroCreate<'T> capacity else Array.empty<'T>
       count' = 0; }
 
+  [<IsReadOnly>]
   member __.Capacity with get() = __.array'.Length
   member __.Buffer with get() = __.array'
   member __.Count with get() = __.count'
@@ -57,9 +58,7 @@ type ArrayBuilder<'T> =
     __.UncheckedAdd item
 
   member __.First () = __.array'[0]
-
   member __.Last () = __.array'[__.count' - 1]
-
   member __.ToArray () =
     let mutable result = __.array'
     if __.count' < result.Length
