@@ -49,55 +49,54 @@ type Benchmark () =
     zs'' <- ResizeArray([|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |])
     ss'' <- [|for _ in 1..10000 do { Num1 = fake.Random.Int(); Num2 = fake.Random.Int() } |] |> Seq.ofArray
 
-  
-  [<Benchmark>]
-  member __.Linq_Reverse_list() = 
-    let mutable acc = 0
-    for v in xs.Reverse() do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Linq_Reverse_list() = 
+  //   let mutable acc = 0
+  //   for v in xs.Reverse() do acc <- acc + v
+  //   acc
 
-  [<Benchmark>]
-  member __.Funtom_reverse_list() =
-    let mutable acc = 0
-    for v in xs |> Linq.reverse do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Funtom_reverse_list() =
+  //   let mutable acc = 0
+  //   for v in xs |> Linq.reverse do acc <- acc + v
+  //   acc
   
-  [<Benchmark>]
-  member __.Linq_Reverse_array() =
-    let mutable acc = 0
-    for v in ys.Reverse() do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Linq_Reverse_array() =
+  //   let mutable acc = 0
+  //   for v in ys.Reverse() do acc <- acc + v
+  //   acc
 
-  [<Benchmark>]
-  member __.Funtom_reverse_array() =
-    let mutable acc = 0
-    for v in ys |> Linq.reverse do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Funtom_reverse_array() =
+  //   let mutable acc = 0
+  //   for v in ys |> Linq.reverse do acc <- acc + v
+  //   acc
   
-  [<Benchmark>]
-  member __.Linq_Reverse_resizearray() =
-    let mutable acc = 0
-    for v in (zs :> seq<int>).Reverse() do 
-      acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Linq_Reverse_resizearray() =
+  //   let mutable acc = 0
+  //   for v in (zs :> seq<int>).Reverse() do 
+  //     acc <- acc + v
+  //   acc
 
-  [<Benchmark>]
-  member __.Funtom_reverse_resizearray() =
-    let mutable acc = 0
-    for v in zs |> Linq.reverse do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Funtom_reverse_resizearray() =
+  //   let mutable acc = 0
+  //   for v in zs |> Linq.reverse do acc <- acc + v
+  //   acc
   
-  [<Benchmark>]
-  member __.Linq_Reverse_seq() =
-    let mutable acc = 0
-    for v in ss.Reverse() do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Linq_Reverse_seq() =
+  //   let mutable acc = 0
+  //   for v in ss.Reverse() do acc <- acc + v
+  //   acc
 
-  [<Benchmark>]
-  member __.Funtom_reverse_seq() =
-    let mutable acc = 0
-    for v in ss |> Linq.reverse do acc <- acc + v
-    acc
+  // [<Benchmark>]
+  // member __.Funtom_reverse_seq() =
+  //   let mutable acc = 0
+  //   for v in ss |> Linq.reverse do acc <- acc + v
+  //   acc
 
 
 
@@ -195,11 +194,11 @@ type Benchmark () =
   //[<Benchmark>]
   //member __.Funtom_elementAtOrDefault_resizearray() = zs |> Linq.elementAtOrDefault 2000
 
-  [<Benchmark>]
-  member __.Linq_ElementAtOrDefault_seq() = ss.ElementAtOrDefault(2000)
+  // [<Benchmark>]
+  // member __.Linq_ElementAtOrDefault_seq() = ss.ElementAtOrDefault(2000)
 
-  [<Benchmark>]
-  member __.Funtom_elementAtOrDefault_seq() = ss |> Linq.elementAtOrDefault 2000
+  // [<Benchmark>]
+  // member __.Funtom_elementAtOrDefault_seq() = ss |> Linq.elementAtOrDefault 2000
 
 
 
@@ -470,134 +469,174 @@ type Benchmark () =
   //    acc <- acc + x
   //  acc
 
-  // ====================
-  // map
+  // // ====================
+  // // map
 
-  //[<Benchmark>]
-  //member __.System_Linq_select_fslist() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_fslist() =
   //  let mutable acc = 0
-  //  for x in xs.Select(fun v -> v / 2) do
+  //  for x in xs.Select(fun v -> v / 3) do
   //    acc <- acc + x
   //  acc
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_fslist() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_fslist() =
   //  let mutable acc = 0
-  //  for x in xs |> Linq.select (fun v -> v / 2) do
+  //  for x in xs |> Linq.select (fun v -> v / 3) do
+  //    acc <- acc + x
+  //  acc
+
+  // [<Benchmark>]
+  // member __.Funtom_Linq2_select_fslist() =
+  //  let mutable acc = 0
+  //  for x in xs |> Linq2.select (fun v -> v / 3) do
   //    acc <- acc + x
   //  acc
     
-  //[<Benchmark>]
-  //member __.Fsharp_map_fslist() =
+  // [<Benchmark>]
+  // member __.Fsharp_map_fslist() =
   //  let mutable acc = 0
-  //  for x in xs |> List.map (fun v -> v / 2) do
+  //  for x in xs |> List.map (fun v -> v / 3) do
   //    acc <- acc + x
   //  acc
   
-  //[<Benchmark>]
-  //member __.System_Linq_select_array() =
-  //  let mutable acc = 0
-  //  for y in ys.Select(fun v -> v / 2) do
-  //    acc <- acc + y
-  //  acc
+  //---
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_array() =
+  [<Benchmark>]
+  member __.System_Linq_select_array() =
+    let mutable acc = 0
+    for y in ys.Select(fun v -> v / 3) do
+      acc <- acc + y
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq_select_array() =
+    let mutable acc = 0
+    for y in ys |> Linq.select (fun v -> v / 3) do
+      acc <- acc + y
+    acc
+
+  [<Benchmark>]
+  member __.Funtom_Linq2_select_array() =
+    let mutable acc = 0
+    for y in ys |> Linq2.select (fun v -> v / 3) do
+      acc <- acc + y
+    acc
+    
+  // [<Benchmark>]
+  // member __.Fsharp_map_array() =
   //  let mutable acc = 0
-  //  for y in ys |> Linq.select (fun v -> v / 2) do
+  //  for y in ys |> Array.map (fun v -> v / 3) do
   //    acc <- acc + y
   //  acc
     
-  //[<Benchmark>]
-  //member __.Fsharp_map_array() =
+  // //---
+
+  // [<Benchmark>]
+  // member __.System_Linq_select_resizearray() =
   //  let mutable acc = 0
-  //  for y in ys |> Array.map (fun v -> v / 2) do
-  //    acc <- acc + y
+  //  for z in zs.Select(fun v -> v / 3) do
+  //    acc <- acc + z
+  //  acc
+
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_resizearray() =
+  //  let mutable acc = 0
+  //  for z in zs |> Linq.select (fun v -> v / 3) do
+  //    acc <- acc + z
+  //  acc
+
+  // [<Benchmark>]
+  // member __.Funtom_Linq2_select_resizearray() =
+  //  let mutable acc = 0
+  //  for z in zs |> Linq2.select (fun v -> v / 3) do
+  //    acc <- acc + z
   //  acc
     
-  //[<Benchmark>]
-  //member __.System_Linq_select_resizearray() =
+  // [<Benchmark>]
+  // member __.Fsharp_map_resizearray() =
   //  let mutable acc = 0
-  //  for z in zs.Select(fun v -> v / 2) do
+  //  for z in zs |> FSharpx.Collections.ResizeArray.map (fun v -> v / 3) do
   //    acc <- acc + z
   //  acc
+  // //---
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_resizearray() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_seq() =
   //  let mutable acc = 0
-  //  for z in zs |> Linq.select (fun v -> v / 2) do
-  //    acc <- acc + z
-  //  acc
-
-  //[<Benchmark>]
-  //member __.System_Linq_select_seq() =
-  //  let mutable acc = 0
-  //  for s in ss.Select(fun v -> v / 2) do
+  //  for s in ss.Select(fun v -> v / 3) do
   //    acc <- acc + s
   //  acc
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_seq() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_seq() =
   //  let mutable acc = 0
-  //  for s in ss |> Linq.select (fun v -> v / 2) do
+  //  for s in ss |> Linq.select (fun v -> v / 3) do
+  //    acc <- acc + s
+  //  acc
+
+  // [<Benchmark>]
+  // member __.Funtom_Linq2_select_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Linq2.select (fun v -> v / 3) do
   //    acc <- acc + s
   //  acc
   
-  //[<Benchmark>]
-  //member __.Fsharp_map_seq() =
+  // [<Benchmark>]
+  // member __.Fsharp_map_seq() =
   //  let mutable acc = 0
-  //  for s in ss |> Seq.map (fun v -> v / 2) do
+  //  for s in ss |> Seq.map (fun v -> v / 3) do
   //    acc <- acc + s
   //  acc
 
-  //[<Benchmark>]
-  //member __.System_Linq_select_seq() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_seq() =
   //  let mutable acc = 0
-  //  for s in ss.Where(fun v -> v % 2 = 0).Select(fun v -> v * 2) do
+  //  for s in ss.Where(fun v -> v % 2 = 0).Select(fun v -> v * 3) do
   //    acc <- acc + s
   //  acc
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_seq() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_seq() =
   //  let mutable acc = 0
-  //  for s in ss |> Linq.where (fun v -> v % 2 = 0) |> Linq.select (fun v -> v * 2) do
+  //  for s in ss |> Linq.where (fun v -> v % 2 = 0) |> Linq.select (fun v -> v * 3) do
   //    acc <- acc + s
   //  acc
 
 
-  // ====================
-  // map to array
+  // // ====================
+  // // map to array
 
-  //[<Benchmark>]
-  //member __.System_Linq_select_fslist_toarray() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_fslist_toarray() =
   //  xs.Select(fun v -> v / 2).ToArray()
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_fslist_toarray() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_fslist_toarray() =
   //  xs |> Linq.select (fun v -> v / 2) |> Linq.toArray
     
-  //[<Benchmark>]
-  //member __.System_Linq_select_array_toarray() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_array_toarray() =
   //  ys.Select(fun v -> v / 2).ToArray()
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_array_toarray() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_array_toarray() =
   //  ys |> Linq.select (fun v -> v / 2) |> Linq.toArray
     
-  //[<Benchmark>]
-  //member __.System_Linq_select_resizearray_toarray() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_resizearray_toarray() =
   //  zs.Select(fun v -> v / 2).ToArray()
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_resizearray_toarray() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_resizearray_toarray() =
   //  zs |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
-  //[<Benchmark>]
-  //member __.System_Linq_select_seq_toarray() =
+  // [<Benchmark>]
+  // member __.System_Linq_select_seq_toarray() =
   //  ss.Select(fun v -> v / 2).ToArray()
 
-  //[<Benchmark>]
-  //member __.Funtom_Linq_select_seq_toarray() =
+  // [<Benchmark>]
+  // member __.Funtom_Linq_select_seq_toarray() =
   //  ss |> Linq.select (fun v -> v / 2) |> Linq.toArray
 
     

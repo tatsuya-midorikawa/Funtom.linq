@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="Bogus" Version="34.0.1" />
+    <PackageReference Include="FSharpx.Collections" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
