@@ -1,37 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-		<LangVersion>latest</LangVersion>
+    <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.0.8</Version>
-		<Authors>midoliy</Authors>
-		<Company>midoliy</Company>
-		<Copyright>© 2021-2022 Tatsuya Midorikawa. All rights rserved</Copyright>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>midoliy,Linq,fsharp,Funtom</PackageTags>
-		<PackageProjectUrl>https://github.com/tatsuya-midorikawa/Funtom.linq</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/tatsuya-midorikawa/Funtom.linq</RepositoryUrl>
-		<Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.8</Version>
+    <Authors>midoliy</Authors>
+    <Company>midoliy</Company>
+    <Copyright>© 2021-2022 Tatsuya Midorikawa. All rights rserved</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>midoliy,Linq,fsharp,Funtom</PackageTags>
+    <PackageProjectUrl>https://github.com/tatsuya-midorikawa/Funtom.linq</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tatsuya-midorikawa/Funtom.linq</RepositoryUrl>
+    <Description>
 			Funtom.linq is a library for F# that is compatible with System.Linq.
 			This library makes it easier to use pipeline operators and optimizes for FSharp.Core.List and more.
 		</Description>
-		<PackageIcon>phantom.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>phantom.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Include="Common.fs" />
     <Compile Include="Interfaces.fs" />
+    <Compile Include="Common.fs" />
     <Compile Include="Enumerable.fs" />
     <Compile Include="Iterator\Empty.fs" />
     <Compile Include="Iterator\Basis.fs" />
@@ -48,10 +44,10 @@
     <Compile Include="core\Select.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
+    <Compile Include="Linq2.fs" />
     <Compile Include="Linq.fs" />
     <Compile Include="LinqExtensions.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\..\assets\phantom.png">
       <Pack>True</Pack>
@@ -62,5 +58,4 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
 </Project>

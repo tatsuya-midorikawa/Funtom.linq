@@ -1,0 +1,34 @@
+namespace Funtom.linq
+
+open System
+open System.Collections.Generic
+open Funtom.linq.iterator
+open Empty
+open Basis
+open Funtom.linq.core
+
+module Linq2 =
+  // src: https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/System.Linq/src/System/Linq/Select.cs#L13
+  let inline select<'T, 'U> ([<InlineIfLambda>] selector: 'T -> 'U) (source: seq< 'T>) : seq< 'U> =
+    match source with
+    | :? Iterator<'T> as iter -> iter.Select selector
+    | :? IList<'T> as ilist ->
+      match ilist with
+      | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
+      | :? ResizeArray<'T> as list -> new SelectListIterator<'T, 'U>(list, selector)
+      | _ -> new SelectIListIterator<'T, 'U>(ilist, selector)
+    | :? Funtom.linq.Interfaces.IPartition<'T> as partition ->
+      match partition with
+      | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
+      | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)
+    | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
+
+  // TODO
+  //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector
+  let inline selecti ([<InlineIfLambda>]selector: ^T -> int -> ^Result) (src: seq< ^T>): seq< ^Result> =
+    let mutable i = -1
+    seq {
+      for v in src do
+        i <- i + 1
+        yield (selector v i)
+    }
