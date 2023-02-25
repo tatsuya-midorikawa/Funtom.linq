@@ -8,20 +8,134 @@ open Funtom.linq
 open Funtom.linq.Interfaces
 open Funtom.linq.iterator.Empty
 
+[<Sealed>]
+type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T -> 'U) =
+  let tid = Environment.CurrentManagedThreadId
+  let mutable current = defaultof<'U> 
+  let mutable state = 0
+
+  member private __.State with get() = state and set v = state <- v
+  member __.Current with get() = current
+  member __.Reset () = NotSupportedException() |> raise
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.MoveNext() =
+    let i = state
+    if i < 1 || i = source.Length + 1
+      then __.Dispose(); false
+      else
+        state <- i + 1
+        current <- selector(source[i - 1])
+        true
+  
+  member __.Clone () = new SelectArrayIterator<'T, 'U>(source, selector)
+  member __.GetEnumerator () =
+    let mutable enumerator =
+      if state = 0 && tid = Environment.CurrentManagedThreadId
+        then __
+        else __.Clone()
+    enumerator.State <- 1
+    enumerator
+  member __.Dispose () = 
+    current <- defaultof<'U>
+    state <- 0
+
+  member __.Select<'U2> (selector': 'U -> 'U2) =
+    new SelectArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.ToArray () =
+    let length = source.Length
+    let results = Array.zeroCreate<'U>(length)
+    let rec copy(i: int) =
+      if i < length
+        then
+          results[i] <- selector(source[i])
+          copy(i + 1)
+    copy(0)
+    results
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.ToList () =
+    let length = source.Length
+    let results = ResizeArray<'U>(length)
+    let rec copy(i: int) =
+      if i < length
+        then
+          results.Add(selector(source[i]))
+          copy(i + 1)
+    copy(0)
+    results
+
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.GetCount (onlyIfCheap: bool) =
+    if not onlyIfCheap
+      then for v in source do selector v |> ignore
+    source.Length
+    
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.Skip (count: int) :  IPartition<'U> =
+    if count >= source.Length
+      then EmptyPartition<'U>.Instance
+      else new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue)
+    
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.Take (count: int) : IPartition<'U> =
+    if count >= source.Length 
+      then __
+      else new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
+    
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.TryGetElementAt(index: int, found: outref<bool>) =
+    if uint index < uint source.Length
+      then found <- true; selector(source[index])
+      else found <- false; Unchecked.defaultof<'U>
+    
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.TryGetFirst(found: outref<bool>) =
+    found <- true
+    selector(source[0])
+    
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.TryGetLast(found: outref<bool>) =
+    found <- true
+    selector(source[source.Length - 1])
+
+  interface IListProvider<'U> with
+    member __.ToArray() = __.ToArray()
+    member __.ToList() = __.ToList()
+    member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+
+  interface IPartition<'U> with
+    member __.Skip(count: int) = __.Skip(count)
+    member __.Take(count: int) = __.Take(count)
+    member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
+    member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
+    member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
+
+  interface IDisposable with member __.Dispose () = __.Dispose()
+  interface IEnumerator with
+    member __.MoveNext() = __.MoveNext()
+    member __.Current with get() = current
+    member __.Reset () = __.Reset ()
+  interface IEnumerator<'U> with member __.Current with get() = current
+  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'U> with member __.GetEnumerator () = __.GetEnumerator ()
+
 [<AbstractClass>]
 type Iterator<'T> () =
   let tid = Environment.CurrentManagedThreadId
-  member val internal state = 0 with get, set
-  member val internal current = Unchecked.defaultof<'T> with get, set
+  let mutable current' = defaultof<'T> 
+  [<DefaultValue>] val mutable internal state : int
+  member val internal current = current' with get, set
 
   abstract member Dispose : unit -> unit
   default __.Dispose () = 
-    __.current <- Unchecked.defaultof<'T>
+    current' <- defaultof<'T>
     __.state <- 0
   
   abstract member MoveNext : unit -> bool
   abstract member Current : 'T with get
-  default __.Current with get() = __.current
+  default __.Current with get() = current'
   abstract member Reset : unit -> unit
   default __.Reset () = NotSupportedException() |> raise
 
@@ -45,9 +159,9 @@ type Iterator<'T> () =
   interface IDisposable with member __.Dispose () = __.Dispose()
   interface IEnumerator with
     member __.MoveNext() = __.MoveNext()
-    member __.Current with get() = __.current
+    member __.Current with get() = current'
     member __.Reset () = __.Reset ()
-  interface IEnumerator<'T> with member __.Current with get() = __.current
+  interface IEnumerator<'T> with member __.Current with get() = current'
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
   interface IEnumerable<'T> with member __.GetEnumerator () = __.GetEnumerator ()
 
@@ -211,97 +325,99 @@ type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]select
     member __.ToList() = __.ToList()
     member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
 
-// src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L159
-// src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L72
-[<Sealed>]
-type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>]selector: 'T -> 'U) =
-  inherit Iterator<'U>()
-  override __.Clone() = new SelectArrayIterator<'T, 'U>(source, selector)
-    
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  override __.MoveNext() =
-    let i = __.state
-    if i < 1 || i = source.Length + 1
-      then
-        __.Dispose()
-        false
-      else
-        __.state <- i + 1
-        __.current <- selector(source[i - 1])
-        true
-  
-  override __.Select<'U2> (selector': 'U -> 'U2) =
-    new SelectArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
-  
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.ToArray () =
-    let length = source.Length
-    let results = Array.zeroCreate<'U>(length)
-    let rec copy(i: int) =
-      if i < length
-        then
-          results[i] <- selector(source[i])
-          copy(i + 1)
-    copy(0)
-    results
-  
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.ToList () =
-    let length = source.Length
-    let results = ResizeArray<'U>(length)
-    let rec copy(i: int) =
-      if i < length
-        then
-          results.Add(selector(source[i]))
-          copy(i + 1)
-    copy(0)
-    results
-
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.GetCount (onlyIfCheap: bool) =
-    if not onlyIfCheap
-      then for v in source do selector v |> ignore
-    source.Length
-    
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.Skip (count: int) :  IPartition<'U> =
-    if count >= source.Length
-      then EmptyPartition<'U>.Instance
-      else new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue)
-    
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.Take (count: int) : IPartition<'U> =
-    if count >= source.Length 
-      then __
-      else new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
-    
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.TryGetElementAt(index: int, found: outref<bool>) =
-    if uint index < uint source.Length
-      then found <- true; selector(source[index])
-      else found <- false; Unchecked.defaultof<'U>
-    
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.TryGetFirst(found: outref<bool>) =
-    found <- true
-    selector(source[0])
-    
-  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.TryGetLast(found: outref<bool>) =
-    found <- true
-    selector(source[source.Length - 1])
-
-  interface IListProvider<'U> with
-    member __.ToArray() = __.ToArray()
-    member __.ToList() = __.ToList()
-    member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
-
-  interface IPartition<'U> with
-    member __.Skip(count: int) = __.Skip(count)
-    member __.Take(count: int) = __.Take(count)
-    member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
-    member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
-    member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
+// // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L159
+// // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L72
+// [<Sealed>]
+// [<Obsolete("Use SelectArrayIterator<'T, 'U>")>]
+// type SelectArrayIteratorObsolete<'T, 'U> (source: 'T[], [<InlineIfLambda>]selector: 'T -> 'U) =
+//   inherit Iterator<'U>()
+//   override __.Clone() = new SelectArrayIteratorObsolete<'T, 'U>(source, selector)
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   override __.MoveNext() =
+//     let i = __.state
+//     if i < 1 || i = source.Length + 1
+//       then
+//         __.Dispose()
+//         false
+//       else
+//         __.state <- i + 1
+//         __.current <- selector(source[i - 1])
+//         true
+//
+//   override __.Select<'U2> (selector': 'U -> 'U2) =
+//     new SelectArrayIteratorObsolete<'T, 'U2>(source, combine_selectors selector selector')
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.ToArray () =
+//     let length = source.Length
+//     let results = Array.zeroCreate<'U>(length)
+//     let rec copy(i: int) =
+//       if i < length
+//         then
+//           results[i] <- selector(source[i])
+//           copy(i + 1)
+//     copy(0)
+//     results
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.ToList () =
+//     let length = source.Length
+//     let results = ResizeArray<'U>(length)
+//     let rec copy(i: int) =
+//       if i < length
+//         then
+//           results.Add(selector(source[i]))
+//           copy(i + 1)
+//     copy(0)
+//     results
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.GetCount (onlyIfCheap: bool) =
+//     if not onlyIfCheap
+//       then for v in source do selector v |> ignore
+//     source.Length
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.Skip (count: int) :  IPartition<'U> =
+//     if count >= source.Length
+//       then EmptyPartition<'U>.Instance
+//       else new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue)
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.Take (count: int) : IPartition<'U> =
+//     if count >= source.Length 
+//       then __
+//       else new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
+//   
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.TryGetElementAt(index: int, found: outref<bool>) =
+//     if uint index < uint source.Length
+//       then found <- true; selector(source[index])
+//       else found <- false; Unchecked.defaultof<'U>
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.TryGetFirst(found: outref<bool>) =
+//     found <- true
+//     selector(source[0])
+//
+//   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+//   member __.TryGetLast(found: outref<bool>) =
+//     found <- true
+//     selector(source[source.Length - 1])
+//
+//   interface IListProvider<'U> with
+//     member __.ToArray() = __.ToArray()
+//     member __.ToList() = __.ToList()
+//     member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+//
+//   interface IPartition<'U> with
+//     member __.Skip(count: int) = __.Skip(count)
+//     member __.Take(count: int) = __.Take(count)
+//     member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
+//     member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
+//     member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
+//
 
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L200
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L291

@@ -15,6 +15,17 @@ let ys = [| 1..10000 |]
 let zs = ResizeArray([| 1..10000 |])
 let ss = [| 1..10000 |] |> Seq.ofArray
 
+// [| 0..10 |]
+// |> Array.map (fun x -> x * 2)
+// |> printfn "%A"
+
+// [| 0..10 |]
+// |> Linq2.select (fun x -> x * 2)
+// |> (fun x -> x.ToArray())
+// |> printfn "%A"
+
+
+
 //let mutable n = 0
 //let f () =
 //  seq {
