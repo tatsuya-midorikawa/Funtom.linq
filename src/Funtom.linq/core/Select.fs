@@ -164,9 +164,9 @@ type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]select
   override __.Clone() = new SelectEnumerableIterator<'T, 'U>(source, selector)
 
   override __.Dispose() =
-    if enumerator <> defaultval<IEnumerator<'T>> then
+    if enumerator <> defaultof<IEnumerator<'T>> then
       enumerator.Dispose()
-      enumerator <- defaultval<IEnumerator<'T>>
+      enumerator <- defaultof<IEnumerator<'T>>
     base.Dispose()
     
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
