@@ -492,13 +492,6 @@ type Benchmark () =
    for x in xs |> Linq2.select (fun v -> v / 3) do
      acc <- acc + x
    acc
-    
-  // [<Benchmark>]
-  // member __.Fsharp_map_fslist() =
-  //  let mutable acc = 0
-  //  for x in xs |> List.map (fun v -> v / 3) do
-  //    acc <- acc + x
-  //  acc
   
   //---
 
@@ -523,13 +516,6 @@ type Benchmark () =
       acc <- acc + y
     acc
     
-  // [<Benchmark>]
-  // member __.Fsharp_map_array() =
-  //  let mutable acc = 0
-  //  for y in ys |> Array.map (fun v -> v / 3) do
-  //    acc <- acc + y
-  //  acc
-    
   //---
 
   [<Benchmark>]
@@ -552,13 +538,6 @@ type Benchmark () =
    for z in zs |> Linq2.select (fun v -> v / 3) do
      acc <- acc + z
    acc
-    
-  // [<Benchmark>]
-  // member __.Fsharp_map_resizearray() =
-  //  let mutable acc = 0
-  //  for z in zs |> FSharpx.Collections.ResizeArray.map (fun v -> v / 3) do
-  //    acc <- acc + z
-  //  acc
    
   //---
 

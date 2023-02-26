@@ -23,7 +23,9 @@ module Linq2 =
       | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
       | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)
     | :? IList<'T> as ilist -> new SelectIListIterator<'T, 'U>(ilist, selector)
-    | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
+    | _ ->
+      match source with
+      | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
 
   // TODO
   //let inline select<'T, 'U> ([<InlineIfLambda>]selector: 'T -> 'U) (src: seq<'T>): seq<'U> = src.Select selector

@@ -9,20 +9,28 @@ open Funtom.linq.Interfaces
 open Funtom.linq.iterator.Empty
 
 type IIterator<'T> =
-  inherit IDisposable
-  inherit IEnumerator
-  inherit IEnumerator<'T>
   inherit IEnumerable
   inherit IEnumerable<'T>
   abstract member Select<'U> : ('T -> 'U) -> seq<'U>
-
   //// TODO: implement default
   //abstract member Where: ('T -> bool) -> seq<'T>
+
+[<AbstractClass>]
+type Iterator<'T> () =
+  abstract member GetEnumerator : unit -> IEnumerator<'T>
+  abstract member Select<'U> : ('T -> 'U) -> seq<'U>
+  interface IIterator<'T> with
+    member __.Select<'U> (selector: 'T -> 'U) = __.Select(selector)
+  interface IEnumerable with
+    member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'T> with
+    member __.GetEnumerator () = __.GetEnumerator ()
 
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L159
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L72
 [<Sealed>]
-type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T -> 'U) =
+type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T -> 'U) = 
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U> 
   let mutable state = 0
@@ -41,7 +49,8 @@ type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T 
         true
   
   member __.Clone () = new SelectArrayIterator<'T, 'U>(source, selector)
-  member __.GetEnumerator () =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -53,7 +62,7 @@ type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T 
     state <- 0
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -118,14 +127,12 @@ type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T 
     member __.ToArray() = __.ToArray()
     member __.ToList() = __.ToList()
     member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
-
   interface IPartition<'U> with
     member __.Skip(count: int) = __.Skip(count)
     member __.Take(count: int) = __.Take(count)
     member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
     member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
     member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
-
   interface IDisposable with member __.Dispose () = __.Dispose()
   interface IEnumerator with
     member __.MoveNext() = __.MoveNext()
@@ -139,6 +146,7 @@ type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T 
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L291
 [<Sealed>]
 type SelectResizeArrayIterator<'T, 'U> (source: ResizeArray<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U>
   let mutable state = 0
@@ -156,7 +164,8 @@ type SelectResizeArrayIterator<'T, 'U> (source: ResizeArray<'T>, [<InlineIfLambd
 
   member __.Clone() = new SelectResizeArrayIterator<'T, 'U>(source, selector)
   
-  member __.GetEnumerator () =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -168,7 +177,8 @@ type SelectResizeArrayIterator<'T, 'U> (source: ResizeArray<'T>, [<InlineIfLambd
     current <- defaultof<'U>
     state <- 0
 
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectResizeArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -250,6 +260,7 @@ type SelectResizeArrayIterator<'T, 'U> (source: ResizeArray<'T>, [<InlineIfLambd
 
 [<Sealed>]
 type SelectFsharpListIterator<'T, 'U> (source: list<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U>
   let mutable state = 0
@@ -265,13 +276,12 @@ type SelectFsharpListIterator<'T, 'U> (source: list<'T>, [<InlineIfLambda>]selec
     | h::tail -> 
       current <- selector(h)
       src <- tail
-      state <- state + 1
       true
     | _ -> __.Dispose(); false
 
   member __.Clone() = new SelectFsharpListIterator<'T, 'U>(source, selector)
   
-  member __.GetEnumerator () =
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -283,7 +293,7 @@ type SelectFsharpListIterator<'T, 'U> (source: list<'T>, [<InlineIfLambda>]selec
     current <- defaultof<'U>
     state <- 0
 
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectFsharpListIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -323,6 +333,7 @@ type SelectFsharpListIterator<'T, 'U> (source: list<'T>, [<InlineIfLambda>]selec
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L21
 [<Sealed>]
 type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U> 
   let mutable state = 0
@@ -336,7 +347,7 @@ type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]select
     new SelectEnumerableIterator<'T, 'U>(source, selector)
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.GetEnumerator () =
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -357,11 +368,11 @@ type SelectEnumerableIterator<'T, 'U> (source: seq<'T>, [<InlineIfLambda>]select
     if enumerator.MoveNext()
       then 
         current <- selector(enumerator.Current)
-        state <- state + 1
         true
       else __.Dispose(); false
   
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectEnumerableIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -428,6 +439,7 @@ type SelectListPartitionIterator<'T, 'U>(source: IList<'T>, [<InlineIfLambda>]se
   member __.Clone() =
      new SelectListPartitionIterator<'T, 'U>(source, selector, minIndexInclusive, maxIndexInclusive)
   
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
@@ -440,6 +452,7 @@ type SelectListPartitionIterator<'T, 'U>(source: IList<'T>, [<InlineIfLambda>]se
     current <- defaultof<'U>
     state <- 0
   
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectListPartitionIterator<'T, 'U2>(source, combine_selectors selector selector', minIndexInclusive, maxIndexInclusive)
 
@@ -540,7 +553,8 @@ type SelectListPartitionIterator<'T, 'U>(source: IList<'T>, [<InlineIfLambda>]se
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L250
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L390
 [<Sealed>]
-type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =  
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U>
   let mutable state = 0
@@ -558,7 +572,8 @@ type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector:
 
   member __.Clone() = new SelectIListIterator<'T, 'U>(source, selector)
 
-  member __.GetEnumerator () =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -575,7 +590,7 @@ type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector:
     state <- 0
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectIListIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -655,10 +670,10 @@ type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector:
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
   interface IEnumerable<'U> with member __.GetEnumerator () = __.GetEnumerator ()
 
-
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L675
 [<Sealed>]
 type SelectReadOnlyListPartitionIterator<'T, 'U>(source: IReadOnlyList<'T>, [<InlineIfLambda>]selector: 'T -> 'U, minIndexInclusive: int, maxIndexInclusive: int) =
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U>
   let mutable state = 0
@@ -682,7 +697,8 @@ type SelectReadOnlyListPartitionIterator<'T, 'U>(source: IReadOnlyList<'T>, [<In
   member __.Clone() =
      new SelectReadOnlyListPartitionIterator<'T, 'U>(source, selector, minIndexInclusive, maxIndexInclusive)
   
-  member __.GetEnumerator () =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -694,7 +710,8 @@ type SelectReadOnlyListPartitionIterator<'T, 'U>(source: IReadOnlyList<'T>, [<In
     current <- defaultof<'U>
     state <- 0
   
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectReadOnlyListPartitionIterator<'T, 'U2>(source, combine_selectors selector selector', minIndexInclusive, maxIndexInclusive)
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -793,6 +810,7 @@ type SelectReadOnlyListPartitionIterator<'T, 'U>(source: IReadOnlyList<'T>, [<In
 
 [<Sealed>]
 type SelectIReadOnlyListIterator<'T, 'U> (source: IReadOnlyList<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
+  inherit Iterator<'U>()
   let tid = Environment.CurrentManagedThreadId
   let mutable current = defaultof<'U>
   let mutable state = 0
@@ -810,7 +828,8 @@ type SelectIReadOnlyListIterator<'T, 'U> (source: IReadOnlyList<'T>, [<InlineIfL
 
   member __.Clone() = new SelectIReadOnlyListIterator<'T, 'U>(source, selector)
 
-  member __.GetEnumerator () =
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  override __.GetEnumerator () =
     let mutable enumerator =
       if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
@@ -827,7 +846,7 @@ type SelectIReadOnlyListIterator<'T, 'U> (source: IReadOnlyList<'T>, [<InlineIfL
     state <- 0
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  member __.Select<'U2> (selector': 'U -> 'U2) =
+  override __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectIReadOnlyListIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
