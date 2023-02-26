@@ -8,24 +8,6 @@ open Funtom.linq
 open Funtom.linq.Interfaces
 open Funtom.linq.iterator.Empty
 
-type IIterator<'T> =
-  inherit IEnumerable
-  inherit IEnumerable<'T>
-  abstract member Select<'U> : ('T -> 'U) -> seq<'U>
-  //// TODO: implement default
-  //abstract member Where: ('T -> bool) -> seq<'T>
-
-[<AbstractClass>]
-type Iterator<'T> () =
-  abstract member GetEnumerator : unit -> IEnumerator<'T>
-  abstract member Select<'U> : ('T -> 'U) -> seq<'U>
-  interface IIterator<'T> with
-    member __.Select<'U> (selector: 'T -> 'U) = __.Select(selector)
-  interface IEnumerable with
-    member __.GetEnumerator () = __.GetEnumerator ()
-  interface IEnumerable<'T> with
-    member __.GetEnumerator () = __.GetEnumerator ()
-
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L159
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L72
 [<Sealed>]

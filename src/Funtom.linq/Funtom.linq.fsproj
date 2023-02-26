@@ -42,6 +42,7 @@
     <Compile Include="Iterator\Join.fs" />
     <Compile Include="Iterator\OrderedEnumerable.fs" />
     <Compile Include="core\Builder.fs" />
+    <Compile Include="core\Iterator.fs" />
     <Compile Include="core\Select.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Span.fs" />
