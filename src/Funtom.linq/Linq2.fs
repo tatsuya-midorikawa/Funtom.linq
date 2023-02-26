@@ -11,16 +11,18 @@ module Linq2 =
   // src: https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/System.Linq/src/System/Linq/Select.cs#L13
   let inline select<'T, 'U> ([<InlineIfLambda>] selector: 'T -> 'U) (source: seq< 'T>) : seq< 'U> =
     match source with
-    | :? IList<'T> as ilist ->
-      match ilist with
+    | :? IReadOnlyList<'T> as list ->
+      match list with
       | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
+      | :? list<'T> as list -> new SelectFsharpListIterator<'T, 'U>(list, selector)
       | :? ResizeArray<'T> as list -> new SelectResizeArrayIterator<'T, 'U>(list, selector)
-      | _ -> new SelectIListIterator<'T, 'U>(ilist, selector)
+      | _ -> new SelectIReadOnlyListIterator<'T, 'U>(list, selector)
+    | :? IIterator<'T> as iter -> iter.Select selector
     | :? IPartition<'T> as partition ->
       match partition with
       | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
       | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)
-    | :? Iterator<'T> as iter -> iter.Select selector
+    | :? IList<'T> as ilist -> new SelectIListIterator<'T, 'U>(ilist, selector)
     | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
 
   // TODO

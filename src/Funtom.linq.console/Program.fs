@@ -15,6 +15,21 @@ let ys = [| 1..10000 |]
 let zs = ResizeArray([| 1..10000 |])
 let ss = [| 1..10000 |] |> Seq.ofArray
 
+
+let f<'T> (xs: seq<'T>) =
+  match xs with
+  | :? IReadOnlyList<'T> as xs -> "IReadOnlyList"
+  | :? Funtom.linq.core.IIterator<'T> as xs -> "Iterator"
+  | :? Funtom.linq.Interfaces.IPartition<'T> as xs -> "IPartition"
+  | :? IList<'T> as xs -> "IList"
+  | _ -> "default"
+  |> printfn "%s"
+
+ys |> f
+
+
+
+
 // [| 0..10 |]
 // |> Array.map (fun x -> x * 2)
 // |> printfn "%A"
