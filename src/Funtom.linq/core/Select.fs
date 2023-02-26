@@ -8,6 +8,48 @@ open Funtom.linq
 open Funtom.linq.Interfaces
 open Funtom.linq.iterator.Empty
 
+[<AbstractClass>]
+type Iterator<'T> () =
+  let threadId = Environment.CurrentManagedThreadId
+  member val internal state = 0 with get, set
+  member val internal current = defaultof<'T> with get, set
+
+  abstract member Dispose : unit -> unit
+  default __.Dispose () = 
+    __.current <- Unchecked.defaultof<'T>
+    __.state <- 0
+  
+  abstract member MoveNext : unit -> bool
+  abstract member Current : 'T with get
+  default __.Current with get() = __.current
+  abstract member Reset : unit -> unit
+  default __.Reset () = NotSupportedException() |> raise
+
+  abstract member GetEnumerator : unit -> IEnumerator<'T>
+  default __.GetEnumerator () =
+    let mutable enumerator =
+      if __.state = 0 && threadId = Environment.CurrentManagedThreadId then __
+      else __.Clone()
+    enumerator.state <- 1
+    enumerator
+
+  abstract member Select<'U> : ('T -> 'U) -> seq<'U>
+  default __.Select<'U> (selector: 'T -> 'U) = new SelectEnumerableIterator<'T, 'U>(__, selector)
+
+  //// TODO: implement default
+  //abstract member Where: ('T -> bool) -> seq<'T>
+
+  abstract member Clone : unit -> Iterator<'T>
+
+  interface IDisposable with member __.Dispose () = __.Dispose()
+  interface IEnumerator with
+    member __.MoveNext() = __.MoveNext()
+    member __.Current with get() = __.Current
+    member __.Reset () = __.Reset ()
+  interface IEnumerator<'T> with member __.Current with get() = __.Current
+  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'T> with member __.GetEnumerator () = __.GetEnumerator ()
+
 [<Sealed>]
 type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T -> 'U) =
   let tid = Environment.CurrentManagedThreadId
@@ -39,6 +81,7 @@ type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T 
     current <- defaultof<'U>
     state <- 0
 
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
   member __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
   
@@ -121,49 +164,127 @@ type SelectArrayIterator<'T, 'U> (source: 'T[], [<InlineIfLambda>] selector: 'T 
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
   interface IEnumerable<'U> with member __.GetEnumerator () = __.GetEnumerator ()
 
-[<AbstractClass>]
-type Iterator<'T> () =
+// src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.cs#L200
+// src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L291
+[<Sealed>]
+type SelectResizeArrayIterator<'T, 'U> (source: ResizeArray<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
   let tid = Environment.CurrentManagedThreadId
-  let mutable current' = defaultof<'T> 
-  [<DefaultValue>] val mutable internal state : int
-  member val internal current = current' with get, set
+  let mutable current = defaultof<'U> 
+  let mutable enumerator = source.GetEnumerator()
+  let mutable state = 0
 
-  abstract member Dispose : unit -> unit
-  default __.Dispose () = 
-    current' <- defaultof<'T>
-    __.state <- 0
+  member private __.State with get() = state and set v = state <- v
+  member __.Current with get() = current
+  member __.Reset () = NotSupportedException() |> raise
   
-  abstract member MoveNext : unit -> bool
-  abstract member Current : 'T with get
-  default __.Current with get() = current'
-  abstract member Reset : unit -> unit
-  default __.Reset () = NotSupportedException() |> raise
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.MoveNext() =
+    if enumerator.MoveNext()
+      then current <- selector(enumerator.Current); true
+      else __.Dispose(); false
 
-  abstract member GetEnumerator : unit -> IEnumerator<'T>
-  default __.GetEnumerator () =
+  member __.Clone() = new SelectResizeArrayIterator<'T, 'U>(source, selector)
+  
+  member __.GetEnumerator () =
     let mutable enumerator =
-      if __.state = 0 && tid = Environment.CurrentManagedThreadId
+      if state = 0 && tid = Environment.CurrentManagedThreadId
         then __
         else __.Clone()
-    enumerator.state <- 1
+    enumerator.State <- 1
     enumerator
 
-  abstract member Select<'U> : ('T -> 'U) -> seq<'U>
-  default __.Select<'U> (selector: 'T -> 'U) = new SelectEnumerableIterator<'T, 'U>(__, selector)
+  member __.Dispose () = 
+    current <- defaultof<'U>
+    state <- 0
 
-  //// TODO: implement default
-  //abstract member Where: ('T -> bool) -> seq<'T>
+  member __.Select<'U2> (selector': 'U -> 'U2) =
+    new SelectResizeArrayIterator<'T, 'U2>(source, combine_selectors selector selector')
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.ToArray () =
+    let count = source.Count
+    if count = 0
+      then Array.Empty<'U>()
+      else
+        let results = Array.zeroCreate<'U>(count)
+        let length = count - 1
+        for i = 0 to length do
+          results[i] <- selector(source[i])
+        results
+      
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.ToList () =
+    let count = source.Count - 1
+    let results = ResizeArray<'U>(count + 1)
+    for i = 0 to count do
+      results.Add(selector(source[i]))
+    results
 
-  abstract member Clone : unit -> Iterator<'T>
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.GetCount (onlyIfCheap: bool) =
+    let count = source.Count
+    if not onlyIfCheap
+      then
+        for i = 0 to count - 1 do
+          selector(source[i]) |> ignore
+    count
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.Skip (count: int) =
+    new SelectListPartitionIterator<'T, 'U>(source, selector, count, Int32.MaxValue);
+
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.Take (count: int) =
+    new SelectListPartitionIterator<'T, 'U>(source, selector, 0, count - 1)
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.TryGetElementAt(index: int, found: outref<bool>) =
+    if uint index < uint source.Count
+      then found <- true; selector(source[index])
+      else found <- false; Unchecked.defaultof<'U>
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.TryGetFirst(found: outref<bool>) =
+    if 0 < source.Count
+      then found <- true; selector(source[0])
+      else found <- false; Unchecked.defaultof<'U>
+  
+  [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
+  member __.TryGetLast(found: outref<bool>) =
+    let count = source.Count
+    if 0 < count
+      then found <- true; selector(source[count - 1])
+      else found <- false; Unchecked.defaultof<'U>
+
+  interface IListProvider<'U> with
+    member __.ToArray() = __.ToArray()
+    member __.ToList() = __.ToList()
+    member __.GetCount(onlyIfCheap: bool) = __.GetCount(onlyIfCheap)
+
+  interface IPartition<'U> with
+    member __.Skip(count: int) = __.Skip(count)
+    member __.Take(count: int) = __.Take(count)
+    member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
+    member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
+    member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
 
   interface IDisposable with member __.Dispose () = __.Dispose()
   interface IEnumerator with
     member __.MoveNext() = __.MoveNext()
-    member __.Current with get() = current'
+    member __.Current with get() = current
     member __.Reset () = __.Reset ()
-  interface IEnumerator<'T> with member __.Current with get() = current'
+  interface IEnumerator<'U> with member __.Current with get() = current
   interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
-  interface IEnumerable<'T> with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'U> with member __.GetEnumerator () = __.GetEnumerator ()
+
+
+
+
+
+
+
+
+
 
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L675
 [<Sealed>]

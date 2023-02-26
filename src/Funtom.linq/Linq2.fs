@@ -15,7 +15,7 @@ module Linq2 =
     | :? IList<'T> as ilist ->
       match ilist with
       | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
-      | :? ResizeArray<'T> as list -> new SelectListIterator<'T, 'U>(list, selector)
+      | :? ResizeArray<'T> as list -> new SelectResizeArrayIterator<'T, 'U>(list, selector)
       | _ -> new SelectIListIterator<'T, 'U>(ilist, selector)
     | :? IPartition<'T> as partition ->
       match partition with
