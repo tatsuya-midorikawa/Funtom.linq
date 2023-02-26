@@ -11,7 +11,6 @@ module Linq2 =
   // src: https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/System.Linq/src/System/Linq/Select.cs#L13
   let inline select<'T, 'U> ([<InlineIfLambda>] selector: 'T -> 'U) (source: seq< 'T>) : seq< 'U> =
     match source with
-    | :? Iterator<'T> as iter -> iter.Select selector
     | :? IList<'T> as ilist ->
       match ilist with
       | :? array<'T> as ary -> if ary.Length = 0 then Array.Empty<'U>() else new SelectArrayIterator<'T, 'U>(ary, selector)
@@ -21,6 +20,7 @@ module Linq2 =
       match partition with
       | :? EmptyPartition<'T> as empty -> EmptyPartition<'U>.Instance
       | _ -> new SelectIPartitionIterator<'T, 'U>(partition, selector)
+    | :? Iterator<'T> as iter -> iter.Select selector
     | _ -> new SelectEnumerableIterator<'T, 'U>(source, selector)
 
   // TODO

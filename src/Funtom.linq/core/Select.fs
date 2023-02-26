@@ -494,25 +494,41 @@ type SelectListPartitionIterator<'T, 'U>(source: IList<'T>, [<InlineIfLambda>]se
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L390
 [<Sealed>]
 type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
-  inherit Iterator<'U>()
+  let tid = Environment.CurrentManagedThreadId
+  let mutable current = defaultof<'U>
+  let mutable state = 0
   let mutable enumerator = source.GetEnumerator()
-  override __.Clone() = new SelectIListIterator<'T, 'U>(source, selector)
-  
+
+  member private __.State with get() = state and set v = state <- v
+  member __.Current with get() = current
+  member __.Reset () = NotSupportedException() |> raise
+    
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  override __.MoveNext() =
+  member __.MoveNext() =
     if enumerator.MoveNext()
-      then __.current <- selector(enumerator.Current); true
+      then current <- selector(enumerator.Current); true
       else __.Dispose(); false
 
-  override __.Dispose() =
+  member __.Clone() = new SelectIListIterator<'T, 'U>(source, selector)
+
+  member __.GetEnumerator () =
+    let mutable enumerator =
+      if state = 0 && tid = Environment.CurrentManagedThreadId
+        then __
+        else __.Clone()
+    enumerator.State <- 1
+    enumerator
+
+  member __.Dispose() =
     if enumerator <> defaultof<IEnumerator<'T>>
       then
         enumerator.Dispose()
         enumerator <- defaultof<IEnumerator<'T>>
-    base.Dispose()
+    current <- defaultof<'U>
+    state <- 0
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  override __.Select<'U2> (selector': 'U -> 'U2) =
+  member __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectIListIterator<'T, 'U2>(source, combine_selectors selector selector')
   
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -583,10 +599,21 @@ type SelectIListIterator<'T, 'U> (source: IList<'T>, [<InlineIfLambda>]selector:
     member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
     member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
 
+  interface IDisposable with member __.Dispose () = __.Dispose()
+  interface IEnumerator with
+    member __.MoveNext() = __.MoveNext()
+    member __.Current with get() = current
+    member __.Reset () = __.Reset ()
+  interface IEnumerator<'U> with member __.Current with get() = current
+  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'U> with member __.GetEnumerator () = __.GetEnumerator ()
+
 // src: https://github.com/dotnet/runtime/blob/57bfe474518ab5b7cfe6bf7424a79ce3af9d6657/src/libraries/System.Linq/src/System/Linq/Select.SpeedOpt.cs#L494
 [<Sealed>]
 type SelectIPartitionIterator<'T, 'U>(source: IPartition<'T>, [<InlineIfLambda>]selector: 'T -> 'U) =
-  inherit Iterator<'U>()
+  let tid = Environment.CurrentManagedThreadId
+  let mutable current = defaultof<'U>
+  let mutable state = 0
   let mutable enumerator = source.GetEnumerator()
 
   let lazyToArray() =
@@ -602,23 +629,34 @@ type SelectIPartitionIterator<'T, 'U>(source: IPartition<'T>, [<InlineIfLambda>]
       i <- i + 1
     array
 
-  override __.Clone() = new SelectIPartitionIterator<'T, 'U>(source, selector)
-  
+  member private __.State with get() = state and set v = state <- v
+  member __.Current with get() = current
+  member __.Reset () = NotSupportedException() |> raise
+    
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  override __.MoveNext() =
+  member __.MoveNext() =
     if enumerator.MoveNext()
-      then __.current <- selector(enumerator.Current); true
+      then current <- selector(enumerator.Current); true
       else __.Dispose(); false
     
-  override __.Dispose() =
+  member __.Clone() = new SelectIPartitionIterator<'T, 'U>(source, selector)
+  member __.GetEnumerator () =
+    let mutable enumerator =
+      if state = 0 && tid = Environment.CurrentManagedThreadId
+        then __
+        else __.Clone()
+    enumerator.State <- 1
+    enumerator
+  member __.Dispose() =
     if enumerator <> Unchecked.defaultof<IEnumerator<'T>>
       then
         enumerator.Dispose()
         enumerator <- Unchecked.defaultof<IEnumerator<'T>>
-    base.Dispose()
+    current <- defaultof<'U>
+    state <- 0
     
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
-  override __.Select<'U2> (selector': 'U -> 'U2) =
+  member __.Select<'U2> (selector': 'U -> 'U2) =
     new SelectIPartitionIterator<'T, 'U2>(source, combine_selectors selector selector')
 
   [<MethodImpl(MethodImplOptions.AggressiveInlining)>]
@@ -686,3 +724,12 @@ type SelectIPartitionIterator<'T, 'U>(source: IPartition<'T>, [<InlineIfLambda>]
     member __.TryGetElementAt(index: int, found: outref<bool>) = __.TryGetElementAt(index, &found)
     member __.TryGetFirst(found: outref<bool>) = __.TryGetFirst(&found)
     member __.TryGetLast(found: outref<bool>) = __.TryGetLast(&found)
+
+  interface IDisposable with member __.Dispose () = __.Dispose()
+  interface IEnumerator with
+    member __.MoveNext() = __.MoveNext()
+    member __.Current with get() = current
+    member __.Reset () = __.Reset ()
+  interface IEnumerator<'U> with member __.Current with get() = current
+  interface IEnumerable with member __.GetEnumerator () = __.GetEnumerator ()
+  interface IEnumerable<'U> with member __.GetEnumerator () = __.GetEnumerator ()

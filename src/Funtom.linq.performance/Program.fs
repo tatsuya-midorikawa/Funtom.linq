@@ -469,29 +469,29 @@ type Benchmark () =
   //    acc <- acc + x
   //  acc
 
-  // // ====================
-  // // map
+  // ====================
+  // map
 
-  // [<Benchmark>]
-  // member __.System_Linq_select_fslist() =
-  //  let mutable acc = 0
-  //  for x in xs.Select(fun v -> v / 3) do
-  //    acc <- acc + x
-  //  acc
+  [<Benchmark>]
+  member __.System_Linq_select_fslist() =
+   let mutable acc = 0
+   for x in xs.Select(fun v -> v / 3) do
+     acc <- acc + x
+   acc
 
-  // [<Benchmark>]
-  // member __.Funtom_Linq_select_fslist() =
-  //  let mutable acc = 0
-  //  for x in xs |> Linq.select (fun v -> v / 3) do
-  //    acc <- acc + x
-  //  acc
+  [<Benchmark>]
+  member __.Funtom_Linq_select_fslist() =
+   let mutable acc = 0
+   for x in xs |> Linq.select (fun v -> v / 3) do
+     acc <- acc + x
+   acc
 
-  // [<Benchmark>]
-  // member __.Funtom_Linq2_select_fslist() =
-  //  let mutable acc = 0
-  //  for x in xs |> Linq2.select (fun v -> v / 3) do
-  //    acc <- acc + x
-  //  acc
+  [<Benchmark>]
+  member __.Funtom_Linq2_select_fslist() =
+   let mutable acc = 0
+   for x in xs |> Linq2.select (fun v -> v / 3) do
+     acc <- acc + x
+   acc
     
   // [<Benchmark>]
   // member __.Fsharp_map_fslist() =
@@ -500,28 +500,28 @@ type Benchmark () =
   //    acc <- acc + x
   //  acc
   
-  // //---
+  //---
 
-  // [<Benchmark>]
-  // member __.System_Linq_select_array() =
-  //   let mutable acc = 0
-  //   for y in ys.Select(fun v -> v / 3) do
-  //     acc <- acc + y
-  //   acc
+  [<Benchmark>]
+  member __.System_Linq_select_array() =
+    let mutable acc = 0
+    for y in ys.Select(fun v -> v / 3) do
+      acc <- acc + y
+    acc
 
-  // [<Benchmark>]
-  // member __.Funtom_Linq_select_array() =
-  //   let mutable acc = 0
-  //   for y in ys |> Linq.select (fun v -> v / 3) do
-  //     acc <- acc + y
-  //   acc
+  [<Benchmark>]
+  member __.Funtom_Linq_select_array() =
+    let mutable acc = 0
+    for y in ys |> Linq.select (fun v -> v / 3) do
+      acc <- acc + y
+    acc
 
-  // [<Benchmark>]
-  // member __.Funtom_Linq2_select_array() =
-  //   let mutable acc = 0
-  //   for y in ys |> Linq2.select (fun v -> v / 3) do
-  //     acc <- acc + y
-  //   acc
+  [<Benchmark>]
+  member __.Funtom_Linq2_select_array() =
+    let mutable acc = 0
+    for y in ys |> Linq2.select (fun v -> v / 3) do
+      acc <- acc + y
+    acc
     
   // [<Benchmark>]
   // member __.Fsharp_map_array() =
@@ -530,28 +530,28 @@ type Benchmark () =
   //    acc <- acc + y
   //  acc
     
-  // //---
+  //---
 
-  // [<Benchmark>]
-  // member __.System_Linq_select_resizearray() =
-  //  let mutable acc = 0
-  //  for z in zs.Select(fun v -> v / 3) do
-  //    acc <- acc + z
-  //  acc
+  [<Benchmark>]
+  member __.System_Linq_select_resizearray() =
+   let mutable acc = 0
+   for z in zs.Select(fun v -> v / 3) do
+     acc <- acc + z
+   acc
 
-  // [<Benchmark>]
-  // member __.Funtom_Linq_select_resizearray() =
-  //  let mutable acc = 0
-  //  for z in zs |> Linq.select (fun v -> v / 3) do
-  //    acc <- acc + z
-  //  acc
+  [<Benchmark>]
+  member __.Funtom_Linq_select_resizearray() =
+   let mutable acc = 0
+   for z in zs |> Linq.select (fun v -> v / 3) do
+     acc <- acc + z
+   acc
 
-  // [<Benchmark>]
-  // member __.Funtom_Linq2_select_resizearray() =
-  //  let mutable acc = 0
-  //  for z in zs |> Linq2.select (fun v -> v / 3) do
-  //    acc <- acc + z
-  //  acc
+  [<Benchmark>]
+  member __.Funtom_Linq2_select_resizearray() =
+   let mutable acc = 0
+   for z in zs |> Linq2.select (fun v -> v / 3) do
+     acc <- acc + z
+   acc
     
   // [<Benchmark>]
   // member __.Fsharp_map_resizearray() =
@@ -583,12 +583,12 @@ type Benchmark () =
      acc <- acc + s
    acc
   
-  [<Benchmark>]
-  member __.Fsharp_map_seq() =
-   let mutable acc = 0
-   for s in ss |> Seq.map (fun v -> v / 3) do
-     acc <- acc + s
-   acc
+  // [<Benchmark>]
+  // member __.Fsharp_map_seq() =
+  //  let mutable acc = 0
+  //  for s in ss |> Seq.map (fun v -> v / 3) do
+  //    acc <- acc + s
+  //  acc
   
   // //---
 
