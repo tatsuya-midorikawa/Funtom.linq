@@ -1,3 +1,10 @@
+> **Warning**
+>
+> This repository has been an archive, and this has been transferred to [Funtom.linq](https://github.com/tatsuya-midorikawa/Funtom/tree/main/src/Funtom.linq)
+
+
+---
+
 ![img](https://raw.githubusercontent.com/tatsuya-midorikawa/Funtom.Linq/main/assets/phantom.png)  
 
 # Funtom.Linq  
